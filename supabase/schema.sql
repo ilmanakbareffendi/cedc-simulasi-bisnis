@@ -29,6 +29,9 @@ create table if not exists public.sessions(
   updated_at timestamptz not null default now()
 );
 
+-- Pembeli umum (peserta tanpa tim, team_number = 0) hanya bila fasilitator mengizinkan
+alter table public.sessions add column if not exists open_buyers boolean not null default false;
+
 create table if not exists public.session_keys(
   session_id uuid primary key references public.sessions(id) on delete cascade,
   admin_key text not null
@@ -183,6 +186,7 @@ begin
     phase = case when p ? 'phase' and p->>'phase' in ('idle','pitch','buy','done') then p->>'phase' else phase end,
     status = case when p ? 'status' and p->>'status' in ('setup','market','closed') then p->>'status' else status end,
     bundle = case when p ? 'bundle' then (p->>'bundle')::boolean else bundle end,
+    open_buyers = case when p ? 'open_buyers' then (p->>'open_buyers')::boolean else open_buyers end,
     updated_at = now()
   where id = s.id;
   return json_build_object('ok', true);
@@ -282,7 +286,9 @@ begin
   select * into s from sessions where code = upper(trim(p_code));
   if not found then raise exception 'Kode sesi tidak ditemukan. Periksa lagi kodenya.'; end if;
   if length(trim(coalesce(p_name,''))) < 2 then raise exception 'Isi nama Anda dulu.'; end if;
-  if p_team is null or p_team < 1 or p_team > s.team_count then
+  if p_team = 0 and not coalesce(p_rep, false) and not s.open_buyers then
+    raise exception 'Sesi ini tidak membuka peran pembeli umum. Pilih nomor tim Anda.'; end if;
+  if p_team is null or p_team < 0 or p_team > s.team_count or (p_team = 0 and coalesce(p_rep, false)) then
     raise exception 'Nomor tim harus antara 1 sampai %.', s.team_count; end if;
   if p_rep and exists(select 1 from players where session_id = s.id and team_number = p_team and is_rep) then
     raise exception 'Tim % sudah punya ketua. Pilih Anggota tim.', p_team; end if;
@@ -308,7 +314,7 @@ begin
     'me', json_build_object('id', me.id, 'name', me.name, 'team', me.team_number, 'is_rep', me.is_rep),
     'session', json_build_object('id', s.id, 'code', s.code, 'name', s.name, 'status', s.status, 'round', s.round,
       'phase', s.phase, 'round_count', s.round_count, 'team_count', s.team_count, 'budget', s.budget,
-      'max_per_team', s.max_per_team, 'bundle', s.bundle, 'events', s.events,
+      'max_per_team', s.max_per_team, 'bundle', s.bundle, 'events', s.events, 'open_buyers', s.open_buyers,
       'fx_vc_pct', s.fx_vc_pct, 'fx_fc_add', s.fx_fc_add),
     'spent', spent,
     'bought', (select coalesce(json_agg(json_build_object('team_id', team_id, 'units', units, 'amount', amount, 'round', round)), '[]'::json)

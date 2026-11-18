@@ -766,6 +766,18 @@ body.proj .hgrid{grid-template-columns:repeat(auto-fill,minmax(270px,1fr))}
 body.proj .hgrid .scard .sold{font-size:72px}
 .rhelp{font-size:13.5px;color:var(--ink2);background:var(--gold-soft);border:1.5px solid #FBE38A;border-radius:14px;padding:10px 12px;margin:6px 0 10px;line-height:1.5}
 .tleg{font-size:12px;color:var(--muted);margin-top:8px}
+@media (min-width:521px){.roles.three{grid-template-columns:1fr 1fr 1fr}}
+.presets{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:6px 0 14px}
+.preset{display:flex;flex-direction:column;gap:3px;text-align:left;background:#fff;border:2px solid var(--line);border-radius:16px;padding:12px 14px;font:inherit;cursor:pointer;box-shadow:0 4px 0 var(--line);transition:transform .3s var(--spring),box-shadow .3s var(--spring),border-color .2s,background .2s}
+.preset b{font-family:var(--f-d);font-size:15.5px;color:var(--ink)}
+.preset span{font-size:12.5px;color:var(--muted);line-height:1.4}
+.preset.on{border-color:var(--acc);background:var(--soft);box-shadow:0 4px 0 var(--acc)}
+.preset:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+@media (max-width:520px){.presets{grid-template-columns:1fr}}
+.chk{display:flex!important;gap:10px;align-items:flex-start;background:var(--paper);border:1.5px solid var(--line);border-radius:14px;padding:11px 12px;cursor:pointer;font-weight:400!important;font-size:13px!important;color:var(--ink2)!important;line-height:1.45}
+.chk input{width:20px!important;height:20px;flex:none;margin-top:1px;accent-color:var(--acc)}
+.chk b{color:var(--ink);font-size:14px}
+.pgrid .pt.guest{border-color:#FBE38A;background:var(--gold-soft)}
 </style>
 </head>
 <body>
@@ -1091,14 +1103,17 @@ body.proj .hgrid .scard .sold{font-size:72px}
       <div id="jStep2" class="hidden">
         <label style="margin-top:8px">Nama Anda</label>
         <input id="jName" maxlength="40" placeholder="Nama panggilan" autocomplete="nickname">
-        <label style="margin-top:16px">Nomor tim</label>
-        <div class="tgrid" id="jTeams"></div>
-        <p class="tleg">⭐ artinya tim sudah punya ketua</p>
-        <label style="margin-top:18px">Peran Anda di tim</label>
-        <p class="rhelp">Semua orang ikut <b>belanja</b> saat tim lain berjualan. Bedanya hanya satu: <b>ketua tim</b> juga mengisi data usaha tim dari HP-nya.</p>
-        <div class="roles">
+        <label style="margin-top:18px">Peran Anda</label>
+        <p class="rhelp" id="jHelp"></p>
+        <div class="roles" id="jRoles">
           <button class="role on" data-r="buyer" onclick="pickRole('buyer')"><span class="ri">🛒</span><b>Anggota tim</b><span>Belanja dengan uang virtual saat tim lain berjualan, dan bantu pitch saat giliran tim Anda.</span></button>
           <button class="role" data-r="rep" onclick="pickRole('rep')"><span class="ri">⭐</span><b>Ketua tim</b><span>Hanya 1 orang per tim. Sama seperti anggota, ditambah mengisi Lembar Usaha Tim: produk, biaya, dan harga jual.</span></button>
+          <button class="role hidden" data-r="guest" onclick="pickRole('guest')"><span class="ri">🪙</span><b>Pembeli umum</b><span>Tidak masuk tim mana pun. Tugas Anda hanya belanja di setiap ronde.</span></button>
+        </div>
+        <div id="jTeamBox">
+          <label style="margin-top:16px">Nomor tim</label>
+          <div class="tgrid" id="jTeams"></div>
+          <p class="tleg">⭐ artinya tim sudah punya ketua</p>
         </div>
         <div class="nav"><button class="btn soft" onclick="go('home')">← Beranda</button><button class="btn pri" id="jGo" onclick="doJoin()">Masuk permainan →</button></div>
       </div>
@@ -1700,6 +1715,7 @@ function showRules(){
   modal(`<h3>Aturan Permainan</h3><ul>
   <li>Peserta dibagi menjadi tim (misalnya 20 tim berisi 5 orang). Semua peserta membuka situs ini di HP, memasukkan <b>kode sesi</b> dari layar fasilitator, lalu memilih timnya.</li>
   <li>Setiap tim memilih satu <b>ketua tim</b>. Ketua mengisi Lembar Usaha Tim (5 level) dari HP-nya, isiannya otomatis terkirim ke fasilitator. Anggota lain cukup gabung sebagai <b>anggota tim</b>. Semua orang, termasuk ketua, ikut belanja saat tim lain berjualan.</li>
+  <li>Untuk kelas dengan sedikit tim, fasilitator bisa membuka peran <b>pembeli umum</b>: peserta tanpa tim yang hanya belanja.</li>
   <li>Biaya dan harga harus realistis (harga pasar di Medan). Fasilitator boleh mengoreksi angka yang tidak masuk akal.</li>
   <li><b>Jumlah produksi dan biaya dikunci</b> saat pasar dibuka. Produk yang tidak terjual tetap menjadi beban. Harga jual masih boleh diubah.</li>
   <li>Pasar berjalan beberapa <b>ronde</b>. Di setiap ronde sebagian tim pitch 1 menit lalu membuka lapak, peserta dari tim lain menjadi pembeli.</li>
@@ -1798,13 +1814,19 @@ async function lookupSession(){
   const code = $("jCode").value;
   $("jInfo").innerHTML = `<div class="ok">Mencari sesi ${esc(code)}…</div>`;
   try{
-    const r = await sel(`sessions?code=eq.${code}&select=id,code,name,team_count,round_count,status`);
+    const r = await sel(`sessions?code=eq.${code}&select=id,code,name,team_count,round_count,status,open_buyers`);
     if(!r.length){ $("jInfo").innerHTML = `<div class="bad">Kode ${esc(code)} tidak ditemukan. Periksa lagi huruf dan angkanya.</div>`; return; }
     JN.sess = r[0];
     const pl = await sel(`players?session_id=eq.${JN.sess.id}&select=team_number,is_rep`);
     JN.reps = {}; JN.counts = {};
     pl.forEach(p=>{ JN.counts[p.team_number] = (JN.counts[p.team_number]||0) + 1; if(p.is_rep) JN.reps[p.team_number] = true; });
-    $("jInfo").innerHTML = `<div class="ok">✓ <span><b>${esc(JN.sess.name)}</b> · ${JN.sess.team_count} tim, ${JN.sess.round_count} ronde</span></div>`;
+    $("jInfo").innerHTML = `<div class="ok">✓ <span><b>${esc(JN.sess.name)}</b> · ${JN.sess.team_count} tim, ${JN.sess.round_count} ronde${JN.sess.open_buyers?", ada pembeli umum":""}</span></div>`;
+    const g = document.querySelector('.role[data-r="guest"]');
+    g.classList.toggle("hidden", !JN.sess.open_buyers); $("jRoles").classList.toggle("three", !!JN.sess.open_buyers);
+    $("jHelp").innerHTML = JN.sess.open_buyers
+      ? "Anggota dan ketua tim ikut <b>berjualan</b> saat giliran timnya dan <b>belanja</b> di ronde lain. Ketua juga mengisi data usaha tim. Pembeli umum <b>hanya belanja</b>."
+      : "Semua orang ikut <b>belanja</b> saat tim lain berjualan. Bedanya hanya satu: <b>ketua tim</b> juga mengisi data usaha tim dari HP-nya.";
+    if(!JN.sess.open_buyers && JN.role === "guest") pickRole("buyer");
     renderJoinTeams(); $("jStep2").classList.remove("hidden"); anim($("jStep2"), "enter");
     syncRoute(false);
   }catch(e){ $("jInfo").innerHTML = `<div class="bad">${esc(e.message)}</div>`; }
@@ -1821,14 +1843,15 @@ function renderJoinTeams(){
   if(taken && JN.role==="rep") pickRole("buyer");
 }
 function pickTeam(n){ JN.team = n; renderJoinTeams(); }
-function pickRole(r){ JN.role = r; document.querySelectorAll(".role").forEach(b=>b.classList.toggle("on", b.dataset.r===r)); }
+function pickRole(r){ JN.role = r; document.querySelectorAll(".role").forEach(b=>b.classList.toggle("on", b.dataset.r===r)); $("jTeamBox").classList.toggle("hidden", r==="guest"); }
 async function doJoin(){
   const name = $("jName").value.trim();
   if(name.length < 2){ toast("Isi nama Anda dulu"); $("jName").focus(); return; }
-  if(!JN.team){ toast("Pilih nomor tim Anda"); return; }
+  const guest = JN.role === "guest";
+  if(!guest && !JN.team){ toast("Pilih nomor tim Anda"); return; }
   const b = $("jGo"); b.disabled = true; b.textContent = "Menghubungkan…";
   try{
-    const r = await rpc("join_session", { p_code: JN.sess.code || $("jCode").value, p_name: name, p_team: JN.team, p_rep: JN.role==="rep" });
+    const r = await rpc("join_session", { p_code: JN.sess.code || $("jCode").value, p_name: name, p_team: guest ? 0 : JN.team, p_rep: JN.role==="rep" });
     LV = { token:r.token, code:r.code, team:r.team, rep:r.is_rep, name:r.name, sid:r.session_id };
     store("ibtLive", LV); PS = null;
     toast(`Selamat datang, ${r.name}! 🎉`); confetti();
@@ -1841,7 +1864,7 @@ async function doJoin(){
 // ================= ARENA PEMAIN =================
 function startPlay(){
   if(!LV){ go("join"); return; }
-  $("pAv").textContent = initials(LV.name); $("pAv").className = "av c" + ((LV.team-1)%6);
+  $("pAv").textContent = initials(LV.name); $("pAv").className = "av c" + (LV.team ? (LV.team-1)%6 : 5);
   $("pName").textContent = LV.name;
   if(PS) renderPlay(); else { $("pBand").innerHTML = "<small>Memuat</small><b>Menyambungkan ke pasar…</b>"; $("pMain").innerHTML = ""; $("pMine").innerHTML = ""; $("pRep").innerHTML = ""; }
 }
@@ -1863,11 +1886,11 @@ function setPS(st){
 function teamLeft(t){ return Math.max(0, (t.qty||0) - (t.loss||0) - (t.sold||0)); }
 function renderPlay(prev){
   const st = PS, s = st.session, me = st.me, mine = st.teams.find(t=>t.number===me.team) || {number:me.team};
-  $("pTeam").textContent = `Tim ${me.team}${mine.name ? " · " + mine.name : ""} · ${me.is_rep ? "Ketua" : "Anggota"}`;
+  $("pTeam").textContent = me.team ? `Tim ${me.team}${mine.name ? " · " + mine.name : ""} · ${me.is_rep ? "Ketua" : "Anggota"}` : "Pembeli umum";
   const selling = s.status==="market" && mine.round===s.round;
   // pita ronde
   let cls = "", sm = "", big = "", p = "";
-  if(s.status==="setup"){ sm = "Persiapan"; big = "Menunggu pasar dibuka"; p = me.is_rep ? "Isi Lembar Usaha Tim sekarang. Data otomatis terkirim ke fasilitator." : `Tim Anda berjualan di ronde ${mine.round||"?"}. Bantu ketua tim menyiapkan produk dan pitch.`; }
+  if(s.status==="setup"){ sm = "Persiapan"; big = "Menunggu pasar dibuka"; p = !me.team ? "Anda pembeli umum. Belanja dibuka setelah tim yang berjualan selesai pitch." : me.is_rep ? "Isi Lembar Usaha Tim sekarang. Data otomatis terkirim ke fasilitator." : `Tim Anda berjualan di ronde ${mine.round||"?"}. Bantu ketua tim menyiapkan produk dan pitch.`; }
   else if(s.status==="closed"){ cls = "closed"; sm = "Selesai"; big = "Pasar ditutup 🏁"; p = "Perhatikan layar proyektor untuk pengumuman juara."; }
   else {
     cls = s.phase==="buy" ? "buy" : s.phase==="pitch" ? "pitch" : "";
@@ -2016,11 +2039,14 @@ function renderHostNew(){
   $("hRoom").classList.add("hidden"); $("hNew").classList.remove("hidden");
   $("hNew").innerHTML = `<div class="card"><span class="lvtag">MODE DARING · FASILITATOR</span><h2>Buat sesi permainan</h2>
     <p class="lead">Peserta bergabung dari HP masing-masing dengan kode sesi. Semua data tersinkron ke layar ini.</p>
+    <label>Pilihan cepat</label>
+    <div class="presets"><button class="preset" onclick="preset('kelas')"><b>🏫 Kelas</b><span>20 sampai 40 orang · 4 tim · 1 ronde · ada pembeli umum</span></button><button class="preset" onclick="preset('inkubasi')"><b>🚀 Inkubasi</b><span>100 orang · 20 tim · 4 ronde · semua masuk tim</span></button></div>
     <div class="fields">
       <div class="full"><label>Nama sesi</label><input id="nsName" value="Simulasi Bisnis CEDC UNPRI" maxlength="60"></div>
       <div><label>Jumlah tim</label><input id="nsTeams" type="number" min="2" max="40" value="20" oninput="planText()"></div>
       <div><label>Jumlah ronde jualan</label><input id="nsRounds" type="number" min="1" max="10" value="4" oninput="planText()"></div>
       <div class="full"><label>🪙 Uang virtual per pembeli per ronde (Rp)</label><input id="nsBudget" type="number" min="1000" step="1000" value="20000" oninput="planText()"></div>
+      <label class="full chk"><input type="checkbox" id="nsOpen" onchange="planText()"><span><b>Izinkan pembeli umum</b><br>Peserta boleh gabung tanpa tim dan hanya belanja. Cocok untuk kelas dengan sedikit tim.</span></label>
     </div>
     <div class="hplan" id="nsPlan"></div>
     <div class="nav"><button class="btn soft" onclick="go('home')">← Beranda</button><button class="btn pri" id="nsGo" onclick="createSess()">Buat sesi →</button></div></div>
@@ -2029,17 +2055,25 @@ function renderHostNew(){
     <div class="slist">${HS.length ? HS.map(h=>`<div class="si"><b>${esc(h.code)}</b><span>${esc(h.name||"")}</span><button class="btn dark sm" onclick="openRoom('${h.code}')">Buka</button><button class="x" title="Hapus dari perangkat ini" onclick="forgetSess('${h.code}')">×</button></div>`).join("") : `<p style="color:var(--muted);font-size:14px">Belum ada sesi di perangkat ini.</p>`}</div></div>`;
   planText();
 }
+function preset(k){
+  const v = k === "kelas" ? { t:4, r:1, b:20000, o:true, n:"Simulasi Bisnis Kelas" } : { t:20, r:4, b:20000, o:false, n:"Simulasi Bisnis CEDC UNPRI" };
+  $("nsTeams").value = v.t; $("nsRounds").value = v.r; $("nsBudget").value = v.b; $("nsOpen").checked = v.o; $("nsName").value = v.n;
+  document.querySelectorAll(".preset").forEach(b=>b.classList.toggle("on", b.getAttribute("onclick").includes(k)));
+  planText();
+}
 function planText(){
   const n = Math.max(2, +$("nsTeams").value||0), r = Math.max(1, Math.min(n, +$("nsRounds").value||1)), b = pos($("nsBudget").value);
   const per = Math.ceil(n/r);
   const parts = Array.from({length:r},(_,i)=>{ const a = i*per+1, z = Math.min(n,(i+1)*per); return a<=z ? `ronde ${i+1}: tim ${a}${z>a?" sampai "+z:""}` : null; }).filter(Boolean);
-  $("nsPlan").innerHTML = `<b>Pembagian jualan:</b> ${parts.join(" · ")}.<br>Saat satu kelompok berjualan, peserta dari tim lain menjadi pembeli dengan uang <b>${rp(b)}</b> per ronde.`;
+  const open = $("nsOpen").checked;
+  $("nsPlan").innerHTML = `<b>Pembagian jualan:</b> ${parts.join(" · ")}.<br>${r>1?"Saat satu kelompok berjualan, peserta dari tim lain menjadi pembeli":"Semua tim berjualan bersamaan"}${open?(r>1?", ditambah pembeli umum":", pembelinya adalah pembeli umum"):""}. Setiap pembeli memegang <b>${rp(b)}</b> per ronde.${r===1&&!open?"<br><b style='color:var(--red-s)'>Perhatian:</b> dengan 1 ronde dan tanpa pembeli umum, tidak ada yang bisa belanja.":""}`;
 }
 async function createSess(){
   const b = $("nsGo"); b.disabled = true; b.textContent = "Membuat…";
   try{
     const name = $("nsName").value.trim() || "Simulasi Bisnis";
     const r = await rpc("create_session", { p_name: name, p_team_count: +$("nsTeams").value, p_round_count: +$("nsRounds").value, p_budget: +$("nsBudget").value });
+    if($("nsOpen").checked) await rpc("admin_update", { p_code: r.code, p_key: r.admin_key, p: { open_buyers: true } });
     HS = [{ code:r.code, key:r.admin_key, name, at:Date.now() }].concat(HS.filter(h=>h.code!==r.code)).slice(0,12);
     store("ibtHost", HS); toast("Sesi " + r.code + " siap! 🎉"); confetti();
     await openRoom(r.code);
@@ -2117,7 +2151,8 @@ function renderJoinCard(){
     $("hJoin").innerHTML = `<div class="qr">${svg}</div><div style="min-width:0"><small>Scan atau buka</small><span class="url">${esc(url.replace(/^https?:\/\//,""))}</span><small>Kode sesi</small><div class="code">${esc(s.code)}</div><div class="cnt" id="hCnt"></div></div>`;
     $("hJoin").dataset.code = s.code;
   }
-  $("hCnt").innerHTML = `<span>👥 ${H.players.length} peserta</span><span>⭐ ${reps}/${s.team_count} ketua</span><span>✓ ${ready}/${s.team_count} tim siap</span>`;
+  const guests = H.players.filter(p=>!p.team_number).length;
+  $("hCnt").innerHTML = `<span>👥 ${H.players.length} peserta</span><span>⭐ ${reps}/${s.team_count} ketua</span><span>✓ ${ready}/${s.team_count} tim siap</span>${s.open_buyers?`<span>🪙 ${guests} pembeli umum</span>`:""}`;
 }
 function stageInfo(){
   const s = H.sess, ready = H.teams.filter(t=>t.product && t.price>0 && t.qty>0).length;
@@ -2246,12 +2281,13 @@ function renderHPeople(){
   const s = H.sess;
   $("hPane").innerHTML = `<div class="card"><span class="lvtag">PESERTA · ${H.players.length} ORANG</span><h2 style="font-size:20px">Peserta per tim</h2>
     <p class="lead" style="font-size:14px">⭐ menandai ketua tim. Keluarkan peserta yang salah tim; mereka bisa gabung ulang dengan kode yang sama.</p>
-    <div class="pgrid">${Array.from({length:s.team_count},(_,i)=>{ const n = i+1, t = H.teams.find(x=>x.number===n) || {}, ps = H.players.filter(p=>p.team_number===n);
+    <div class="pgrid">${s.open_buyers || H.players.some(p=>!p.team_number) ? (()=>{ const ps = H.players.filter(p=>!p.team_number);
+      return `<div class="pt guest"><h4>🪙 Pembeli umum<span>${ps.length} org</span></h4>${ps.map(p=>`<div class="pn2"><span>${esc(p.name)}</span><button class="hctl" title="Keluarkan" onclick="askKick('${p.id}')">×</button></div>`).join("") || `<div class="pn2" style="color:var(--muted2)">Belum ada</div>`}</div>`; })() : ""}${Array.from({length:s.team_count},(_,i)=>{ const n = i+1, t = H.teams.find(x=>x.number===n) || {}, ps = H.players.filter(p=>p.team_number===n);
       return `<div class="pt"><h4>Tim ${n}${t.name&&t.name!=="Tim "+n?" · "+esc(t.name):""}<span>${ps.length} org · R${t.round||"?"}</span></h4>${ps.map(p=>`<div class="pn2"><span>${esc(p.name)}</span>${p.is_rep?"<em>⭐ ketua</em>":""}<button class="hctl" title="Keluarkan" onclick="askKick('${p.id}')">×</button></div>`).join("") || `<div class="pn2" style="color:var(--muted2)">Belum ada</div>`}</div>`; }).join("")}</div></div>`;
 }
 function askKick(id){
   const p = H.players.find(x=>x.id===id); if(!p) return;
-  modal(`<h3>Keluarkan ${esc(p.name)}?</h3><p>Peserta ini keluar dari Tim ${p.team_number}. Transaksi yang sudah terjadi tetap tercatat.</p><div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn red" onclick="doKick('${id}')">Keluarkan</button></div>`);
+  modal(`<h3>Keluarkan ${esc(p.name)}?</h3><p>Peserta ini keluar dari ${p.team_number?"Tim "+p.team_number:"daftar pembeli umum"}. Transaksi yang sudah terjadi tetap tercatat.</p><div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn red" onclick="doKick('${id}')">Keluarkan</button></div>`);
 }
 async function doKick(id){ closeModal(); try{ await admin("admin_kick", { p_player: id }); await hostLoad(true); toast("Peserta dikeluarkan"); }catch(e){ toast(e.message); } }
 
@@ -2280,10 +2316,11 @@ function hostMenu(){
   modal(`<h3>Pengaturan sesi ${esc(s.code)}</h3>
     <div class="fields" style="margin-top:10px"><div class="full"><label>Nama sesi</label><input id="stName" value="${esc(s.name)}"></div>
     <div><label>Uang per pembeli per ronde</label><input id="stBud" type="number" min="1000" step="1000" value="${s.budget}"></div>
-    <div><label>Maks. beli dari tim yang sama</label><input id="stMax" type="number" min="1" max="10" value="${s.max_per_team}"></div></div>
+    <div><label>Maks. beli dari tim yang sama</label><input id="stMax" type="number" min="1" max="10" value="${s.max_per_team}"></div>
+    <label class="full chk"><input type="checkbox" id="stOpen" ${s.open_buyers?"checked":""}><span><b>Izinkan pembeli umum</b><br>Peserta boleh gabung tanpa tim dan hanya belanja.</span></label></div>
     <div class="mbtns" style="flex-wrap:wrap"><button class="btn red" onclick="askResetLive()">↺ Ulangi pasar</button><button class="btn soft" onclick="leaveRoom()">Ganti sesi</button><span style="flex:1"></span><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn pri" onclick="saveSettings()">Simpan</button></div>`);
 }
-async function saveSettings(){ const p = { name: $("stName").value, budget: +$("stBud").value, max_per_team: +$("stMax").value }; closeModal(); await adminUpd(p); toast("Pengaturan disimpan"); }
+async function saveSettings(){ const p = { name: $("stName").value, budget: +$("stBud").value, max_per_team: +$("stMax").value, open_buyers: $("stOpen").checked }; closeModal(); await adminUpd(p); toast("Pengaturan disimpan"); }
 function askResetLive(){
   modal(`<h3>Ulangi pasar?</h3><p>Semua transaksi dan kartu kejadian dihapus, harga kembali ke harga awal, dan kunci produksi dibuka. Data tim dan peserta tetap ada.</p><div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn red" onclick="doResetLive()">Ulangi pasar</button></div>`);
 }
@@ -2297,7 +2334,7 @@ function projector(on){
 // ---------- beranda: kartu lanjutkan ----------
 function renderResume(){
   const el = $("resumeBox"); if(!el) return;
-  el.innerHTML = LV ? `<button class="resume" onclick="go('play')"><span class="av c${(LV.team-1)%6}">${esc(initials(LV.name))}</span><span><b>Lanjutkan sebagai ${esc(LV.name)}</b><small>Sesi ${esc(LV.code)} · Tim ${LV.team} · ${LV.rep?"Ketua":"Anggota"}</small></span><span class="go">→</span></button>` : "";
+  el.innerHTML = LV ? `<button class="resume" onclick="go('play')"><span class="av c${LV.team?(LV.team-1)%6:5}">${esc(initials(LV.name))}</span><span><b>Lanjutkan sebagai ${esc(LV.name)}</b><small>Sesi ${esc(LV.code)} · ${LV.team?"Tim "+LV.team+" · ":""}${!LV.team?"Pembeli umum":LV.rep?"Ketua":"Anggota"}</small></span><span class="go">→</span></button>` : "";
 }
 
 // ================= ALAMAT HALAMAN (router) =================
