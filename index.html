@@ -1327,6 +1327,7 @@ function step(n){
   if(n===2 && !(+T.price)) { T.price = Math.ceil(calc(T).sug/500)*500; saveT(); bindInputs(); }
   anim(document.querySelector(`.tstep[data-s="${n}"]`), n>=prev ? "enter-r" : "enter-l");
   renderSteps(); refresh(); window.scrollTo({top:0,behavior:"smooth"});
+  syncRoute(true);
 }
 function renderSteps(){
   $("steps").innerHTML = STEPS.map((s,i)=>{
@@ -1481,6 +1482,7 @@ function mtab(t){
   moveInd();
   anim($({setup:"mSetup",sell:"mSell",result:"mResult"}[t]), "enter");
   if(t==="setup") renderMSetup(); if(t==="sell") renderSell(); if(t==="result") renderResult();
+  syncRoute(true);
 }
 // Indikator tab ikut meluncur ke tab aktif.
 function moveInd(){
@@ -1705,20 +1707,21 @@ function showRules(){
 }
 const VIEWS = { home:"vHome", team:"vTeam", market:"vMarket", join:"vJoin", play:"vPlay", host:"vHost" };
 const TITLES = { home:"Layar Utama", team:"Lembar Usaha Tim", market:"Pasar Live (luring)", join:"Gabung Permainan", play:"Arena Pasar", host:"Ruang Fasilitator" };
-function go(v, opt){
+function show(v, opt){
   if(v !== "host") document.body.classList.remove("proj");
+  const same = v === curView;
   Object.entries(VIEWS).forEach(([k,id])=>$(id).classList.toggle("hidden", k!==v));
   $("hTitle").textContent = TITLES[v];
-  anim($(VIEWS[v]), "enter");
+  if(!same) anim($(VIEWS[v]), "enter");
   curView = v;
   if(v==="home") renderResume();
   if(v==="team"){ setTeamMode(opt==="live"); initTeam(); }
   if(v==="market"){ homeResult(); mtab(M.tab||"setup"); }
   if(v==="join") initJoin(opt);
   if(v==="play") startPlay();
-  if(v==="host") initHost();
+  if(v==="host") initHost(opt);
   livePolling();
-  window.scrollTo({top:0});
+  if(!same) window.scrollTo({top:0});
 }
 
 // ================= MODE DARING (Supabase) =================
@@ -1791,7 +1794,7 @@ async function lookupSession(){
   const code = $("jCode").value;
   $("jInfo").innerHTML = `<div class="ok">Mencari sesi ${esc(code)}…</div>`;
   try{
-    const r = await sel(`sessions?code=eq.${code}&select=id,name,team_count,round_count,status`);
+    const r = await sel(`sessions?code=eq.${code}&select=id,code,name,team_count,round_count,status`);
     if(!r.length){ $("jInfo").innerHTML = `<div class="bad">Kode ${esc(code)} tidak ditemukan. Periksa lagi huruf dan angkanya.</div>`; return; }
     JN.sess = r[0];
     const pl = await sel(`players?session_id=eq.${JN.sess.id}&select=team_number,is_rep`);
@@ -1799,6 +1802,7 @@ async function lookupSession(){
     pl.forEach(p=>{ JN.counts[p.team_number] = (JN.counts[p.team_number]||0) + 1; if(p.is_rep) JN.reps[p.team_number] = true; });
     $("jInfo").innerHTML = `<div class="ok">✓ <span><b>${esc(JN.sess.name)}</b> · ${JN.sess.team_count} tim, ${JN.sess.round_count} ronde</span></div>`;
     renderJoinTeams(); $("jStep2").classList.remove("hidden"); anim($("jStep2"), "enter");
+    syncRoute(false);
   }catch(e){ $("jInfo").innerHTML = `<div class="bad">${esc(e.message)}</div>`; }
 }
 function renderJoinTeams(){
@@ -1825,7 +1829,7 @@ async function doJoin(){
     store("ibtLive", LV); PS = null;
     toast(`Selamat datang, ${r.name}! 🎉`); confetti();
     history.replaceState(null, "", SITE + "?s=" + r.code);
-    go("play");
+    go("play", null, true);
   }catch(e){ toast(e.message); lookupSession(); }
   b.disabled = false; b.textContent = "Masuk permainan →";
 }
@@ -1948,7 +1952,7 @@ function askLeave(){
   modal(`<h3>Keluar dari sesi?</h3><p>Anda bisa gabung lagi dengan kode yang sama, tetapi akan tercatat sebagai pemain baru dan riwayat belanja di perangkat ini tidak terlihat lagi.</p>
     <div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn red" onclick="leaveLive()">Keluar</button></div>`);
 }
-function leaveLive(){ store("ibtLive", null); LV = null; PS = null; closeModal(); history.replaceState(null, "", SITE); go("home"); }
+function leaveLive(){ store("ibtLive", null); LV = null; PS = null; closeModal(); go("home"); }
 
 // ================= LEMBAR USAHA TIM TERSAMBUNG =================
 let teamLive = false;
@@ -1999,7 +2003,8 @@ const ONLINE_EVENTS = EVENTS.map(e=>Object.assign({}, e, ({
 })[e.k] || {}));
 let hEvent = null, hTimer = null;
 
-function initHost(){
+function initHost(opt){
+  if(opt === "list" && H){ H = null; clearInterval(hTimer); pollGen++; }
   if(H && H.sess){ showRoom(); return; }
   renderHostNew();
 }
@@ -2038,20 +2043,24 @@ async function createSess(){
   b.disabled = false; b.textContent = "Buat sesi →";
 }
 function forgetSess(code){ HS = HS.filter(h=>h.code!==code); store("ibtHost", HS); renderHostNew(); }
-async function openRoom(code){
-  const h = HS.find(x=>x.code===code); if(!h) return;
+async function openRoom(code, tab, fromRoute){
+  const h = HS.find(x=>x.code===code);
+  if(!h){ toast(`Kunci fasilitator sesi ${code} tidak ada di perangkat ini. Buka dari perangkat yang membuat sesi.`); renderHostNew(); syncRoute(false); return; }
   try{
     await rpc("admin_check", { p_code: code, p_key: h.key });
-    H = { code, key: h.key, sess: null, teams: [], players: [], sales: [], lastSale: 0, fullAt: 0, tab: "live", sold: {}, phaseKey: "", phaseAt: Date.now() };
-    await hostLoad(true); showRoom();
-  }catch(e){ toast(e.message); }
+    H = { code, key: h.key, sess: null, teams: [], players: [], sales: [], lastSale: 0, fullAt: 0, tab: tab || "live", sold: {}, phaseKey: "", phaseAt: Date.now() };
+    await hostLoad(true);
+    if(curView !== "host") return;
+    routing++; try{ showRoom(); } finally { routing--; }
+    syncRoute(!fromRoute);
+  }catch(e){ toast(e.message); renderHostNew(); syncRoute(false); }
 }
 function showRoom(){
   $("hNew").classList.add("hidden"); $("hRoom").classList.remove("hidden");
   renderJoinCard(); htab(H.tab || "live"); livePolling();
   clearInterval(hTimer); hTimer = setInterval(tickTimer, 1000);
 }
-function leaveRoom(){ closeModal(); projector(false); H = null; clearInterval(hTimer); pollGen++; renderHostNew(); }
+function leaveRoom(){ closeModal(); projector(false); H = null; clearInterval(hTimer); pollGen++; renderHostNew(); syncRoute(true); }
 const admin = (fn, extra) => rpc(fn, Object.assign({ p_code: H.code, p_key: H.key }, extra||{}));
 
 async function hostLoad(full){
@@ -2146,6 +2155,7 @@ function htab(t){
   requestAnimationFrame(hMoveInd);
   $("hPane").classList.toggle("hidden", t==="result"); $("hRes").classList.toggle("hidden", t!=="result");
   H.resDirty = null; H.sig = ""; renderRoom(); anim(t==="result" ? $("hRes") : $("hPane"), "enter");
+  syncRoute(true);
 }
 
 function hMoveInd(){ const on = document.querySelector("#htabs .mtab.on"), ind = $("htabInd"); if(!on || !ind || !on.offsetWidth) return; ind.style.width = on.offsetWidth + "px"; ind.style.transform = `translateX(${on.offsetLeft}px)`; }
@@ -2286,12 +2296,95 @@ function renderResume(){
   el.innerHTML = LV ? `<button class="resume" onclick="go('play')"><span class="av c${(LV.team-1)%6}">${esc(initials(LV.name))}</span><span><b>Lanjutkan sebagai ${esc(LV.name)}</b><small>Sesi ${esc(LV.code)} · Tim ${LV.team} · ${LV.rep?"Perwakilan":"Anggota"}</small></span><span class="go">→</span></button>` : "";
 }
 
+// ================= ALAMAT HALAMAN (router) =================
+// Setiap layar punya alamat sendiri (#/arena, #/fasilitator/KODE/tim, #/luring/lembar/3),
+// sehingga tombol Kembali dan Maju di browser atau HP berpindah antarlayar,
+// muat ulang tidak menghilangkan posisi, dan tautan bisa dibagikan.
+let routing = 0;                 // > 0 saat alamat sedang diterapkan: jangan menulis riwayat baru
+let curPath = "";
+const SLUG_H = { live:"", teams:"tim", people:"peserta", result:"hasil" };
+const SLUG_M = { setup:"daftar", sell:"jual", result:"hasil" };
+const unslug = (map, v) => Object.keys(map).find(k=>map[k]===(v||""));
+function currentPath(){
+  switch(curView){
+    case "join": { const c = (JN.sess && JN.sess.code) || ($("jCode").value.length === 5 ? $("jCode").value : ""); return "#/gabung" + (c ? "/" + c : ""); }
+    case "play": return "#/arena";
+    case "team": return (teamLive ? "#/arena/lembar/" : "#/luring/lembar/") + ((T.stepNow||0) + 1);
+    case "market": return "#/luring/pasar/" + (SLUG_M[M.tab] || "daftar");
+    case "host": return H && H.sess ? "#/fasilitator/" + H.code + (SLUG_H[H.tab] ? "/" + SLUG_H[H.tab] : "") : "#/fasilitator";
+    default: return "#/";
+  }
+}
+function setTitle(){ document.title = (curView==="home" ? "Simulasi Bisnis: Dari Ide ke Pasar" : TITLES[curView] + " · Dari Ide ke Pasar") + " · CEDC UNPRI"; }
+// Tulis keadaan layar saat ini ke alamat: push = langkah baru di riwayat, selain itu mengganti.
+function syncRoute(push){
+  if(routing) return;
+  const p = currentPath(); curPath = p; setTitle();
+  if(location.hash === p) return;
+  history[push ? "pushState" : "replaceState"](null, "", SITE + p);
+}
+function go(v, opt, replace){
+  routing++; try{ show(v, opt); } finally { routing--; }
+  syncRoute(!replace);
+}
+function route(){
+  const [a, b, c] = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
+  let pending = false;
+  routing++;
+  try{
+    if(a === "gabung") show("join", b && b.toUpperCase());
+    else if(a === "arena"){
+      if(b === "lembar") showTeam(true, c); else show("play");
+    }
+    else if(a === "luring"){
+      if(b === "pasar") showMarket(c); else showTeam(false, c);
+    }
+    else if(a === "fasilitator"){
+      const code = (b || "").toUpperCase();
+      if(!code) show("host", "list");
+      else if(H && H.code === code){ show("host"); const t = unslug(SLUG_H, c) || "live"; if(t !== H.tab) htab(t); }
+      else { if(curView !== "host") show("host", "list"); else initHost("list"); pending = true; openRoom(code, unslug(SLUG_H, c) || "live", true); }
+    }
+    else show("home");
+  } finally { routing--; }
+  if(!pending) syncRoute(false);
+}
+function showTeam(live, lvl){
+  const want = !!(live && LV && LV.rep);
+  if(curView !== "team" || teamLive !== want) show("team", live ? "live" : null);
+  const n = Math.max(0, Math.min(4, (parseInt(lvl, 10) || 1) - 1));
+  if(lvl && n !== (T.stepNow||0)) step(n);
+}
+function showMarket(slug){
+  if(curView !== "market") show("market");
+  const t = unslug(SLUG_M, slug);
+  if(t && t !== M.tab && !(t === "sell" && !M.open)) mtab(t);
+}
+// Tombol Kembali saat jendela dialog, kartu layar penuh, atau mode proyektor terbuka:
+// tutup jendelanya saja dan tetap di layar yang sama.
+addEventListener("popstate", ()=>{
+  const m = $("modal").classList.contains("on"), sc = $("showcase").classList.contains("on"), pj = document.body.classList.contains("proj");
+  if(m || sc || pj){
+    if(m) closeModal(); if(sc) closeShowcase(); if(pj) projector(false);
+    history.pushState(null, "", SITE + curPath); return;
+  }
+  route();
+});
+addEventListener("hashchange", ()=>{ if(location.hash !== curPath) route(); });
+route.start = function(){
+  if("scrollRestoration" in history) history.scrollRestoration = "manual";
+  // Tautan QR lama (?s=KODE) diubah menjadi alamat baru
+  const q = (new URLSearchParams(location.search).get("s") || "").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,5);
+  let start = location.hash && location.hash !== "#" ? location.hash : "#/";
+  if(q) start = LV && LV.code === q ? "#/arena" : "#/gabung/" + q;
+  // Beranda selalu ada di bawah layar pertama, supaya Kembali tidak langsung menutup situs.
+  history.replaceState(null, "", SITE + "#/");
+  if(start !== "#/") history.pushState(null, "", SITE + start);
+  route();
+};
+
 initParticles();
-// Rute awal: ?s=KODE membuka layar gabung (atau langsung ke arena bila sudah terdaftar di sesi itu)
-(function(){
-  const c = (new URLSearchParams(location.search).get("s") || "").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,5);
-  if(c){ if(LV && LV.code === c) go("play"); else go("join", c); } else go("home");
-})();
+route.start();
 </script>
 </body>
 </html>
