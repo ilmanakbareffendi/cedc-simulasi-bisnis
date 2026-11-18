@@ -137,6 +137,16 @@ input[type=range]{padding:0;border:none;accent-color:var(--green)}
 .sbtns .plus{background:var(--green);color:#fff}
 .sbtns .plus5{background:var(--mint2);color:var(--ink);font-size:15px}
 .scard.out{opacity:.7}
+.sbtns button:disabled{opacity:.4;cursor:not-allowed}
+.sbtns .minus{font-size:14px}
+.bund{display:grid;grid-template-columns:1fr auto;gap:8px}
+.bund button{background:var(--gold);color:var(--ink2);border-radius:12px;padding:0 12px;font-weight:800;font-size:14px}
+.bund button:disabled{opacity:.4;cursor:not-allowed}
+.bw{font-size:12px;font-weight:700;text-align:center;color:var(--terra)}
+.oldp{font-size:12px;color:var(--sage);font-weight:600}
+input:disabled{background:var(--mint);color:var(--sage);cursor:not-allowed}
+.lock{background:#FFF8E8;border:2px solid var(--gold);border-radius:12px;padding:10px 14px;font-size:14px;font-weight:700;color:var(--ink);margin-bottom:14px}
+.warnm{color:var(--terra)!important;font-weight:800}
 .scard .rev{font-size:14px;text-align:center;color:#4B5B55}
 .evt{background:var(--ink);color:#fff;border-radius:20px;padding:20px;display:flex;gap:16px;align-items:center;margin-bottom:16px}
 .evt .ei{font-size:40px}
@@ -194,7 +204,7 @@ input[type=range]{padding:0;border:none;accent-color:var(--green)}
   header{padding:12px 16px}
   main{padding:18px 14px 50px}
   .brow{grid-template-columns:90px 1fr 90px}
-  .tbl th:nth-child(3),.tbl td:nth-child(3){display:none}
+  .tbl.mat th:nth-child(3),.tbl.mat td:nth-child(3){display:none}
 }
 </style>
 </head>
@@ -261,7 +271,7 @@ input[type=range]{padding:0;border:none;accent-color:var(--green)}
           <div><label>Dari semua bahan baku di bawah ini, jadi berapa produk?</label><input type="number" min="1" data-k="batch" data-n></div>
         </div>
         <label>Bahan baku yang dibeli (total belanja)</label>
-        <table class="tbl"><thead><tr><th>Bahan</th><th>Jumlah</th><th>Satuan</th><th>Harga total (Rp)</th><th></th></tr></thead><tbody id="matBody"></tbody></table>
+        <table class="tbl mat"><thead><tr><th>Bahan</th><th>Jumlah</th><th>Satuan</th><th>Harga total (Rp)</th><th></th></tr></thead><tbody id="matBody"></tbody></table>
         <button class="add" onclick="addRow('materials')">+ Tambah bahan</button>
         <label style="margin-top:18px">Biaya lain untuk setiap 1 produk (kemasan, label, sedotan, dll.)</label>
         <table class="tbl"><thead><tr><th>Komponen</th><th colspan="2">Biaya per produk (Rp)</th><th></th></tr></thead><tbody id="vcBody"></tbody></table>
@@ -364,13 +374,14 @@ input[type=range]{padding:0;border:none;accent-color:var(--green)}
     <div class="card">
       <h2>Daftar Tim Peserta Pasar</h2>
       <p class="lead">Masukkan data dari layar "Data untuk fasilitator" milik setiap tim. Produk yang tidak terjual tetap dihitung sebagai beban, karena bahannya sudah dibeli.</p>
+      <div class="lock hidden" id="lockNote">🔒 Pasar sudah dibuka. Jumlah produksi, biaya variabel, dan biaya tetap dikunci. Harga jual masih boleh diubah dan hanya berlaku untuk penjualan berikutnya.</div>
       <div style="overflow-x:auto">
       <table class="tbl teams-edit"><thead><tr><th>Nama tim</th><th>Produk</th><th>Harga jual</th><th>Biaya var. per produk</th><th>Biaya tetap</th><th>Jumlah produksi</th><th></th></tr></thead><tbody id="mtBody"></tbody></table>
       </div>
-      <button class="add" onclick="addTeam()">+ Tambah tim</button>
+      <button class="add" id="addTeamBtn" onclick="addTeam()">+ Tambah tim</button>
       <div class="fields" style="margin-top:20px">
-        <div><label>Uang virtual per pelanggan (Rp)</label><input type="number" step="1000" id="voucher" oninput="M.voucher=+this.value;saveM()"></div>
-        <div><label>Jumlah pelanggan (mahasiswa/tamu)</label><input type="number" id="customers" oninput="M.customers=+this.value;saveM()"></div>
+        <div><label>Uang virtual per pelanggan (Rp)</label><input type="number" min="0" step="1000" id="voucher" oninput="M.voucher=pos(this.value);saveM()"></div>
+        <div><label>Jumlah pelanggan (mahasiswa/tamu)</label><input type="number" min="0" id="customers" oninput="M.customers=pos(this.value);saveM()"></div>
       </div>
       <p style="font-size:13px;color:var(--sage);margin-top:8px">Saran: bagikan kupon kertas senilai uang virtual. Pelanggan tidak boleh membeli produk timnya sendiri.</p>
       <div class="nav"><span></span><button class="btn pri" onclick="mtab('sell')">Buka Pasar →</button></div>
@@ -382,7 +393,7 @@ input[type=range]{padding:0;border:none;accent-color:var(--green)}
       <span class="ei" id="evIcon">🎲</span>
       <div><b id="evTitle">Kartu Kejadian Pasar</b><p id="evDesc">Tarik kartu untuk menghadirkan kejutan di pasar: harga bahan naik, biaya tambahan, atau peluang promosi.</p></div>
       <span class="sp"></span>
-      <button class="btn pri" id="evApply" style="display:none" onclick="applyEvent()">Terapkan</button>
+      <button class="btn pri" id="evApply" style="display:none" onclick="applyEvent()">Terapkan kartu ini</button>
       <button class="btn soft" onclick="drawEvent()">Tarik kartu</button>
     </div>
     <div class="evlog" id="evLog"></div>
@@ -417,17 +428,20 @@ input[type=range]{padding:0;border:none;accent-color:var(--green)}
 const $ = id => document.getElementById(id);
 const rp = n => (n<0?"−":"") + "Rp" + Math.round(Math.abs(n)).toLocaleString("id-ID");
 const num = n => Math.round(n).toLocaleString("id-ID");
+const pos = v => Math.max(0, +v || 0);
+const uid = () => "t" + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
 const esc = t => { const d=document.createElement("div"); d.textContent = t==null?"":String(t); return d.innerHTML; };
 function store(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
 function fetchS(k){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):null; }catch(e){ return null; } }
 function toast(m){ const t=$("toast"); t.textContent=m; t.classList.add("on"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("on"),2200); }
 
 // ================= TEAM =================
-const BLANK = () => ({ team:"", members:"", product:"", unit:"produk", tagline:"", customer:"", problem:"", unique:"",
+const BLANK = () => ({ id:uid(), team:"", members:"", product:"", unit:"produk", tagline:"", customer:"", problem:"", unique:"",
   batch:20, materials:[{name:"",qty:"",u:"",cost:0}], perUnit:[{name:"Kemasan",cost:0}], fixed:[{name:"Sewa booth",cost:0}],
   strategy:"cost", markup:50, qty:20, price:0, stepNow:0, stepMax:0 });
 let T = Object.assign(BLANK(), fetchS("ibtSimTeam")||{});
 if(T.unit==="unit") T.unit="produk";
+if(!T.id) T.id = uid();
 const STEPS = ["Ide Usaha","Bahan & Biaya","Harga Jual","Proyeksi Laba","Pitch & Pasar"];
 const STRATS = [
   {k:"cost",t:"Cost-Plus",d:"HPP per produk + markup. Aman untuk pemula."},
@@ -439,16 +453,18 @@ const STRATS = [
 ];
 
 function calc(t){
-  const batch = Math.max(1, +t.batch||1);
-  const mat = t.materials.reduce((s,m)=>s+(+m.cost||0),0);
-  const per = t.perUnit.reduce((s,m)=>s+(+m.cost||0),0);
-  const vc = mat/batch + per;
-  const fc = t.fixed.reduce((s,m)=>s+(+m.cost||0),0);
-  const qty = Math.max(0, +t.qty||0);
+  // Semua angka dipaksa tidak negatif. Biaya variabel dibulatkan ke rupiah utuh
+  // supaya angka di lembar tim sama persis dengan angka yang dicatat di Pasar Live.
+  const batch = Math.max(1, Math.floor(+t.batch||1));
+  const mat = t.materials.reduce((s,m)=>s+pos(m.cost),0);
+  const per = t.perUnit.reduce((s,m)=>s+pos(m.cost),0);
+  const vc = Math.round(mat/batch + per);
+  const fc = t.fixed.reduce((s,m)=>s+pos(m.cost),0);
+  const qty = Math.floor(pos(t.qty));
   const fcu = qty ? fc/qty : 0;
   const hpp = vc + fcu;
-  const sug = hpp * (1 + (+t.markup||0)/100);
-  const price = +t.price||0;
+  const sug = hpp * (1 + pos(t.markup)/100);
+  const price = pos(t.price);
   const rev = price*qty, cogs = vc*qty, gross = rev-cogs, profit = gross-fc;
   const cm = price - vc;
   const bep = cm>0 ? Math.ceil(fc/cm) : Infinity;
@@ -458,20 +474,20 @@ function calc(t){
 function bindInputs(){
   document.querySelectorAll("#vTeam [data-k]").forEach(el=>{
     const k = el.dataset.k; el.value = T[k] ?? "";
-    el.oninput = () => { T[k] = el.dataset.n!==undefined ? (el.value===""?"":+el.value) : el.value; saveT(); refresh(); };
+    el.oninput = () => { T[k] = el.dataset.n!==undefined ? (el.value===""?"":pos(el.value)) : el.value; saveT(); refresh(); };
   });
 }
 function saveT(){ store("ibtSimTeam", T); }
 function rowsHTML(list, key){
   if(key==="materials") return T.materials.map((m,i)=>`<tr>
-    <td><input value="${esc(m.name)}" placeholder="mis. Pisang" oninput="T.materials[${i}].name=this.value;saveT();refresh(false)"></td>
-    <td style="width:80px"><input type="number" value="${esc(m.qty)}" placeholder="5" oninput="T.materials[${i}].qty=this.value;saveT()"></td>
+    <td><input value="${esc(m.name)}" placeholder="mis. Pisang" oninput="T.materials[${i}].name=this.value;saveT();refresh()"></td>
+    <td style="width:80px"><input type="number" min="0" value="${esc(m.qty)}" placeholder="5" oninput="T.materials[${i}].qty=this.value;saveT()"></td>
     <td style="width:90px"><input value="${esc(m.u)}" placeholder="kg" oninput="T.materials[${i}].u=this.value;saveT()"></td>
-    <td style="width:150px"><input type="number" step="500" value="${m.cost||""}" placeholder="0" oninput="T.materials[${i}].cost=+this.value;saveT();refresh(false)"></td>
+    <td style="width:150px"><input type="number" min="0" step="500" value="${m.cost||""}" placeholder="0" oninput="T.materials[${i}].cost=pos(this.value);saveT();refresh()"></td>
     <td style="width:40px"><button class="del" onclick="delRow('materials',${i})" aria-label="Hapus">✕</button></td></tr>`).join("");
   return T[key].map((m,i)=>`<tr>
-    <td><input value="${esc(m.name)}" oninput="T.${key}[${i}].name=this.value;saveT();refresh(false)"></td>
-    <td colspan="2" style="width:200px"><input type="number" step="${key==='fixed'?1000:100}" value="${m.cost||""}" placeholder="0" oninput="T.${key}[${i}].cost=+this.value;saveT();refresh(false)"></td>
+    <td><input value="${esc(m.name)}" oninput="T.${key}[${i}].name=this.value;saveT();refresh()"></td>
+    <td colspan="2" style="width:200px"><input type="number" min="0" step="${key==='fixed'?1000:100}" value="${m.cost||""}" placeholder="0" oninput="T.${key}[${i}].cost=pos(this.value);saveT();refresh()"></td>
     <td style="width:40px"><button class="del" onclick="delRow('${key}',${i})" aria-label="Hapus">✕</button></td></tr>`).join("");
 }
 function renderRows(){
@@ -495,7 +511,9 @@ function renderStrat(){
   $("stratBox").innerHTML = STRATS.map(s=>`<button class="sopt ${T.strategy===s.k?'on':''}" onclick="T.strategy='${s.k}';saveT();renderStrat();refresh()"><b>${s.t}</b><span>${s.d}</span></button>`).join("");
 }
 function usePsych(){
-  const c = calc(T); let p = Math.ceil(c.sug/1000)*1000 - 100; if(p < c.sug) p += 1000; if(p<=0) p = Math.ceil(c.sug/100)*100;
+  const c = calc(T);
+  if(c.sug <= 0){ toast("Isi biaya bahan dan jumlah produksi dulu"); return; }
+  let p = Math.ceil(c.sug/1000)*1000 - 100; if(p < c.sug) p += 1000;
   T.price = p; saveT(); bindInputs(); refresh(); toast("Harga diubah ke " + rp(p));
 }
 
@@ -566,101 +584,244 @@ function fillExample(){
   T.price = 0; saveT(); bindInputs(); renderRows(); renderStrat(); refresh(); toast("Contoh keripik pisang dimuat");
 }
 function sendToMarket(){
-  const c = calc(T); if(!T.team || !c.price){ toast("Lengkapi nama tim dan harga dulu"); return; }
-  const ex = M.teams.findIndex(t=>t.name===T.team);
-  const row = { name:T.team, product:T.product, price:c.price, vc:Math.round(c.vc), fc:c.fc, qty:c.qty, sold:0 };
-  if(ex>=0) M.teams[ex] = Object.assign(M.teams[ex], row, {sold:M.teams[ex].sold}); else M.teams.push(row);
+  const c = calc(T);
+  if(!T.team || !c.price || !c.qty){ toast("Lengkapi nama tim, harga jual, dan jumlah produksi dulu"); return; }
+  if(M.open){ toast("Pasar sudah dibuka, data tim tidak bisa diubah lagi"); return; }
+  // Cocokkan dengan ID lembar tim, supaya ganti nama tim tidak membuat data ganda.
+  let ex = M.teams.findIndex(t=>t.tid===T.id);
+  if(ex<0) ex = M.teams.findIndex(t=>!t.tid && t.name===T.team);
+  const row = { tid:T.id, name:T.team, product:T.product, price:c.price, vc:c.vc, fc:c.fc, qty:c.qty };
+  if(ex>=0) Object.assign(M.teams[ex], row); else M.teams.push(Object.assign(newTeam(), row));
   M.teams = M.teams.filter(t=>t.name||t.product); saveM(); toast("Tim masuk ke Pasar Live");
 }
 function askResetTeam(){ modal(`<h3>Kosongkan lembar usaha?</h3><p>Semua isian tim di perangkat ini akan dihapus.</p><div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn red" onclick="T=BLANK();saveT();closeModal();initTeam()">Ya, kosongkan</button></div>`); }
 function initTeam(){ bindInputs(); renderRows(); renderStrat(); step(T.stepNow||0); }
 
 // ================= MARKET =================
-const MBLANK = () => ({ teams:[], voucher:50000, customers:30, events:[], tab:"setup" });
+// Prinsip pencatatan:
+// 1. Setiap transaksi dicatat sendiri beserta harganya saat itu (log), jadi perubahan
+//    harga di tengah pasar tidak mengubah pendapatan dari penjualan sebelumnya.
+// 2. Saat pasar dibuka, rencana tiap tim disimpan (plan) dan produksi serta biaya dikunci.
+// 3. Efek kartu kejadian disimpan terpisah (M.fx), angka asli tim tidak diubah,
+//    sehingga reset dan perbandingan rencana tetap bersih.
+const newTeam = () => ({ name:"", product:"", price:0, vc:0, fc:0, qty:0, loss:0, log:[], bp:0 });
+const MBLANK = () => ({ teams:[], voucher:50000, customers:30, events:[], used:[], fx:{vcPct:0, fcAdd:0}, bundle:false, open:false, tab:"setup" });
 let M = Object.assign(MBLANK(), fetchS("ibtSimMarket")||{});
+// Data versi lama (sebelum ada log transaksi) diubah ke format baru.
+M.teams.forEach(t=>{
+  if(!Array.isArray(t.log)) t.log = t.sold ? [{u:+t.sold, a:(+t.sold)*(+t.price||0)}] : [];
+  delete t.sold; if(!t.loss) t.loss = 0; if(!t.bp) t.bp = 0;
+});
+if(!Array.isArray(M.used)) M.used = [];
+if(!M.fx) M.fx = {vcPct:0, fcAdd:0};
+if(M.tab==="sell" && !M.open) M.tab = "setup";
 function saveM(){ store("ibtSimMarket", M); }
+
+const soldN = t => (t.log||[]).reduce((s,x)=>s+x.u,0);
+const revN = t => (t.log||[]).reduce((s,x)=>s+x.a,0);
+const effVc = t => Math.round((t.vc||0) * (1 + (M.fx.vcPct||0)/100));
+const effFc = t => (t.fc||0) + (M.fx.fcAdd||0);
+function avail(t){ return Math.max(0, (t.qty||0) - (t.loss||0)); }
+const left = t => Math.max(0, avail(t) - soldN(t));
+const activeTeams = () => M.teams.filter(t=>t.name||t.product);
+const moneyTotal = () => (M.voucher||0) * (M.customers||0);
+const moneySpent = () => M.teams.reduce((s,t)=>s+revN(t),0);
+
 const EVENTS = [
-  {i:"📈",t:"Harga bahan baku naik 10%",d:"Cuaca buruk membuat pasokan berkurang. Biaya variabel semua tim naik 10%.",fx:{vcPct:10}},
-  {i:"🏷️",t:"Retribusi kebersihan Rp10.000",d:"Pengelola acara memungut biaya tambahan. Biaya tetap semua tim bertambah Rp10.000.",fx:{fcAdd:10000}},
-  {i:"🔥",t:"Viral di media sosial!",d:"Setiap tim mendapat kesempatan pitch ulang 30 detik di depan semua pelanggan.",fx:null},
-  {i:"⚡",t:"Listrik padam sebentar",d:"Setiap tim kehilangan 2 produk yang rusak. Stok berkurang, tetapi biayanya tetap terhitung.",fx:{loss:2}},
-  {i:"🤝",t:"Pembeli borongan datang",d:"Fasilitator membeli 3 produk dari tim dengan pitch terbaik di ronde ini. Klik +1 tiga kali pada tim pemenang.",fx:null},
-  {i:"⚔️",t:"Pesaing memberi diskon 20%",d:"Setiap tim boleh mengubah harga jualnya sekali sekarang. Ubah di tab Daftar Tim.",fx:null},
-  {i:"🎁",t:"Promo bundling diizinkan",d:"Tim boleh menawarkan paket 2 produk dengan harga khusus selama 5 menit.",fx:null},
+  {k:"bahan",i:"📈",t:"Pemasok menaikkan harga bahan 10%",d:"Pemasok menagih selisih kenaikan harga untuk bahan yang sudah dikirim. Biaya variabel semua tim naik 10%.",fx:{vcPct:10}},
+  {k:"retribusi",i:"🏷️",t:"Retribusi kebersihan Rp10.000",d:"Pengelola acara memungut biaya tambahan. Biaya tetap semua tim bertambah Rp10.000.",fx:{fcAdd:10000}},
+  {k:"viral",i:"🔥",t:"Viral di media sosial!",d:"Setiap tim mendapat kesempatan pitch ulang 30 detik di depan semua pelanggan.",fx:null},
+  {k:"listrik",i:"⚡",t:"Listrik padam sebentar",d:"Setiap tim kehilangan 2 produk yang belum terjual karena rusak. Stok berkurang, tetapi biayanya tetap terhitung.",fx:{loss:2}},
+  {k:"borongan",i:"🤝",t:"Pembeli borongan datang",d:"Fasilitator membeli 3 produk dari tim dengan pitch terbaik di ronde ini. Klik +1 tiga kali pada tim pemenang.",fx:null},
+  {k:"diskon",i:"⚔️",t:"Pesaing memberi diskon 20%",d:"Setiap tim boleh mengubah harga jualnya sekali sekarang di tab Daftar Tim. Penjualan sebelumnya tetap tercatat dengan harga lama.",fx:null},
+  {k:"bundling",i:"🎁",t:"Promo bundling diizinkan",d:"Tim boleh menawarkan paket 2 produk dengan harga khusus selama 5 menit. Isi harga paket di kartu tim, lalu catat dengan tombol +1 paket.",fx:{bundle:true}},
 ];
 let curEvent = null;
+
 function mtab(t){
+  if(t==="sell" && !M.open){ askOpenMarket(); return; }
   M.tab = t; saveM();
   document.querySelectorAll(".mtab").forEach(b=>b.classList.toggle("on", b.dataset.t===t));
   $("mSetup").classList.toggle("hidden", t!=="setup"); $("mSell").classList.toggle("hidden", t!=="sell"); $("mResult").classList.toggle("hidden", t!=="result");
   if(t==="setup") renderMSetup(); if(t==="sell") renderSell(); if(t==="result") renderResult();
 }
+
+// ---------- 1. Daftar tim ----------
+function setTeam(i,k,v){ M.teams[i][k] = v; saveM(); }
 function renderMSetup(){
-  if(!M.teams.length) addTeam(true);
+  if(!M.teams.length && !M.open) addTeam(true);
+  const L = M.open, dis = L ? "disabled" : "";
+  $("lockNote").classList.toggle("hidden", !L);
+  $("addTeamBtn").classList.toggle("hidden", L);
   $("voucher").value = M.voucher; $("customers").value = M.customers;
+  $("voucher").disabled = L; $("customers").disabled = L;
   $("mtBody").innerHTML = M.teams.map((t,i)=>`<tr>
-    <td><input value="${esc(t.name)}" placeholder="Tim ${i+1}" oninput="M.teams[${i}].name=this.value;saveM()"></td>
-    <td><input value="${esc(t.product)}" placeholder="Produk" oninput="M.teams[${i}].product=this.value;saveM()"></td>
-    <td><input type="number" step="500" value="${t.price||""}" oninput="M.teams[${i}].price=+this.value;saveM()"></td>
-    <td><input type="number" step="100" value="${t.vc||""}" oninput="M.teams[${i}].vc=+this.value;saveM()"></td>
-    <td><input type="number" step="1000" value="${t.fc||""}" oninput="M.teams[${i}].fc=+this.value;saveM()"></td>
-    <td><input type="number" value="${t.qty||""}" oninput="M.teams[${i}].qty=+this.value;saveM()"></td>
-    <td><button class="del" onclick="M.teams.splice(${i},1);saveM();renderMSetup()" aria-label="Hapus tim">✕</button></td></tr>`).join("");
+    <td><input value="${esc(t.name)}" placeholder="Tim ${i+1}" oninput="setTeam(${i},'name',this.value)"></td>
+    <td><input value="${esc(t.product)}" placeholder="Produk" oninput="setTeam(${i},'product',this.value)"></td>
+    <td><input type="number" min="0" step="500" value="${t.price||""}" oninput="setTeam(${i},'price',pos(this.value))"></td>
+    <td><input type="number" min="0" step="100" value="${t.vc||""}" ${dis} oninput="setTeam(${i},'vc',Math.round(pos(this.value)))"></td>
+    <td><input type="number" min="0" step="1000" value="${t.fc||""}" ${dis} oninput="setTeam(${i},'fc',pos(this.value))"></td>
+    <td><input type="number" min="0" value="${t.qty||""}" ${dis} oninput="setTeam(${i},'qty',Math.floor(pos(this.value)))"></td>
+    <td>${L?"":`<button class="del" onclick="M.teams.splice(${i},1);saveM();renderMSetup()" aria-label="Hapus tim">✕</button>`}</td></tr>`).join("");
 }
-function addTeam(silent){ M.teams.push({name:"",product:"",price:0,vc:0,fc:0,qty:0,sold:0,loss:0}); saveM(); if(!silent) renderMSetup(); }
-function avail(t){ return Math.max(0,(t.qty||0) - (t.loss||0)); }
+function addTeam(silent){ M.teams.push(newTeam()); saveM(); if(!silent) renderMSetup(); }
+
+function askOpenMarket(){
+  const ts = activeTeams(), errs = [], warns = [];
+  if(!ts.length) errs.push("Belum ada tim yang didaftarkan.");
+  ts.forEach((t,i)=>{
+    const n = esc(t.name || `Baris ${i+1}`);
+    if(!t.name) errs.push(`${n}: nama tim belum diisi.`);
+    if(!(t.price>0)) errs.push(`${n}: harga jual belum diisi.`);
+    if(!(t.qty>0)) errs.push(`${n}: jumlah produksi belum diisi.`);
+    if(t.price>0 && t.price < (t.vc||0)) warns.push(`${n}: harga jual di bawah biaya variabel, jadi setiap produk yang terjual menambah rugi.`);
+  });
+  const names = ts.map(t=>t.name).filter(Boolean);
+  if(new Set(names).size !== names.length) errs.push("Ada nama tim yang sama. Bedakan namanya agar hasil tidak tertukar.");
+  if(!(M.voucher>0) || !(M.customers>0)) errs.push("Uang virtual per pelanggan dan jumlah pelanggan belum diisi.");
+  if(errs.length){
+    modal(`<h3>Data belum lengkap</h3><p>Lengkapi dulu sebelum pasar dibuka:</p><ul>${errs.map(e=>`<li>${e}</li>`).join("")}</ul><div class="mbtns"><button class="btn dark" onclick="closeModal()">Perbaiki</button></div>`);
+    return;
+  }
+  modal(`<h3>Buka pasar sekarang?</h3>
+    <p>Setelah pasar dibuka, <b>jumlah produksi, biaya variabel, dan biaya tetap setiap tim dikunci</b>, dan rencana laba disimpan sebagai pembanding di akhir. Harga jual masih boleh diubah.</p>
+    ${warns.length?`<p style="margin-top:8px"><b>Perhatian:</b></p><ul>${warns.map(w=>`<li>${w}</li>`).join("")}</ul>`:""}
+    <div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn pri" onclick="openMarket()">Ya, buka pasar</button></div>`);
+}
+function openMarket(){
+  M.teams = activeTeams();
+  M.teams.forEach(t=>{ t.plan = {price:t.price, vc:t.vc, fc:t.fc, qty:t.qty}; });
+  M.open = true; saveM(); closeModal(); mtab("sell"); toast("Pasar dibuka. Data produksi dan biaya dikunci");
+}
+
+// ---------- 2. Pasar dibuka ----------
 function renderSell(){
-  const ts = M.teams.filter(t=>t.name||t.product);
+  const ts = activeTeams();
   $("sellGrid").innerHTML = ts.length ? M.teams.map((t,i)=>{
     if(!(t.name||t.product)) return "";
-    const a = avail(t), out = (t.sold||0) >= a;
-    return `<div class="scard ${out?'out':''}"><div class="tn">${esc(t.name)}</div><div class="pn">${esc(t.product)}</div><div class="pp">${rp(t.price)}</div>
-      <div class="sold">${t.sold||0}</div><div class="of">terjual dari ${a} produk${t.loss?` (${t.loss} rusak)`:""}${out?" · <b style='color:var(--terra)'>HABIS</b>":""}</div>
-      <div class="meter"><i style="width:${a?Math.min(100,(t.sold||0)/a*100):0}%"></i></div>
-      <div class="rev">Pendapatan: <b>${rp((t.sold||0)*t.price)}</b></div>
-      <div class="sbtns"><button class="minus" onclick="sell(${i},-1)" aria-label="Kurangi">−1</button><button class="plus" onclick="sell(${i},1)" ${out?'disabled style="opacity:.4"':''}>+1 terjual</button><button class="plus5" onclick="sell(${i},5)" ${out?'disabled style="opacity:.4"':''}>+5</button></div></div>`;
+    const a = avail(t), s = soldN(t), rem = left(t), out = rem<=0;
+    const changed = t.plan && t.plan.price !== t.price;
+    const bundle = M.bundle ? `<div class="bund"><input type="number" min="0" step="500" value="${t.bp||""}" placeholder="Harga paket" title="Harga untuk 1 paket berisi 2 produk" oninput="M.teams[${i}].bp=pos(this.value);saveM();bundleWarn(${i})"><button onclick="sellBundle(${i})" ${rem<2?"disabled":""}>+1 paket</button></div><div class="bw" id="bw${i}"></div>` : "";
+    return `<div class="scard ${out?'out':''}"><div class="tn">${esc(t.name)}</div><div class="pn">${esc(t.product)}</div>
+      <div class="pp">${rp(t.price)}${changed?` <span class="oldp">(harga awal ${rp(t.plan.price)})</span>`:""}</div>
+      <div class="sold">${s}</div><div class="of">terjual dari ${a} produk${t.loss?` (${t.loss} rusak)`:""}${out?" · <b style='color:var(--terra)'>HABIS</b>":""}</div>
+      <div class="meter"><i style="width:${a?Math.min(100,s/a*100):0}%"></i></div>
+      <div class="rev">Pendapatan: <b>${rp(revN(t))}</b></div>
+      <div class="sbtns"><button class="minus" onclick="undoSale(${i})" title="Batalkan transaksi terakhir tim ini" ${t.log.length?"":"disabled"}>↶ Batal</button><button class="plus" onclick="sell(${i},1)" ${out?"disabled":""}>+1 terjual</button><button class="plus5" onclick="sell(${i},5)" ${out?"disabled":""}>+5</button></div>
+      ${bundle}</div>`;
   }).join("") : `<div class="card">Belum ada tim. Isi dulu di tab <b>Daftar Tim</b>.</div>`;
-  const spent = M.teams.reduce((s,t)=>s+(t.sold||0)*(t.price||0),0), total = (M.voucher||0)*(M.customers||0);
-  $("moneyInfo").textContent = `Uang virtual beredar: ${rp(total)} · sudah dibelanjakan: ${rp(spent)}${total?` (${Math.round(spent/total*100)}%)`:""}`;
-  $("evLog").textContent = M.events.length ? "Kejadian yang sudah diterapkan: " + M.events.join(" · ") : "";
+  if(M.bundle) M.teams.forEach((t,i)=>{ if(t.name||t.product) bundleWarn(i); });
+  const spent = moneySpent(), total = moneyTotal(), over = spent > total;
+  $("moneyInfo").className = over ? "warnm" : "";
+  $("moneyInfo").textContent = `Uang virtual beredar: ${rp(total)} · sudah dibelanjakan: ${rp(spent)}${total?` (${Math.round(spent/total*100)}%)`:""} · sisa: ${rp(Math.max(0,total-spent))}` + (over ? " · ⚠ Belanja melebihi uang yang beredar. Periksa kembali catatan penjualan." : "");
+  $("evLog").innerHTML = (M.events.length ? "Kejadian yang sudah diterapkan: " + M.events.map(esc).join(" · ") : "")
+    + (M.bundle ? ` <button class="btn soft" style="padding:6px 12px;font-size:13px;margin-left:8px" onclick="endBundle()">Akhiri promo paket</button>` : "");
 }
-function sell(i,d){ const t=M.teams[i]; t.sold = Math.max(0, Math.min(avail(t), (t.sold||0)+d)); saveM(); renderSell(); }
+// Catat transaksi. Jika total belanja akan melebihi uang yang beredar, fasilitator diminta memastikan dulu.
+function record(i, entry){
+  const total = moneyTotal();
+  if(total && moneySpent() + entry.a > total){
+    window._pending = [i, entry];
+    modal(`<h3>Uang virtual tidak cukup</h3><p>Transaksi ini membuat total belanja (${rp(moneySpent()+entry.a)}) melebihi uang virtual yang beredar (${rp(total)}). Biasanya ini tanda ada penjualan yang tercatat dua kali.</p><p>Catat tetap hanya jika pembelinya memakai uang tambahan, misalnya fasilitator pada kartu Pembeli Borongan.</p><div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn red" onclick="closeModal();commit(..._pending)">Tetap catat</button></div>`);
+    return;
+  }
+  commit(i, entry);
+}
+function commit(i, entry){ M.teams[i].log.push(entry); saveM(); renderSell(); }
+function sell(i,n){
+  const t = M.teams[i], k = Math.min(n, left(t));
+  if(k<=0){ toast("Stok tim ini sudah habis"); return; }
+  if(!(t.price>0)){ toast("Harga jual tim ini belum diisi"); return; }
+  if(k<n) toast(`Stok hanya tersisa ${k}, jadi yang dicatat ${k} produk`);
+  record(i, {u:k, a:k*t.price});
+}
+function sellBundle(i){
+  const t = M.teams[i];
+  if(left(t)<2){ toast("Stok kurang dari 2 produk"); return; }
+  if(!(t.bp>0)){ toast("Isi harga paket 2 produk dulu"); return; }
+  record(i, {u:2, a:t.bp, b:1});
+}
+function undoSale(i){
+  const x = M.teams[i].log.pop(); if(!x) return;
+  saveM(); renderSell(); toast(`Dibatalkan: ${x.u} produk senilai ${rp(x.a)}`);
+}
+function bundleWarn(i){
+  const t = M.teams[i], el = $("bw"+i); if(!el) return;
+  const cost = 2*effVc(t);
+  el.textContent = t.bp>0 && t.bp < cost ? `⚠ Harga paket di bawah biaya isinya (${rp(cost)}). Setiap paket menambah rugi.` : "";
+}
+function endBundle(){ M.bundle = false; saveM(); renderSell(); toast("Promo paket diakhiri"); }
+
+// Kartu kejadian: setiap kartu hanya bisa diterapkan sekali.
 function drawEvent(){
-  curEvent = EVENTS[Math.floor(Math.random()*EVENTS.length)];
+  let pool = EVENTS.filter(e=>!M.used.includes(e.k) && e!==curEvent);
+  if(!pool.length && curEvent && !M.used.includes(curEvent.k)) pool = [curEvent];
+  if(!pool.length){ toast("Semua kartu kejadian sudah diterapkan"); return; }
+  curEvent = pool[Math.floor(Math.random()*pool.length)];
   $("evIcon").textContent = curEvent.i; $("evTitle").textContent = curEvent.t; $("evDesc").textContent = curEvent.d;
-  $("evApply").style.display = curEvent.fx ? "" : "none";
+  $("evApply").style.display = "";
 }
 function applyEvent(){
-  if(!curEvent||!curEvent.fx) return; const f = curEvent.fx;
-  M.teams.forEach(t=>{ if(f.vcPct) t.vc = Math.round((t.vc||0)*(1+f.vcPct/100)); if(f.fcAdd) t.fc = (t.fc||0)+f.fcAdd; if(f.loss){ t.loss=(t.loss||0)+f.loss; t.sold=Math.min(t.sold||0, avail(t)); } });
-  M.events.push(curEvent.t); saveM(); $("evApply").style.display="none"; curEvent=null; renderSell(); toast("Kejadian diterapkan ke semua tim");
+  if(!curEvent || M.used.includes(curEvent.k)) return;
+  const f = curEvent.fx || {};
+  if(f.vcPct) M.fx.vcPct += f.vcPct;
+  if(f.fcAdd) M.fx.fcAdd += f.fcAdd;
+  // Produk yang sudah terjual tidak bisa rusak: kerugian hanya diambil dari stok yang tersisa.
+  if(f.loss) M.teams.forEach(t=>{ t.loss = (t.loss||0) + Math.min(f.loss, left(t)); });
+  if(f.bundle) M.bundle = true;
+  M.used.push(curEvent.k); M.events.push(curEvent.t); saveM();
+  $("evApply").style.display = "none"; curEvent = null; renderSell(); toast("Kartu kejadian diterapkan");
 }
+
+// ---------- 3. Hasil ----------
 function results(){
-  return M.teams.filter(t=>t.name||t.product).map(t=>{
-    const rev=(t.sold||0)*(t.price||0), cogs=(t.qty||0)*(t.vc||0), fc=t.fc||0, profit=rev-cogs-fc;
-    const plan=(t.qty||0)*((t.price||0)-(t.vc||0))-fc;
-    return {...t, rev, cogs, profit, plan, unsold: avail(t)-(t.sold||0), waste:(avail(t)-(t.sold||0)+(t.loss||0))*(t.vc||0), margin: rev? profit/rev:-1};
+  return activeTeams().map(t=>{
+    const sold = soldN(t), rev = revN(t), vc = effVc(t), fc = effFc(t);
+    const cogs = (t.qty||0)*vc, profit = rev - cogs - fc;
+    const p = t.plan || {price:t.price, vc:t.vc, fc:t.fc, qty:t.qty};
+    const plan = (p.qty||0)*((p.price||0)-(p.vc||0)) - (p.fc||0);
+    return {...t, sold, rev, vcE:vc, fcE:fc, cogs, profit, plan, unsold: avail(t)-sold,
+      st: t.qty ? sold/t.qty : 0, margin: rev ? profit/rev : null};
   });
+}
+// Ambil pemenang; jika nilainya sama, semua tim yang seri ditampilkan.
+function winners(list, f){
+  if(!list.length) return null;
+  const m = Math.max(...list.map(f));
+  return { names: list.filter(t=>Math.abs(f(t)-m) < 1e-9).map(t=>t.name), v:m };
 }
 function renderResult(){
   const R = results().sort((a,b)=>b.profit-a.profit);
   if(!R.length){ $("awards").innerHTML=""; $("bars").innerHTML="Belum ada data."; $("resTable").innerHTML=""; return; }
-  const best = (f)=>R.slice().sort((a,b)=>f(b)-f(a))[0];
-  const top = R[0], lar = best(t=>t.sold||0), mar = best(t=>t.margin), eff = best(t=>-(t.unsold+(t.loss||0)));
-  $("awards").innerHTML = [
-    ["🏆","Laba tertinggi",top.name,rp(top.profit)],
-    ["🛒","Paling laris",lar.name,(lar.sold||0)+" produk terjual"],
-    ["📊","Margin terbaik",mar.name,(mar.margin*100).toFixed(1).replace(".",",")+"%"],
-    ["♻️","Paling efisien",eff.name,(eff.unsold+(eff.loss||0))+" produk tersisa"],
-  ].map(a=>`<div class="aw"><div class="ai">${a[0]}</div><div class="at">${a[1]}</div><div class="an">${esc(a[2])}</div><div class="av">${a[3]}</div></div>`).join("");
+  const anySale = R.some(t=>t.sold>0);
+  const top = winners(R, t=>t.profit);
+  const lar = anySale ? winners(R, t=>t.sold) : null;
+  const mar = winners(R.filter(t=>t.rev>0), t=>t.margin);
+  const eff = anySale ? winners(R.filter(t=>t.qty>0), t=>t.st) : null;
+  const pct = v => (v*100).toFixed(1).replace(".",",") + "%";
+  const aw = (ic, title, w, val) => `<div class="aw"><div class="ai">${ic}</div><div class="at">${title}</div><div class="an">${w?w.names.map(esc).join(" & "):"–"}</div><div class="av">${w?val(w.v):"Belum ada penjualan"}</div></div>`;
+  $("awards").innerHTML =
+    aw("🏆","Laba tertinggi", top, v=>rp(v)) +
+    aw("🛒","Paling laris", lar, v=>v+" produk terjual") +
+    aw("📊","Margin terbaik", mar, v=>pct(v)) +
+    aw("♻️","Stok paling habis", eff, v=>pct(v)+" stok terjual");
   const mx = Math.max(1,...R.map(t=>Math.abs(t.profit))), hasNeg = R.some(t=>t.profit<0);
   const zero = hasNeg ? 50 : 0, scale = hasNeg ? 50 : 100;
-  $("bars").innerHTML = R.map(t=>{ const w = Math.abs(t.profit)/mx*scale; const left = t.profit>=0 ? zero : zero-w;
-    return `<div class="brow"><span class="bn">${esc(t.name)}</span><div class="track">${hasNeg?`<span class="zero" style="left:${zero}%"></span>`:""}<span class="fill" style="left:${left}%;width:${w}%;background:${t.profit>=0?'var(--green)':'var(--terra)'}"></span></div><span class="bv" style="color:${t.profit>=0?'var(--green)':'var(--terra)'}">${rp(t.profit)}</span></div>`; }).join("");
+  $("bars").innerHTML = R.map(t=>{ const w = Math.abs(t.profit)/mx*scale; const lf = t.profit>=0 ? zero : zero-w;
+    return `<div class="brow"><span class="bn">${esc(t.name)}</span><div class="track">${hasNeg?`<span class="zero" style="left:${zero}%"></span>`:""}<span class="fill" style="left:${lf}%;width:${w}%;background:${t.profit>=0?'var(--green)':'var(--terra)'}"></span></div><span class="bv" style="color:${t.profit>=0?'var(--green)':'var(--terra)'}">${rp(t.profit)}</span></div>`; }).join("");
   $("resTable").innerHTML = `<tr><th>#</th><th>Tim / Produk</th><th>Harga</th><th>Produksi</th><th>Terjual</th><th>Pendapatan</th><th>Beban pokok</th><th>Beban tetap</th><th>Laba nyata</th><th>Rencana laba</th></tr>` +
-    R.map((t,k)=>`<tr><td>${k+1}</td><td><b>${esc(t.name)}</b><br><span style="color:var(--sage)">${esc(t.product)}</span></td><td>${rp(t.price)}</td><td>${t.qty}</td><td>${t.sold||0}</td><td>${rp(t.rev)}</td><td>(${rp(t.cogs)})</td><td>(${rp(t.fc)})</td><td class="l" style="color:${t.profit>=0?'var(--green)':'var(--terra)'}">${rp(t.profit)}</td><td>${rp(t.plan)}</td></tr>`).join("");
+    R.map((t,k)=>`<tr><td>${k+1}</td><td><b>${esc(t.name)}</b><br><span style="color:var(--sage)">${esc(t.product)}</span></td><td>${rp(t.price)}</td><td>${t.qty}</td><td>${t.sold}</td><td>${rp(t.rev)}</td><td>(${rp(t.cogs)})<br><span style="color:var(--sage);font-size:12px">${t.qty} × ${rp(t.vcE)}</span></td><td>(${rp(t.fcE)})</td><td class="l" style="color:${t.profit>=0?'var(--green)':'var(--terra)'}">${rp(t.profit)}</td><td>${rp(t.plan)}</td></tr>`).join("");
 }
-function askResetMarket(){ modal(`<h3>Reset pasar?</h3><p>Pilih yang ingin dihapus.</p><div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn soft" onclick="M.teams.forEach(t=>{t.sold=0;t.loss=0});M.events=[];saveM();closeModal();mtab('sell')">Nol-kan penjualan saja</button><button class="btn red" onclick="M=MBLANK();saveM();closeModal();mtab('setup')">Hapus semua</button></div>`); }
+
+function resetSales(){
+  M.teams.forEach(t=>{ t.log=[]; t.loss=0; t.bp=0; if(t.plan){ t.price=t.plan.price; delete t.plan; } });
+  M.events=[]; M.used=[]; M.fx={vcPct:0, fcAdd:0}; M.bundle=false; M.open=false; curEvent=null;
+  saveM(); closeModal(); mtab("setup"); toast("Penjualan dinolkan, data tim dibuka kembali");
+}
+function askResetMarket(){ modal(`<h3>Reset pasar?</h3>
+  <p><b>Ulangi pasar:</b> data tim tetap ada. Semua penjualan, kartu kejadian, dan kunci pasar dihapus, dan harga kembali ke harga awal.</p>
+  <p style="margin-top:6px"><b>Hapus semua:</b> seluruh data pasar, termasuk daftar tim, dihapus.</p>
+  <div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn soft" onclick="resetSales()">Ulangi pasar</button><button class="btn red" onclick="M=MBLANK();curEvent=null;saveM();closeModal();mtab('setup')">Hapus semua</button></div>`); }
 
 // ================= common =================
 function modal(h){ $("mbox").innerHTML=h; $("modal").classList.add("on"); }
