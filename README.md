@@ -22,6 +22,8 @@ Permainan bisa dimainkan dari HP setiap peserta. Data tersimpan di database Supa
 
 Semua aturan (stok, saldo per ronde, batas beli per tim, larangan beli produk tim sendiri) dicek di server lewat fungsi di `supabase/schema.sql`. Tabel hanya bisa dibaca publik; perubahan hanya lewat fungsi tersebut. Kunci fasilitator tersimpan di perangkat pembuat sesi.
 
+**Mode kelas (20 sampai 40 orang):** di Ruang Fasilitator pilih *Kelas*. Sesi dibuat dengan sedikit tim, 1 ronde, dan peran *Pembeli umum* (peserta tanpa tim yang hanya belanja). Peran ini bisa dinyalakan atau dimatikan di *Pengaturan* sesi; untuk sesi inkubasi biarkan mati agar semua peserta masuk tim.
+
 Catatan: proyek Supabase paket gratis berhenti sementara setelah 7 hari tanpa aktivitas. Buka dasbor Supabase sehari sebelum acara untuk memastikan proyek aktif.
 
 Mode luring (satu perangkat, tanpa internet) tetap tersedia dari tautan di bawah menu beranda.
