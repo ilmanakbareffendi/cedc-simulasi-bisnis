@@ -10,3 +10,18 @@ Halaman berjalan sepenuhnya di peramban, tanpa server. Data tersimpan di `localS
 Gagasan dan pelaksanaan: Arie Pratania Putri, S.E., M.Si., Ak., CA, Kepala Pusat Pengembangan Karir dan Kewirausahaan (CEDC) UNPRI.
 
 Desain dan pengembangan digital: Ilman Akbar Effendi, S.IP., M.I.Kom., Kepala Career and Alumni Relations Unit, CEDC UNPRI.
+
+## Mode daring (tersinkron)
+
+Permainan bisa dimainkan dari HP setiap peserta. Data tersimpan di database Supabase (proyek `simulasi-bisnis`, organisasi CEDC UNPRI).
+
+1. **Fasilitator** membuka *Ruang Fasilitator*, membuat sesi (jumlah tim, ronde, uang virtual per ronde), lalu menayangkan kode dan QR di proyektor.
+2. **Peserta** memindai QR atau memasukkan kode, mengisi nama, memilih nomor tim, dan memilih peran: *Anggota tim* (pembeli) atau *Perwakilan tim* (satu orang per tim, mengisi Lembar Usaha Tim yang otomatis terkirim).
+3. Fasilitator membuka pasar (produksi dan biaya terkunci), lalu menjalankan setiap ronde: pitch, belanja, tutup belanja, ronde berikutnya.
+4. Setelah ronde terakhir, fasilitator menutup pasar dan mengumumkan juara dari tab *Hasil*.
+
+Semua aturan (stok, saldo per ronde, batas beli per tim, larangan beli produk tim sendiri) dicek di server lewat fungsi di `supabase/schema.sql`. Tabel hanya bisa dibaca publik; perubahan hanya lewat fungsi tersebut. Kunci fasilitator tersimpan di perangkat pembuat sesi.
+
+Catatan: proyek Supabase paket gratis berhenti sementara setelah 7 hari tanpa aktivitas. Buka dasbor Supabase sehari sebelum acara untuk memastikan proyek aktif.
+
+Mode luring (satu perangkat, tanpa internet) tetap tersedia dari tautan di bawah menu beranda.

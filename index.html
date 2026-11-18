@@ -583,6 +583,187 @@ input:disabled{background:var(--paper);color:var(--muted);cursor:not-allowed;bor
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
   .coins{display:none}
 }
+
+/* =========================================================
+   MODE DARING · gabung, arena pemain, ruang fasilitator
+   ========================================================= */
+.offl{grid-column:1/-1;font-size:13px;color:var(--muted);text-align:center;margin-top:2px}
+.offl button{font:inherit;font-weight:700;color:var(--deep);background:none;border:0;border-bottom:1.5px dashed var(--line-g);padding:0 1px;cursor:pointer}
+.resume{display:flex;align-items:center;gap:12px;background:linear-gradient(120deg,#fff,var(--gold-soft));border:2px solid #FBE38A;border-radius:18px;padding:10px 12px;box-shadow:0 5px 0 #F3D774;cursor:pointer;text-align:left;width:100%;font:inherit;transition:transform .35s var(--spring),box-shadow .35s var(--spring)}
+.resume:active{transform:translateY(4px);box-shadow:0 1px 0 #F3D774}
+.resume b{display:block;font-family:var(--f-d);font-size:15px;color:var(--ink)}
+.resume small{color:var(--gold-ink);font-weight:700;font-size:12.5px}
+.resume .go{margin-left:auto;font-family:var(--f-d);font-weight:800;color:var(--deep)}
+
+/* ---------- gabung ---------- */
+.jwrap{max-width:640px;margin:0 auto}
+.codein{font-family:var(--f-m)!important;font-size:30px!important;font-weight:600;letter-spacing:.35em;text-transform:uppercase;text-align:center;padding:14px!important}
+.jinfo{min-height:4px;margin:10px 0 4px;font-size:14px;font-weight:700}
+.jinfo .ok{display:flex;align-items:center;gap:10px;background:var(--soft);border:1.5px solid var(--line-g);color:var(--deep);border-radius:14px;padding:10px 12px}
+.jinfo .bad{color:var(--red-s);background:var(--red-soft);border:1.5px solid var(--red-line);border-radius:14px;padding:10px 12px}
+.tgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(64px,1fr));gap:8px;margin-top:6px}
+.tbtn{position:relative;background:#fff;border:2px solid var(--line);border-radius:14px;padding:9px 4px 7px;font:inherit;cursor:pointer;box-shadow:0 4px 0 var(--line);transition:transform .3s var(--spring),box-shadow .3s var(--spring),background .2s,border-color .2s}
+.tbtn b{display:block;font-family:var(--f-d);font-size:20px;font-weight:800;color:var(--ink);line-height:1.1}
+.tbtn small{display:block;font-size:10.5px;color:var(--muted);font-weight:700;margin-top:2px}
+.tbtn.on{background:var(--soft);border-color:var(--acc);box-shadow:0 4px 0 var(--acc);transform:translateY(-2px)}
+.tbtn:active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.roles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+.role{display:flex;flex-direction:column;align-items:flex-start;gap:3px;text-align:left;background:#fff;border:2px solid var(--line);border-radius:18px;padding:14px;font:inherit;cursor:pointer;box-shadow:0 5px 0 var(--line);transition:transform .3s var(--spring),box-shadow .3s var(--spring),border-color .2s,background .2s}
+.role .ri{font-size:24px;line-height:1}
+.role b{font-family:var(--f-d);font-size:16px;color:var(--ink)}
+.role span:last-child{font-size:12.5px;color:var(--muted);line-height:1.4}
+.role.on{border-color:var(--acc);background:var(--soft);box-shadow:0 5px 0 var(--acc)}
+.role:disabled{opacity:.45;cursor:not-allowed}
+@media (max-width:520px){.roles{grid-template-columns:1fr}}
+
+/* ---------- arena pemain ---------- */
+.pbar{display:flex;align-items:center;gap:12px;background:#fff;border:2px solid var(--line);border-radius:20px;padding:10px 14px;box-shadow:var(--sh-card)}
+.pbar .av{width:42px;height:42px;font-size:15px}
+.pwho b{display:block;font-family:var(--f-d);font-size:16px;color:var(--ink);line-height:1.2}
+.pwho span{font-size:12.5px;color:var(--muted);font-weight:700}
+.pbar .sp{flex:1}
+.sync{display:inline-flex;align-items:center;gap:7px;font-size:12px;font-weight:800;color:var(--deep);background:var(--soft);border:1.5px solid var(--line-g);border-radius:999px;padding:5px 11px;white-space:nowrap}
+.sync i{width:8px;height:8px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 0 rgba(21,128,61,.5);animation:ping 2s infinite}
+.sync.wait{color:#92400E;background:#FFFBEB;border-color:#FDE68A}.sync.wait i{background:#F59E0B;animation:none}
+.sync.err{color:var(--red-s);background:var(--red-soft);border-color:var(--red-line)}.sync.err i{background:var(--red);animation:none}
+.sync.lock{color:var(--pdeep);background:var(--psoft);border-color:var(--pline)}.sync.lock i{background:var(--pacc);animation:none}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(21,128,61,.45)}70%{box-shadow:0 0 0 8px rgba(21,128,61,0)}100%{box-shadow:0 0 0 0 rgba(21,128,61,0)}}
+.rband{position:relative;overflow:hidden;margin:14px 0;border-radius:22px;padding:18px 20px;color:#fff;background:linear-gradient(120deg,var(--deep),var(--acc) 60%,#22A05A);box-shadow:0 8px 0 #0E3B20,0 26px 40px -28px rgba(20,83,45,.7)}
+.rband.buy{background:linear-gradient(120deg,#8A5A00,#E8A800 55%,var(--gold));box-shadow:0 8px 0 #6B4500,0 26px 40px -28px rgba(140,90,0,.7);color:var(--gold-ink)}
+.rband.pitch{background:linear-gradient(120deg,var(--pdeep),var(--pacc) 60%,var(--ang));box-shadow:0 8px 0 #2A0A55,0 26px 40px -28px rgba(61,16,122,.7)}
+.rband.closed{background:linear-gradient(120deg,#1F2937,#374151);box-shadow:0 8px 0 #111827}
+.rband small{display:block;font-family:var(--f-m);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;opacity:.85}
+.rband b{display:block;font-family:var(--f-d);font-size:24px;font-weight:800;line-height:1.15;margin-top:4px}
+.rband p{font-size:14px;opacity:.92;margin-top:4px;max-width:52ch}
+.rband .rd{display:flex;gap:6px;margin-top:12px}
+.rband .rd i{width:26px;height:7px;border-radius:99px;background:rgba(255,255,255,.3)}
+.rband .rd i.on{background:#fff}.rband.buy .rd i{background:rgba(92,61,0,.22)}.rband.buy .rd i.on{background:var(--gold-ink)}
+.rband:after{content:"";position:absolute;right:-30px;top:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.28),transparent 65%)}
+.wallet2{display:flex;align-items:center;gap:14px;background:#fff;border:2px solid #FBE38A;border-radius:20px;padding:14px 16px;box-shadow:0 6px 0 #F3D774;margin-bottom:14px}
+.wallet2 .wi{width:52px;height:52px;border-radius:50%;flex:none;background:radial-gradient(circle at 35% 30%,#FFE58A 0 18%,var(--gold) 45%,#E8A800);box-shadow:inset 0 -5px 0 rgba(160,110,0,.35);display:grid;place-items:center;font-family:var(--f-d);font-weight:800;font-size:15px;color:var(--gold-ink)}
+.wallet2 small{display:block;font-size:12.5px;color:var(--muted);font-weight:700}
+.wallet2 b{font-family:var(--f-d);font-size:28px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.wallet2 .of{font-size:13px;color:var(--muted);font-weight:600}
+.bgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.bcard{position:relative;background:#fff;border:2px solid var(--line);border-radius:22px;padding:15px;display:flex;flex-direction:column;gap:9px;box-shadow:0 6px 0 var(--line2),0 24px 40px -30px rgba(20,83,45,.45)}
+.bcard.out{opacity:.72}
+.bcard .who{display:flex;align-items:center;gap:10px}
+.bcard .tn{font-size:11.5px;font-weight:800;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.bcard .pn{font-family:var(--f-d);font-size:18px;font-weight:800;color:var(--ink);line-height:1.2}
+.bcard .tg{font-size:13.5px;color:var(--ink2);font-style:italic;line-height:1.45}
+.bcard .uq{display:flex;flex-wrap:wrap;gap:5px}
+.bcard .uq span{font-size:11.5px;font-weight:700;color:var(--deep);background:var(--soft);border:1px solid var(--line-g);border-radius:999px;padding:2px 9px}
+.bcard .row2{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.bcard .pp{font-family:var(--f-d);font-weight:800;color:var(--deep);font-size:17px;background:var(--gold-soft);border:1.5px solid #FBE38A;border-radius:999px;padding:3px 11px}
+.bcard .stk{font-size:12.5px;font-weight:700;color:var(--muted)}
+.buy{width:100%;border-radius:14px;padding:13px 10px;font-family:var(--f-d);font-weight:800;font-size:16px;color:var(--deep);background:var(--gold);box-shadow:0 5px 0 var(--gold-s);transition:transform .3s var(--spring),box-shadow .3s var(--spring)}
+.buy:active{transform:translateY(5px);box-shadow:0 0 0 var(--gold-s);transition-duration:.06s}
+.buy.b2{background:var(--pacc);color:#fff;box-shadow:0 5px 0 var(--pdeep);font-size:14.5px;padding:10px}
+.buy:disabled{background:var(--paper);color:var(--muted);box-shadow:0 5px 0 var(--line);cursor:not-allowed}
+.buy.got:disabled{background:var(--soft);color:var(--deep);box-shadow:0 5px 0 var(--line-g)}
+.bcard .stamp{top:62px}
+.seller{text-align:center}
+.seller .big{font-family:var(--f-d);font-size:64px;font-weight:800;line-height:1;color:var(--ink);font-variant-numeric:tabular-nums;letter-spacing:-.03em;margin-top:6px}
+.seller .meter{max-width:420px;margin:12px auto 8px}
+.mine{margin-top:18px}
+.mine h3,.hsub{font-family:var(--f-d);font-size:16px;color:var(--ink);margin-bottom:8px}
+.mlist{display:flex;flex-direction:column;gap:6px}
+.mlist div{display:flex;justify-content:space-between;gap:10px;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:8px 12px;font-size:13.5px}
+.mlist b{font-family:var(--f-d)}
+.pfoot{text-align:center;font-size:12.5px;color:var(--muted);margin-top:22px}
+.linkbtn{font:inherit;font-weight:700;color:var(--red-s);background:none;border:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+.repcard{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--psoft);border:2px solid var(--pline);border-radius:20px;padding:14px 16px;margin-bottom:14px}
+.repcard .rt{flex:1;min-width:200px}
+.repcard .rt b{display:block;font-family:var(--f-d);font-size:16px;color:var(--pdeep)}
+.repcard .rt span{font-size:13px;color:var(--ink2)}
+.repcard .bp{display:flex;gap:8px;align-items:center;width:100%}
+.repcard .bp input{max-width:180px}
+.rank{display:flex;flex-direction:column;gap:8px}
+.rank div{display:grid;grid-template-columns:38px 1fr auto;align-items:center;gap:10px;background:#fff;border:2px solid var(--line);border-radius:14px;padding:10px 12px}
+.rank div.me{border-color:var(--acc);background:var(--soft)}
+.rank .m{font-family:var(--f-d);font-weight:800;font-size:18px;text-align:center}
+.rank .n b{display:block;font-family:var(--f-d);font-size:15px}
+.rank .n span{font-size:12px;color:var(--muted)}
+.rank .v{font-family:var(--f-d);font-weight:800}
+
+/* ---------- lembar tim tersambung ---------- */
+.livebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:#fff;border:2px solid var(--pline);border-radius:18px;padding:10px 14px;margin-bottom:14px;box-shadow:0 5px 0 var(--pline)}
+.livebar .lt{flex:1;min-width:180px;font-size:13.5px;color:var(--ink2)}
+.livebar .lt b{font-family:var(--f-d);color:var(--pdeep)}
+.lockline{width:100%;font-size:13px;font-weight:700;color:var(--pdeep);background:var(--psoft);border-radius:12px;padding:8px 11px}
+
+/* ---------- ruang fasilitator ---------- */
+.hnew{display:grid;grid-template-columns:1.2fr 1fr;gap:16px;align-items:start}
+@media (max-width:860px){.hnew{grid-template-columns:1fr}}
+.hplan{font-size:13.5px;color:var(--ink2);background:var(--soft);border:1.5px solid var(--line-g);border-radius:14px;padding:10px 12px;margin-top:14px;line-height:1.55}
+.slist{display:flex;flex-direction:column;gap:8px}
+.slist .si{display:flex;align-items:center;gap:10px;background:#fff;border:2px solid var(--line);border-radius:14px;padding:10px 12px}
+.slist .si b{font-family:var(--f-m);font-size:16px;letter-spacing:.15em;color:var(--deep)}
+.slist .si span{flex:1;font-size:13px;color:var(--muted);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.slist .x{background:none;border:0;color:var(--muted);font-size:18px;cursor:pointer;padding:2px 6px}
+.hhead{display:grid;grid-template-columns:minmax(300px,.9fr) 1.3fr;gap:16px;margin-bottom:16px}
+@media (max-width:900px){.hhead{grid-template-columns:1fr}}
+.jcode{display:flex;gap:16px;align-items:center;background:#fff;border:2px solid var(--line);border-radius:var(--r-card);padding:16px;box-shadow:var(--sh-card)}
+.jcode .qr{width:132px;height:132px;flex:none;border-radius:14px;border:2px solid var(--line);padding:7px;background:#fff}
+.jcode .qr svg{width:100%;height:100%;display:block}
+.jcode small{display:block;font-size:11.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.jcode .url{display:block;font-size:13px;font-weight:700;color:var(--deep);word-break:break-all;margin-bottom:8px}
+.jcode .code{font-family:var(--f-m);font-size:44px;font-weight:600;letter-spacing:.18em;line-height:1.05;background:linear-gradient(120deg,var(--deep),var(--acc) 55%,var(--light));-webkit-background-clip:text;background-clip:text;color:var(--deep);-webkit-text-fill-color:transparent}
+.jcode .cnt{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.jcode .cnt span{font-size:12px;font-weight:800;color:var(--deep);background:var(--soft);border:1px solid var(--line-g);border-radius:999px;padding:3px 10px}
+.stagec{position:relative;overflow:hidden;border-radius:var(--r-card);padding:18px 20px;color:#fff;background:linear-gradient(120deg,var(--deep),var(--acc) 60%,#22A05A);box-shadow:0 8px 0 #0E3B20}
+.stagec.buy{background:linear-gradient(120deg,#8A5A00,#E8A800 55%,var(--gold));box-shadow:0 8px 0 #6B4500;color:var(--gold-ink)}
+.stagec.pitch{background:linear-gradient(120deg,var(--pdeep),var(--pacc) 60%,var(--ang));box-shadow:0 8px 0 #2A0A55}
+.stagec.closed{background:linear-gradient(120deg,#1F2937,#374151);box-shadow:0 8px 0 #111827}
+.stagec small{font-family:var(--f-m);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;opacity:.85}
+.stagec h2{font-family:var(--f-d);font-size:26px;font-weight:800;line-height:1.15;margin:4px 0;color:inherit}
+.stagec p{font-size:14px;opacity:.92;max-width:62ch}
+.stagec .sact{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;align-items:center}
+.stagec .tm{margin-left:auto;font-family:var(--f-m);font-size:22px;font-weight:600;background:rgba(255,255,255,.18);border-radius:12px;padding:6px 12px;font-variant-numeric:tabular-nums}
+.stagec.buy .tm{background:rgba(92,61,0,.12)}
+.stagec .rd{display:flex;gap:6px;margin-top:12px}
+.stagec .rd i{flex:1;max-width:60px;height:8px;border-radius:99px;background:rgba(255,255,255,.28)}
+.stagec .rd i.on{background:#fff}.stagec .rd i.done{background:rgba(255,255,255,.6)}
+.stagec.buy .rd i{background:rgba(92,61,0,.2)}.stagec.buy .rd i.on{background:var(--gold-ink)}.stagec.buy .rd i.done{background:rgba(92,61,0,.45)}
+.btn.white{--c:#fff;--s:rgba(0,0,0,.25);--t:var(--deep)}
+.hbar{margin-bottom:16px}
+.hgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.hgrid .scard .sold{font-size:52px}
+.feed{display:flex;flex-direction:column;gap:6px;max-height:330px;overflow:auto}
+.feed div{display:flex;align-items:center;gap:8px;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:7px 10px;font-size:13px}
+.feed div span{flex:1;min-width:0}
+.feed .u{background:none;border:1.5px solid var(--line);border-radius:9px;padding:3px 8px;font:inherit;font-size:12px;font-weight:700;color:var(--muted);cursor:pointer}
+.h2col{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-top:16px}
+@media (max-width:900px){.h2col{grid-template-columns:1fr}}
+.rbars{display:flex;flex-direction:column;gap:7px}
+.rbars .rb{display:grid;grid-template-columns:110px 1fr 92px;align-items:center;gap:10px;font-size:13px}
+.rbars .rb b{font-family:var(--f-d);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rbars .rb .tr{height:12px;background:var(--paper);border:1.5px solid var(--line);border-radius:99px;overflow:hidden}
+.rbars .rb .tr i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--gold),#FFB000);transition:width .8s var(--ios)}
+.rbars .rb .vv{text-align:right;font-family:var(--f-d);font-weight:800}
+.rbars .rb.sell b{color:var(--acc)}
+.tlist input,.tlist select{padding:8px 9px;font-size:13.5px;min-width:0}
+.tlist select{min-width:66px}
+.tlist input[type=number]{min-width:86px}
+.tlist td{vertical-align:middle}
+.tlist .ok{font-size:11.5px;font-weight:800;color:var(--deep);background:var(--soft);border:1px solid var(--line-g);border-radius:999px;padding:2px 8px;white-space:nowrap}
+.tlist .no{font-size:11.5px;font-weight:800;color:#92400E;background:#FFFBEB;border:1px solid #FDE68A;border-radius:999px;padding:2px 8px;white-space:nowrap}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+.pgrid .pt{background:#fff;border:2px solid var(--line);border-radius:16px;padding:12px}
+.pgrid .pt h4{font-family:var(--f-d);font-size:14.5px;margin-bottom:8px;display:flex;justify-content:space-between;gap:8px}
+.pgrid .pt h4 span{font-size:11.5px;color:var(--muted);font-weight:700}
+.pgrid .pn2{display:flex;align-items:center;gap:6px;font-size:13px;padding:3px 0}
+.pgrid .pn2 span{flex:1}
+.pgrid .pn2 button{background:none;border:0;color:var(--muted2);cursor:pointer;font-size:15px}
+.pgrid .pn2 em{font-style:normal;font-size:10.5px;font-weight:800;color:var(--pdeep);background:var(--psoft);border-radius:999px;padding:1px 7px}
+.projx{display:none}
+body.proj header,body.proj .hctl,body.proj footer.credits{display:none!important}
+body.proj main{max-width:none;padding-top:18px}
+body.proj .projx{display:inline-flex;position:fixed;right:14px;bottom:14px;z-index:60}
+body.proj .jcode .code{font-size:64px}
+body.proj .jcode .qr{width:180px;height:180px}
+body.proj .hgrid{grid-template-columns:repeat(auto-fill,minmax(270px,1fr))}
+body.proj .hgrid .scard .sold{font-size:72px}
 </style>
 </head>
 <body>
@@ -609,20 +790,21 @@ input:disabled{background:var(--paper);color:var(--muted);cursor:not-allowed;bor
       <span class="coin" style="--z:26px;top:92%;left:40%;animation-delay:-2s">Rp</span>
     </div>
     <div>
-      <span class="pill"><i></i>Inkubator Bisnis UNPRI · Mode Simulasi</span>
+      <span class="pill"><i></i>Inkubator Bisnis UNPRI · Mode Daring</span>
       <h1>Dari Ide ke <span class="grad">Pasar</span></h1>
       <p class="lead">Rancang usaha bersama tim, hitung harga dan labanya, lalu jual ke pelanggan yang memegang uang virtual. <b>Pemenangnya tim dengan laba nyata tertinggi</b>, bukan yang paling banyak terjual.</p>
-      <div class="chips"><span class="chip">⏱ <span><b>90</b> menit</span></span><span class="chip">👥 <span><b>4 sampai 8</b> tim</span></span><span class="chip">🪙 <span>Uang virtual</span></span></div>
+      <div class="chips"><span class="chip">⏱ <span><b>90</b> menit</span></span><span class="chip">👥 <span>hingga <b>20</b> tim</span></span><span class="chip">📱 <span>Main dari HP</span></span><span class="chip">🪙 <span>Uang virtual</span></span></div>
     </div>
     <div class="menu stag">
-      <button class="mode m1" onclick="go('team')"><span class="tag">PEMAIN</span><span class="ic"><svg class="ico ico-clip" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="lB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#DCA06A"/><stop offset="1" stop-color="#A86B34"/></linearGradient></defs>
+      <div id="resumeBox"></div>
+      <button class="mode m1" onclick="go('join')"><span class="tag">PESERTA</span><span class="ic"><svg class="ico ico-clip" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="lB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#DCA06A"/><stop offset="1" stop-color="#A86B34"/></linearGradient></defs>
 <rect x="11" y="10" width="42" height="49" rx="7" fill="url(#lB)" stroke="#4A2A12" stroke-width="3"/>
 <rect x="16.5" y="16" width="31" height="38" rx="3.5" fill="#fff" stroke="#CBD5E1" stroke-width="2"/>
 <rect x="23" y="5.5" width="18" height="10" rx="3.5" fill="#94A3B8" stroke="#334155" stroke-width="2.6"/>
 <path d="M22 25h20M22 32h15" stroke="#CBD5E1" stroke-width="3" stroke-linecap="round"/>
 <path d="m21.5 42 3.5 3.5 6.5-7" fill="none" stroke="#16A34A" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M35 43h7" stroke="#CBD5E1" stroke-width="3" stroke-linecap="round"/></svg></span><span><b>Lembar Usaha Tim</b><span class="d">Dibuka setiap tim di HP atau laptop masing-masing</span></span><span class="go">→</span></button>
-      <button class="mode m2" onclick="go('market')"><span class="tag">FASILITATOR</span><span class="ic"><svg class="ico ico-stall" viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="sC"><rect x="7" y="10" width="50" height="15" rx="4"/></clipPath><linearGradient id="sW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#DCA06A"/><stop offset="1" stop-color="#A86B34"/></linearGradient></defs>
+<path d="M35 43h7" stroke="#CBD5E1" stroke-width="3" stroke-linecap="round"/></svg></span><span><b>Gabung Permainan</b><span class="d">Scan QR atau masukkan kode dari layar fasilitator</span></span><span class="go">→</span></button>
+      <button class="mode m2" onclick="go('host')"><span class="tag">FASILITATOR</span><span class="ic"><svg class="ico ico-stall" viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="sC"><rect x="7" y="10" width="50" height="15" rx="4"/></clipPath><linearGradient id="sW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#DCA06A"/><stop offset="1" stop-color="#A86B34"/></linearGradient></defs>
 <rect x="12" y="24" width="4" height="30" rx="2" fill="#8B5A2B" stroke="#3B1F0B" stroke-width="2"/>
 <rect x="48" y="24" width="4" height="30" rx="2" fill="#8B5A2B" stroke="#3B1F0B" stroke-width="2"/>
 <g clip-path="url(#sC)"><rect x="7" y="10" width="50" height="15" fill="#EF4444"/><rect x="7" y="10" width="5" height="14" fill="#fff"/><rect x="17" y="10" width="5" height="14" fill="#fff"/><rect x="27" y="10" width="5" height="14" fill="#fff"/><rect x="37" y="10" width="5" height="14" fill="#fff"/><rect x="47" y="10" width="5" height="14" fill="#fff"/></g>
@@ -632,7 +814,7 @@ input:disabled{background:var(--paper);color:var(--muted);cursor:not-allowed;bor
 <circle cx="33" cy="37" r="5" fill="#4ADE80" stroke="#14532D" stroke-width="2.2"/>
 <rect x="39" y="32" width="9" height="10" rx="2" fill="#FFC400" stroke="#8A5A00" stroke-width="2.2"/>
 <rect x="6" y="42" width="52" height="11" rx="3.5" fill="url(#sW)" stroke="#3B1F0B" stroke-width="2.8"/>
-<path d="M10 45.5h44" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".5"/></svg></span><span><b>Pasar Live</b><span class="d">Tayangkan di proyektor: catat penjualan dan umumkan juara</span></span><span class="go">→</span></button>
+<path d="M10 45.5h44" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".5"/></svg></span><span><b>Ruang Fasilitator</b><span class="d">Buat sesi, atur ronde, tayangkan papan pasar di proyektor</span></span><span class="go">→</span></button>
       <button class="mode m3" onclick="showRules()"><span class="tag">WAJIB BACA</span><span class="ic"><svg class="ico ico-scroll" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="pP" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF6D8"/><stop offset="1" stop-color="#F6D48E"/></linearGradient><linearGradient id="pR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EDB97E"/><stop offset="1" stop-color="#B9773A"/></linearGradient></defs>
 <rect x="14" y="12" width="36" height="40" rx="3" fill="url(#pP)" stroke="#5C3A12" stroke-width="2.8"/>
 <rect x="9" y="7" width="46" height="9" rx="4.5" fill="url(#pR)" stroke="#5C3A12" stroke-width="2.8"/>
@@ -640,6 +822,7 @@ input:disabled{background:var(--paper);color:var(--muted);cursor:not-allowed;bor
 <path d="M20 23h24M20 29.5h24M20 36h16" stroke="#C08A3E" stroke-width="2.8" stroke-linecap="round"/>
 <circle cx="41" cy="41" r="5.5" fill="#DC2626" stroke="#7F1D1D" stroke-width="2.4"/>
 <path d="M39 41h4" stroke="#FECACA" stroke-width="2" stroke-linecap="round"/></svg></span><span><b>Aturan Permainan</b><span class="d">Bacakan ke peserta sebelum mulai</span></span><span class="go">→</span></button>
+      <p class="offl">Tanpa internet? Pakai <b>mode luring</b> di satu perangkat: <button onclick="go('team')">Lembar Usaha Tim</button> · <button onclick="go('market')">Pasar Live</button></p>
     </div>
   </div>
 
@@ -703,6 +886,7 @@ input:disabled{background:var(--paper);color:var(--muted);cursor:not-allowed;bor
 
 <!-- ================= LEMBAR TIM ================= -->
 <section id="vTeam" class="view hidden">
+  <div class="livebar hidden" id="liveBar"><span class="lt" id="lbTxt"></span><span class="sync" id="lbSync"><i></i><span>Tersambung</span></span><button class="btn soft sm" onclick="go('play')">← Arena Pasar</button><div class="lockline hidden" id="lbLock">🔒 Pasar sudah dibuka. Jumlah produksi dan biaya tidak berubah lagi di server. Harga jual masih bisa diubah di Level 3.</div></div>
   <div class="quest">
     <div class="qtop"><b>Misi Tim</b><span id="qxp">XP 0/5</span></div>
     <div class="qbar"><i id="qfill" style="width:0%"></i></div>
@@ -891,6 +1075,73 @@ input:disabled{background:var(--paper);color:var(--muted);cursor:not-allowed;bor
   </div>
 </section>
 
+
+<!-- ================= GABUNG (MODE DARING) ================= -->
+<section id="vJoin" class="view hidden">
+  <div class="jwrap">
+    <div class="card">
+      <span class="lvtag">MODE DARING · PESERTA</span>
+      <h2>Gabung ke permainan</h2>
+      <p class="lead">Masukkan kode dari layar fasilitator, lalu pilih tim dan peran Anda.</p>
+      <label>Kode sesi</label>
+      <input id="jCode" class="codein" maxlength="5" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="KODE">
+      <div class="jinfo" id="jInfo"></div>
+      <div id="jStep2" class="hidden">
+        <label style="margin-top:8px">Nama Anda</label>
+        <input id="jName" maxlength="40" placeholder="Nama panggilan" autocomplete="nickname">
+        <label style="margin-top:16px">Nomor tim</label>
+        <div class="tgrid" id="jTeams"></div>
+        <label style="margin-top:18px">Peran Anda</label>
+        <div class="roles">
+          <button class="role on" data-r="buyer" onclick="pickRole('buyer')"><span class="ri">🛒</span><b>Anggota tim</b><span>Belanja dengan uang virtual saat tim lain berjualan</span></button>
+          <button class="role" data-r="rep" onclick="pickRole('rep')"><span class="ri">📝</span><b>Perwakilan tim</b><span>Satu orang per tim. Mengisi Lembar Usaha Tim dan tetap bisa belanja</span></button>
+        </div>
+        <div class="nav"><button class="btn soft" onclick="go('home')">← Beranda</button><button class="btn pri" id="jGo" onclick="doJoin()">Masuk permainan →</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ARENA PEMAIN ================= -->
+<section id="vPlay" class="view hidden">
+  <div class="pbar">
+    <span class="av" id="pAv"></span>
+    <div class="pwho"><b id="pName"></b><span id="pTeam"></span></div>
+    <span class="sp"></span>
+    <span class="sync" id="pSync"><i></i><span>Tersambung</span></span>
+  </div>
+  <div class="rband" id="pBand"></div>
+  <div id="pRep"></div>
+  <div id="pMain"></div>
+  <div class="mine" id="pMine"></div>
+  <p class="pfoot">Layar ini diperbarui otomatis setiap beberapa detik. <button class="linkbtn" onclick="askLeave()">Keluar dari sesi</button></p>
+</section>
+
+<!-- ================= RUANG FASILITATOR ================= -->
+<section id="vHost" class="view hidden">
+  <div id="hNew" class="hnew"></div>
+  <div id="hRoom" class="hidden">
+    <div class="hhead">
+      <div class="jcode" id="hJoin"></div>
+      <div class="stagec" id="hStage"></div>
+    </div>
+    <div class="mbar hbar hctl">
+      <div class="mtabs" id="htabs">
+        <span class="mtab-ind" id="htabInd"></span>
+        <button class="mtab on" data-t="live" onclick="htab('live')">Pasar Live</button>
+        <button class="mtab" data-t="teams" onclick="htab('teams')">Tim</button>
+        <button class="mtab" data-t="people" onclick="htab('people')">Peserta</button>
+        <button class="mtab" data-t="result" onclick="htab('result')">Hasil</button>
+      </div>
+      <span style="flex:1"></span>
+      <button class="btn soft sm" onclick="projector(true)">⛶ Proyektor</button>
+      <button class="btn soft sm" onclick="hostMenu()">⋯ Pengaturan</button>
+    </div>
+    <div id="hPane"></div>
+    <div id="hRes" class="hidden"></div>
+  </div>
+  <button class="btn dark sm projx" onclick="projector(false)">✕ Keluar proyektor</button>
+</section>
 <footer class="credits">
   <div class="cr-coins" id="crCoins" aria-hidden="true"><span class="tw" style="left:8%;top:22%"></span><span class="tw" style="left:46%;top:12%;animation-delay:.5s"></span><span class="tw" style="left:72%;top:58%;animation-delay:1s"></span><span class="tw" style="left:24%;top:78%;animation-delay:1.4s"></span><span class="tw" style="left:90%;top:30%;animation-delay:.8s"></span></div>
   <div class="cr-top">
@@ -901,7 +1152,7 @@ input:disabled{background:var(--paper);color:var(--muted);cursor:not-allowed;bor
     <div class="cr"><small>Gagasan dan Pelaksanaan</small><b>Arie Pratania Putri, S.E., M.Si., Ak., CA</b><span>Kepala Pusat Pengembangan Karir dan Kewirausahaan (CEDC) UNPRI</span></div>
     <div class="cr"><small>Desain dan Pengembangan Digital</small><b>Ilman Akbar Effendi, S.IP., M.I.Kom.</b><span>Kepala Career and Alumni Relations Unit, Pusat Pengembangan Karir dan Kewirausahaan (CEDC) UNPRI</span></div>
   </div>
-  <div class="cr-bot"><span>© 2026 Pusat Pengembangan Karir dan Kewirausahaan (CEDC) Universitas Prima Indonesia</span><span>Data permainan tersimpan di perangkat ini saja</span></div>
+  <div class="cr-bot"><span>© 2026 Pusat Pengembangan Karir dan Kewirausahaan (CEDC) Universitas Prima Indonesia</span><span>Mode daring tersimpan di server · mode luring di perangkat ini</span></div>
 </footer>
 </main>
 
@@ -910,6 +1161,7 @@ input:disabled{background:var(--paper);color:var(--muted);cursor:not-allowed;bor
 <div class="toast" id="toast"></div>
 <canvas id="confetti"></canvas>
 
+<script src="qrcode.min.js"></script>
 <script>
 const $ = id => document.getElementById(id);
 const rp = n => (n<0?"−":"") + "Rp" + Math.round(Math.abs(n)).toLocaleString("id-ID");
@@ -1047,7 +1299,7 @@ function bindInputs(){
     el.oninput = () => { T[k] = el.dataset.n!==undefined ? (el.value===""?"":pos(el.value)) : el.value; saveT(); refresh(); };
   });
 }
-function saveT(){ store("ibtSimTeam", T); }
+function saveT(){ store(teamLive ? liveTeamKey() : "ibtSimTeam", T); }
 function rowsHTML(list, key){
   if(key==="materials") return T.materials.map((m,i)=>`<tr>
     <td><input value="${esc(m.name)}" placeholder="mis. Pisang" oninput="T.materials[${i}].name=this.value;saveT();refresh()"></td>
@@ -1138,6 +1390,7 @@ function refresh(){
   const tips = ["Mulai dari masalah pelanggan, lalu tuliskan 2 sampai 3 keunikan produk.","Tulis total belanja bahan, lalu berapa produk yang jadi. Jangan lupa kemasan!","Markup dihitung dari HPP, margin dari harga jual. Jangan tertukar!","Bandingkan BEP dengan rencana produksi. Makin jauh di bawah, makin aman.","Pitch singkat: masalah → produk → keunikan → harga → ajakan membeli."];
   $("s_tip").textContent = "💡 " + tips[T.stepNow||0];
   renderPitch(c);
+  if(teamLive) queueRepSave();
 }
 function uniqList(){ return (T.unique||"").split("\n").map(s=>s.trim()).filter(Boolean); }
 function cardHTML(c){
@@ -1223,7 +1476,7 @@ let curEvent = null;
 function mtab(t){
   if(t==="sell" && !M.open){ askOpenMarket(); return; }
   M.tab = t; saveM();
-  document.querySelectorAll(".mtab").forEach(b=>b.classList.toggle("on", b.dataset.t===t));
+  document.querySelectorAll("#mtabs .mtab").forEach(b=>b.classList.toggle("on", b.dataset.t===t));
   $("mSetup").classList.toggle("hidden", t!=="setup"); $("mSell").classList.toggle("hidden", t!=="sell"); $("mResult").classList.toggle("hidden", t!=="result");
   moveInd();
   anim($({setup:"mSetup",sell:"mSell",result:"mResult"}[t]), "enter");
@@ -1231,7 +1484,7 @@ function mtab(t){
 }
 // Indikator tab ikut meluncur ke tab aktif.
 function moveInd(){
-  const b = document.querySelector(".mtab.on"), ind = $("mtabInd"); if(!b || !ind || !b.offsetWidth) return;
+  const b = document.querySelector("#mtabs .mtab.on"), ind = $("mtabInd"); if(!b || !ind || !b.offsetWidth) return;
   ind.style.width = b.offsetWidth+"px"; ind.style.transform = `translateX(${b.offsetLeft}px)`;
 }
 addEventListener("resize", moveInd);
@@ -1439,24 +1692,606 @@ $("modal").addEventListener("click",e=>{ if(e.target.id==="modal") closeModal();
 document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ closeModal(); closeShowcase(); } });
 function showRules(){
   modal(`<h3>Aturan Permainan</h3><ul>
-  <li>Bentuk tim 3 sampai 5 orang. Setiap tim membuka <b>Lembar Usaha Tim</b> dan mengisi 5 langkah.</li>
-  <li>Biaya dan harga harus realistis (harga pasar di Medan). Fasilitator boleh menolak angka yang tidak masuk akal.</li>
-  <li><b>Jumlah produksi dikunci</b> saat pasar dibuka. Produk yang tidak terjual tetap menjadi beban.</li>
-  <li>Setiap pelanggan menerima uang virtual (default Rp50.000) dan bebas membelanjakannya. Pelanggan tidak boleh membeli dari timnya sendiri.</li>
-  <li>Setiap tim pitch 1 menit, lalu pasar dibuka 15 sampai 20 menit. Fasilitator mencatat setiap transaksi.</li>
-  <li>Fasilitator boleh menarik 1 sampai 2 <b>Kartu Kejadian Pasar</b> selama pasar berlangsung.</li>
+  <li>Peserta dibagi menjadi tim (misalnya 20 tim berisi 5 orang). Semua peserta membuka situs ini di HP, memasukkan <b>kode sesi</b> dari layar fasilitator, lalu memilih timnya.</li>
+  <li>Satu orang per tim menjadi <b>perwakilan</b>: mengisi Lembar Usaha Tim (5 level). Isiannya otomatis terkirim ke fasilitator.</li>
+  <li>Biaya dan harga harus realistis (harga pasar di Medan). Fasilitator boleh mengoreksi angka yang tidak masuk akal.</li>
+  <li><b>Jumlah produksi dan biaya dikunci</b> saat pasar dibuka. Produk yang tidak terjual tetap menjadi beban. Harga jual masih boleh diubah.</li>
+  <li>Pasar berjalan beberapa <b>ronde</b>. Di setiap ronde sebagian tim pitch 1 menit lalu membuka lapak, peserta dari tim lain menjadi pembeli.</li>
+  <li>Setiap pembeli mendapat <b>uang virtual per ronde</b> (bawaan Rp20.000, tidak terbawa ke ronde berikutnya), maksimal 1 kali membeli dari tim yang sama, dan tidak boleh membeli dari tim sendiri.</li>
+  <li>Fasilitator boleh menarik <b>Kartu Kejadian Pasar</b> selama pasar berlangsung.</li>
   <li><b>Pemenang = laba nyata tertinggi</b>: pendapatan − (jumlah produksi × biaya variabel) − biaya tetap.</li></ul>
+  <p style="font-size:13px;color:var(--muted);margin-top:8px">Mode luring (tanpa internet): setiap tim mengisi lembar di perangkatnya, fasilitator mencatat penjualan di satu perangkat.</p>
   <div class="mbtns"><button class="btn dark" onclick="closeModal()">Mengerti</button></div>`);
 }
-function go(v){
-  $("vHome").classList.toggle("hidden", v!=="home"); $("vTeam").classList.toggle("hidden", v!=="team"); $("vMarket").classList.toggle("hidden", v!=="market");
-  $("hTitle").textContent = v==="team" ? "Lembar Usaha Tim" : v==="market" ? "Pasar Live" : "Layar Utama";
-  anim($({home:"vHome",team:"vTeam",market:"vMarket"}[v]), "enter");
-  if(v==="team") initTeam(); if(v==="market") mtab(M.tab||"setup");
+const VIEWS = { home:"vHome", team:"vTeam", market:"vMarket", join:"vJoin", play:"vPlay", host:"vHost" };
+const TITLES = { home:"Layar Utama", team:"Lembar Usaha Tim", market:"Pasar Live (luring)", join:"Gabung Permainan", play:"Arena Pasar", host:"Ruang Fasilitator" };
+function go(v, opt){
+  if(v !== "host") document.body.classList.remove("proj");
+  Object.entries(VIEWS).forEach(([k,id])=>$(id).classList.toggle("hidden", k!==v));
+  $("hTitle").textContent = TITLES[v];
+  anim($(VIEWS[v]), "enter");
+  curView = v;
+  if(v==="home") renderResume();
+  if(v==="team"){ setTeamMode(opt==="live"); initTeam(); }
+  if(v==="market"){ homeResult(); mtab(M.tab||"setup"); }
+  if(v==="join") initJoin(opt);
+  if(v==="play") startPlay();
+  if(v==="host") initHost();
+  livePolling();
   window.scrollTo({top:0});
 }
+
+// ================= MODE DARING (Supabase) =================
+// Semua data permainan tersimpan di database Supabase. Pemain dan fasilitator
+// tidak pernah menulis tabel secara langsung: setiap perubahan lewat fungsi
+// di server yang mengecek aturan (stok, saldo, ronde, kunci fasilitator).
+const SB_URL = "https://mdhnvznrtjzhgcvletbq.supabase.co";
+const SB_KEY = "sb_publishable_qPeLUrizilLAUD5OGoJXHA_ZR3xVQUY";
+const SITE = location.origin + location.pathname;
+async function api(path, opt){
+  opt = opt || {};
+  let r;
+  try{ r = await fetch(SB_URL + "/rest/v1/" + path, Object.assign({}, opt, { headers: Object.assign({ apikey: SB_KEY, "Content-Type": "application/json" }, opt.headers||{}) })); }
+  catch(e){ throw new Error("Tidak tersambung ke internet. Periksa koneksi lalu coba lagi."); }
+  const j = await r.json().catch(()=>null);
+  if(!r.ok) throw new Error((j && j.message) || "Server sedang sibuk. Coba lagi sebentar.");
+  return j;
+}
+const rpc = (fn, a) => api("rpc/" + fn, { method:"POST", body: JSON.stringify(a||{}) });
+const sel = p => api(p);
+
+var LV = fetchS("ibtLive");          // pemain di perangkat ini: {token, code, team, rep, name, sid}
+let PS = null;                        // keadaan terakhir dari server untuk pemain
+let curView = "home";
+const PHASE = { idle:"Menunggu", pitch:"Waktunya pitch", buy:"Belanja dibuka", done:"Ronde selesai" };
+const effVcS = (t,s) => Math.round((t.vc||0) * (1 + (s.fx_vc_pct||0)/100));
+const effFcS = (t,s) => (t.fc||0) + (s.fx_fc_add||0);
+const tname = t => t.name || ("Tim " + t.number);
+const roundDots = (s, cls) => `<div class="rd">${Array.from({length:s.round_count},(_,i)=>`<i class="${i+1===s.round?"on":(i+1<s.round||s.status==="closed")?(cls||"on"):""}"></i>`).join("")}</div>`;
+
+// ---------- polling: satu rantai, berhenti saat tab disembunyikan ----------
+let pollGen = 0;
+function livePolling(){
+  const my = ++pollGen;
+  const active = () => curView==="host" ? !!(H && H.sess) : (curView==="play" || (curView==="team" && teamLive)) && !!LV;
+  if(!active()) return;
+  const tick = async () => {
+    if(my !== pollGen) return;
+    if(!document.hidden){
+      try{ if(curView==="host") await hostLoad(); else await pollPlay(); }catch(e){}
+    }
+    if(my === pollGen && active()) setTimeout(tick, curView==="host" ? 2500 : 3000 + Math.random()*1500);
+  };
+  tick();
+}
+document.addEventListener("visibilitychange", ()=>{ if(!document.hidden) livePolling(); });
+
+function setSync(el, st, msg){
+  const s = $(el); if(!s) return;
+  s.className = "sync" + (st==="ok" ? "" : " " + st);
+  s.querySelector("span").textContent = msg || ({ok:"Tersambung", wait:"Menyimpan…", err:"Terputus", lock:"Tersimpan"}[st]);
+}
+
+// ================= GABUNG =================
+const JN = { sess:null, team:null, role:"buyer", reps:{}, counts:{} };
+function initJoin(code){
+  $("jCode").value = (code || "").toUpperCase();
+  $("jName").value = $("jName").value || "";
+  $("jInfo").innerHTML = ""; $("jStep2").classList.add("hidden");
+  JN.sess = null; JN.team = null; pickRole("buyer");
+  if($("jCode").value.length === 5) lookupSession();
+  else setTimeout(()=>$("jCode").focus(), 300);
+}
+$("jCode").addEventListener("input", e=>{
+  const v = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,5);
+  e.target.value = v;
+  if(v.length === 5) lookupSession(); else { $("jInfo").innerHTML = ""; $("jStep2").classList.add("hidden"); }
+});
+async function lookupSession(){
+  const code = $("jCode").value;
+  $("jInfo").innerHTML = `<div class="ok">Mencari sesi ${esc(code)}…</div>`;
+  try{
+    const r = await sel(`sessions?code=eq.${code}&select=id,name,team_count,round_count,status`);
+    if(!r.length){ $("jInfo").innerHTML = `<div class="bad">Kode ${esc(code)} tidak ditemukan. Periksa lagi huruf dan angkanya.</div>`; return; }
+    JN.sess = r[0];
+    const pl = await sel(`players?session_id=eq.${JN.sess.id}&select=team_number,is_rep`);
+    JN.reps = {}; JN.counts = {};
+    pl.forEach(p=>{ JN.counts[p.team_number] = (JN.counts[p.team_number]||0) + 1; if(p.is_rep) JN.reps[p.team_number] = true; });
+    $("jInfo").innerHTML = `<div class="ok">✓ <span><b>${esc(JN.sess.name)}</b> · ${JN.sess.team_count} tim, ${JN.sess.round_count} ronde</span></div>`;
+    renderJoinTeams(); $("jStep2").classList.remove("hidden"); anim($("jStep2"), "enter");
+  }catch(e){ $("jInfo").innerHTML = `<div class="bad">${esc(e.message)}</div>`; }
+}
+function renderJoinTeams(){
+  $("jTeams").innerHTML = Array.from({length:JN.sess.team_count},(_,i)=>{
+    const n = i+1, c = JN.counts[n]||0;
+    return `<button class="tbtn ${JN.team===n?"on":""}" onclick="pickTeam(${n})"><b>${n}</b><small>${c} org${JN.reps[n]?" · 📝":""}</small></button>`;
+  }).join("");
+  const repBtn = document.querySelector('.role[data-r="rep"]');
+  const taken = JN.team && JN.reps[JN.team];
+  repBtn.disabled = !!taken;
+  repBtn.querySelector("span:last-child").textContent = taken ? `Tim ${JN.team} sudah punya perwakilan` : "Satu orang per tim. Mengisi Lembar Usaha Tim dan tetap bisa belanja";
+  if(taken && JN.role==="rep") pickRole("buyer");
+}
+function pickTeam(n){ JN.team = n; renderJoinTeams(); }
+function pickRole(r){ JN.role = r; document.querySelectorAll(".role").forEach(b=>b.classList.toggle("on", b.dataset.r===r)); }
+async function doJoin(){
+  const name = $("jName").value.trim();
+  if(name.length < 2){ toast("Isi nama Anda dulu"); $("jName").focus(); return; }
+  if(!JN.team){ toast("Pilih nomor tim Anda"); return; }
+  const b = $("jGo"); b.disabled = true; b.textContent = "Menghubungkan…";
+  try{
+    const r = await rpc("join_session", { p_code: JN.sess.code || $("jCode").value, p_name: name, p_team: JN.team, p_rep: JN.role==="rep" });
+    LV = { token:r.token, code:r.code, team:r.team, rep:r.is_rep, name:r.name, sid:r.session_id };
+    store("ibtLive", LV); PS = null;
+    toast(`Selamat datang, ${r.name}! 🎉`); confetti();
+    history.replaceState(null, "", SITE + "?s=" + r.code);
+    go("play");
+  }catch(e){ toast(e.message); lookupSession(); }
+  b.disabled = false; b.textContent = "Masuk permainan →";
+}
+
+// ================= ARENA PEMAIN =================
+function startPlay(){
+  if(!LV){ go("join"); return; }
+  $("pAv").textContent = initials(LV.name); $("pAv").className = "av c" + ((LV.team-1)%6);
+  $("pName").textContent = LV.name;
+  if(PS) renderPlay(); else { $("pBand").innerHTML = "<small>Memuat</small><b>Menyambungkan ke pasar…</b>"; $("pMain").innerHTML = ""; $("pMine").innerHTML = ""; $("pRep").innerHTML = ""; }
+}
+async function pollPlay(){
+  try{
+    const st = await rpc("player_state", { p_token: LV.token });
+    setSync("pSync", "ok"); setPS(st);
+  }catch(e){
+    if(/tidak dikenali/i.test(e.message)){ store("ibtLive", null); LV = null; PS = null; toast("Akun Anda dikeluarkan dari sesi. Silakan gabung ulang."); go("join"); return; }
+    setSync("pSync", "err");
+  }
+}
+function setPS(st){
+  const prev = PS; PS = st;
+  if(prev && prev.session.phase !== st.session.phase && st.session.phase === "buy" && navigator.vibrate) navigator.vibrate(120);
+  if(curView === "play") renderPlay(prev);
+  if(curView === "team" && teamLive) updLiveBar();
+}
+function teamLeft(t){ return Math.max(0, (t.qty||0) - (t.loss||0) - (t.sold||0)); }
+function renderPlay(prev){
+  const st = PS, s = st.session, me = st.me, mine = st.teams.find(t=>t.number===me.team) || {number:me.team};
+  $("pTeam").textContent = `Tim ${me.team}${mine.name ? " · " + mine.name : ""} · ${me.is_rep ? "Perwakilan" : "Anggota"}`;
+  const selling = s.status==="market" && mine.round===s.round;
+  // pita ronde
+  let cls = "", sm = "", big = "", p = "";
+  if(s.status==="setup"){ sm = "Persiapan"; big = "Menunggu pasar dibuka"; p = me.is_rep ? "Isi Lembar Usaha Tim sekarang. Data otomatis terkirim ke fasilitator." : `Tim Anda berjualan di ronde ${mine.round||"?"}. Bantu perwakilan menyiapkan produk dan pitch.`; }
+  else if(s.status==="closed"){ cls = "closed"; sm = "Selesai"; big = "Pasar ditutup 🏁"; p = "Perhatikan layar proyektor untuk pengumuman juara."; }
+  else {
+    cls = s.phase==="buy" ? "buy" : s.phase==="pitch" ? "pitch" : "";
+    sm = `Ronde ${s.round} dari ${s.round_count}`;
+    big = selling ? (s.phase==="pitch" ? "Giliran tim Anda pitch! 🎤" : s.phase==="buy" ? "Lapak Anda sedang dibuka" : "Ronde jualan Anda selesai") : (PHASE[s.phase] || "");
+    p = selling ? "Tim Anda berjualan di ronde ini, jadi tidak bisa belanja dulu." : s.phase==="pitch" ? "Dengarkan pitch tim yang berjualan. Belanja dibuka sebentar lagi." : s.phase==="buy" ? `Belanjakan uang virtual Anda, maksimal ${s.max_per_team} kali per tim.` : "Tunggu fasilitator membuka ronde berikutnya.";
+  }
+  const band = $("pBand"); band.className = "rband " + cls;
+  band.innerHTML = `<small>${sm}</small><b>${big}</b><p>${p}</p>${s.status!=="setup" ? roundDots(s) : ""}`;
+  if(prev && (prev.session.phase!==s.phase || prev.session.round!==s.round || prev.session.status!==s.status)) anim(band, "enter");
+  // perwakilan
+  $("pRep").innerHTML = me.is_rep ? (()=>{
+    const ready = mine.product && mine.price>0 && mine.qty>0;
+    const bp = s.bundle ? `<div class="bp"><input type="number" min="0" step="500" id="bpIn" value="${mine.bundle_price||""}" placeholder="Harga paket 2 produk"><button class="btn purple sm" onclick="saveBundle()">Simpan paket</button></div>` : "";
+    return `<div class="repcard"><div class="rt"><b>📝 Anda perwakilan Tim ${me.team}</b><span>${ready ? `${esc(mine.product)} · ${rp(mine.price)} · ${mine.qty} ${esc(mine.unit||"produk")}` : "Lembar Usaha Tim belum lengkap: isi produk, harga jual, dan jumlah produksi."}</span></div><button class="btn ${ready?"soft":"pri"}" onclick="go('team','live')">${ready?"Buka":"Isi"} Lembar Usaha →</button>${bp}</div>`;
+  })() : "";
+  // isi utama
+  let main = "";
+  if(s.status==="closed") main = `<div id="pRank" class="card"><span class="lvtag">PAPAN AKHIR</span><h2 style="font-size:20px">Laba nyata per tim</h2><div class="rank" id="rankList">Menghitung…</div></div>`;
+  else if(selling){
+    const l = teamLeft(mine), a = Math.max(0,(mine.qty||0)-(mine.loss||0));
+    main = `<div class="card seller"><span class="lvtag">LAPAK TIM ${me.team}</span><div class="big">${mine.sold||0}</div><div class="of">terjual dari ${a} ${esc(mine.unit||"produk")}${l<=0&&a?" · <b style='color:var(--red)'>HABIS</b>":""}</div><div class="meter"><i style="width:${a?Math.min(100,(mine.sold||0)/a*100):0}%"></i></div><div class="of">Pendapatan <b style="font-family:var(--f-d);color:var(--ink)">${rp(mine.revenue||0)}</b></div></div>`;
+  } else {
+    const rnd = s.status==="setup" ? 1 : s.round;
+    const list = st.teams.filter(t=>t.round===rnd);
+    const left$ = Math.max(0, s.budget - st.spent), canBuy = s.status==="market" && s.phase==="buy";
+    main = `<div class="wallet2"><span class="wi">Rp</span><div><small>Sisa uang virtual ronde ${s.status==="setup"?"ini":s.round}</small><b>${rp(s.status==="setup"?s.budget:left$)}</b><div class="of">dari ${rp(s.budget)} per ronde · tidak terbawa ke ronde berikutnya</div></div></div>
+      <h3 class="hsub">${s.status==="setup" ? "Tim yang berjualan di ronde 1" : "Tim yang berjualan sekarang"}</h3>
+      <div class="bgrid">${list.map(t=>{
+        const l = teamLeft(t), n = st.bought.filter(b=>b.team_id===t.id).length, got = n >= s.max_per_team, own = t.number===me.team;
+        const uq = (t.uniques||"").split("\n").map(x=>x.trim()).filter(Boolean).slice(0,3);
+        let lab = `Beli 1 ${esc(t.unit||"produk")}`, dis = !canBuy, gcls = "";
+        if(own){ lab = "Tim Anda"; dis = true; }
+        else if(!t.price){ lab = "Belum ada harga"; dis = true; }
+        else if(got){ lab = "✓ Sudah dibeli"; dis = true; gcls = " got"; }
+        else if(l<=0){ lab = "Habis"; dis = true; }
+        else if(!canBuy){ lab = s.status==="setup" ? "Belum dibuka" : "Tunggu belanja dibuka"; }
+        else if(t.price > left$){ lab = "Uang tidak cukup"; dis = true; }
+        const bundle = s.bundle && t.bundle_price>0 && !own && !got && canBuy ? `<button class="buy b2" onclick="askBuy('${t.id}',true)" ${l<2||t.bundle_price>left$?"disabled":""}>🎁 Paket 2 · ${rp(t.bundle_price)}</button>` : "";
+        return `<div class="bcard ${l<=0&&t.qty?"out":""}"><div class="who"><span class="av c${(t.number-1)%6}">${esc(initials(tname(t)))}</span><div style="min-width:0"><div class="tn">Tim ${t.number} · ${esc(tname(t))}</div><div class="pn">${esc(t.product||"Produk belum diisi")}</div></div></div>
+          ${t.tagline?`<p class="tg">“${esc(t.tagline)}”</p>`:""}${uq.length?`<div class="uq">${uq.map(u=>`<span>${esc(u)}</span>`).join("")}</div>`:""}
+          <div class="row2"><span class="pp">🪙 ${t.price?rp(t.price):"·"}</span><span class="stk">${t.qty?`${l} tersisa`:""}</span></div>
+          <button class="buy${gcls}" onclick="askBuy('${t.id}',false)" ${dis?"disabled":""}>${lab}${!dis?` · ${rp(t.price)}`:""}</button>${bundle}
+          ${l<=0&&t.qty?'<span class="stamp">SOLD OUT</span>':""}</div>`;
+      }).join("") || `<div class="card">Belum ada tim di ronde ini.</div>`}</div>`;
+  }
+  $("pMain").innerHTML = main;
+  if(s.status==="closed") loadRank();
+  // belanjaan
+  const tm = id => st.teams.find(t=>t.id===id) || {};
+  const tot = st.bought.reduce((a,b)=>a+b.amount,0);
+  $("pMine").innerHTML = st.bought.length ? `<h3>Belanjaan Anda · ${rp(tot)}</h3><div class="mlist">${st.bought.slice().reverse().map(b=>{ const t = tm(b.team_id); return `<div><span>R${b.round} · ${esc(t.product||"Produk")} <span style="color:var(--muted)">(Tim ${t.number||"?"})</span>${b.units>1?` × ${b.units}`:""}</span><b>${rp(b.amount)}</b></div>`; }).join("")}</div>` : "";
+}
+function askBuy(id, bundle){
+  const t = PS.teams.find(x=>x.id===id); if(!t) return;
+  const amt = bundle ? t.bundle_price : t.price, left$ = PS.session.budget - PS.spent;
+  modal(`<h3>Beli ${bundle?"paket 2 ":""}${esc(t.product)}?</h3><p>Dari <b>Tim ${t.number} · ${esc(tname(t))}</b> seharga <b>${rp(amt)}</b>.</p><p style="margin-top:6px">Sisa uang Anda setelah ini: <b>${rp(left$-amt)}</b></p>
+    <div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn pri" id="buyOk" onclick="doBuy('${id}',${!!bundle},${amt})">🪙 Bayar ${rp(amt)}</button></div>`);
+}
+let buying = false;
+async function doBuy(id, bundle, amt){
+  if(buying) return; buying = true;
+  const b = $("buyOk"); if(b){ b.disabled = true; b.textContent = "Memproses…"; }
+  try{
+    const st = await rpc("buy", { p_token: LV.token, p_team: id, p_bundle: bundle });
+    closeModal(); floatCoin(lastTap.x, lastTap.y, "−" + rp(amt), true); setPS(st); toast("Berhasil dibeli! 🛍️");
+  }catch(e){ closeModal(); toast(e.message); pollPlay(); }
+  buying = false;
+}
+async function saveBundle(){
+  const v = pos($("bpIn").value);
+  try{ await rpc("rep_save", { p_token: LV.token, p: { bundle_price: v } }); toast("Harga paket disimpan"); pollPlay(); }
+  catch(e){ toast(e.message); }
+}
+async function loadRank(){
+  try{
+    const s = PS.session;
+    const ts = await sel(`teams?session_id=eq.${s.id}&select=id,number,name,product,vc,fc,qty&order=number`);
+    const rev = {}; PS.teams.forEach(t=>rev[t.id] = t.revenue||0);
+    const R = ts.filter(t=>t.product||t.name).map(t=>({...t, profit:(rev[t.id]||0) - (t.qty||0)*effVcS(t,s) - effFcS(t,s)})).sort((a,b)=>b.profit-a.profit);
+    const el = $("rankList"); if(!el) return;
+    el.innerHTML = R.map((t,i)=>`<div class="${t.number===PS.me.team?"me":""}"><span class="m">${["🥇","🥈","🥉"][i]||i+1}</span><span class="n"><b>${esc(tname(t))}</b><span>${esc(t.product)}</span></span><span class="v" style="color:${t.profit>=0?"var(--acc)":"var(--red)"}">${rp(t.profit)}</span></div>`).join("");
+  }catch(e){}
+}
+function askLeave(){
+  modal(`<h3>Keluar dari sesi?</h3><p>Anda bisa gabung lagi dengan kode yang sama, tetapi akan tercatat sebagai pemain baru dan riwayat belanja di perangkat ini tidak terlihat lagi.</p>
+    <div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn red" onclick="leaveLive()">Keluar</button></div>`);
+}
+function leaveLive(){ store("ibtLive", null); LV = null; PS = null; closeModal(); history.replaceState(null, "", SITE); go("home"); }
+
+// ================= LEMBAR USAHA TIM TERSAMBUNG =================
+let teamLive = false;
+const liveTeamKey = () => "ibtLiveTeam_" + LV.code + "_" + LV.team;
+function seedT(){
+  const t = PS && PS.teams.find(x=>x.number===LV.team);
+  const o = { team: "Tim " + LV.team };
+  if(t){ Object.assign(o, { team: t.name || o.team, product: t.product, unit: t.unit || "produk", tagline: t.tagline, unique: t.uniques, price: t.price||0, qty: t.qty||20 }); }
+  return o;
+}
+function setTeamMode(live){
+  teamLive = !!(live && LV && LV.rep);
+  T = Object.assign(BLANK(), fetchS(teamLive ? liveTeamKey() : "ibtSimTeam") || (teamLive ? seedT() : {}));
+  if(T.unit==="unit") T.unit = "produk";
+  if(!T.id) T.id = uid();
+  $("liveBar").classList.toggle("hidden", !teamLive);
+  document.querySelector("#vTeam .fac").classList.toggle("hidden", teamLive);
+  if(teamLive){ lastSent = ""; updLiveBar(); }
+}
+function updLiveBar(){
+  if(!teamLive) return;
+  const s = PS && PS.session, locked = s && s.status !== "setup";
+  $("lbTxt").innerHTML = `Tersambung ke sesi <b>${esc(LV.code)}</b> sebagai perwakilan <b>Tim ${LV.team}</b>. Setiap perubahan otomatis terkirim ke fasilitator.`;
+  $("lbLock").classList.toggle("hidden", !locked);
+}
+let repTimer = null, repBusy = false, repDirty = false, lastSent = "";
+function queueRepSave(){ clearTimeout(repTimer); setSync("lbSync", "wait"); repTimer = setTimeout(repSave, 900); }
+async function repSave(){
+  const c = calc(T);
+  const body = { name: T.team || ("Tim " + LV.team), members: T.members||"", product: T.product||"", unit: T.unit||"produk", tagline: T.tagline||"", uniques: T.unique||"", price: c.price, vc: c.vc, fc: c.fc, qty: c.qty };
+  const js = JSON.stringify(body);
+  if(js === lastSent){ setSync("lbSync", "ok", "Tersimpan"); return; }
+  if(repBusy){ repDirty = true; return; }
+  repBusy = true;
+  try{ const r = await rpc("rep_save", { p_token: LV.token, p: body }); lastSent = js; setSync("lbSync", r.locked ? "lock" : "ok", r.locked ? "Harga tersimpan" : "Tersimpan"); }
+  catch(e){ setSync("lbSync", "err", "Gagal simpan"); toast(e.message); }
+  repBusy = false;
+  if(repDirty){ repDirty = false; repSave(); }
+}
+
+// ================= RUANG FASILITATOR =================
+let HS = fetchS("ibtHost") || [];      // sesi yang dibuat di perangkat ini: [{code, key, name, at}]
+let H = null;                           // ruang aktif
+const ONLINE_EVENTS = EVENTS.map(e=>Object.assign({}, e, ({
+  borongan: { d:"Mulai sekarang setiap pembeli boleh membeli 2 kali dari tim yang sama.", fx:{ maxAdd:1 } },
+  diskon:   { d:"Perwakilan tim boleh mengubah harga jual sekarang di Lembar Usaha (Level 3). Penjualan sebelumnya tetap tercatat dengan harga lama." },
+  bundling: { d:"Perwakilan tim mengisi harga paket 2 produk di HP. Pembeli bisa langsung membeli paket." },
+})[e.k] || {}));
+let hEvent = null, hTimer = null;
+
+function initHost(){
+  if(H && H.sess){ showRoom(); return; }
+  renderHostNew();
+}
+function renderHostNew(){
+  $("hRoom").classList.add("hidden"); $("hNew").classList.remove("hidden");
+  $("hNew").innerHTML = `<div class="card"><span class="lvtag">MODE DARING · FASILITATOR</span><h2>Buat sesi permainan</h2>
+    <p class="lead">Peserta bergabung dari HP masing-masing dengan kode sesi. Semua data tersinkron ke layar ini.</p>
+    <div class="fields">
+      <div class="full"><label>Nama sesi</label><input id="nsName" value="Simulasi Bisnis CEDC UNPRI" maxlength="60"></div>
+      <div><label>Jumlah tim</label><input id="nsTeams" type="number" min="2" max="40" value="20" oninput="planText()"></div>
+      <div><label>Jumlah ronde jualan</label><input id="nsRounds" type="number" min="1" max="10" value="4" oninput="planText()"></div>
+      <div class="full"><label>🪙 Uang virtual per pembeli per ronde (Rp)</label><input id="nsBudget" type="number" min="1000" step="1000" value="20000" oninput="planText()"></div>
+    </div>
+    <div class="hplan" id="nsPlan"></div>
+    <div class="nav"><button class="btn soft" onclick="go('home')">← Beranda</button><button class="btn pri" id="nsGo" onclick="createSess()">Buat sesi →</button></div></div>
+    <div class="card"><span class="lvtag">SESI TERSIMPAN</span><h2 style="font-size:20px">Lanjutkan sesi</h2>
+    <p class="lead" style="font-size:14px">Kunci fasilitator tersimpan hanya di perangkat ini. Jangan bagikan tautan ruang fasilitator.</p>
+    <div class="slist">${HS.length ? HS.map(h=>`<div class="si"><b>${esc(h.code)}</b><span>${esc(h.name||"")}</span><button class="btn dark sm" onclick="openRoom('${h.code}')">Buka</button><button class="x" title="Hapus dari perangkat ini" onclick="forgetSess('${h.code}')">×</button></div>`).join("") : `<p style="color:var(--muted);font-size:14px">Belum ada sesi di perangkat ini.</p>`}</div></div>`;
+  planText();
+}
+function planText(){
+  const n = Math.max(2, +$("nsTeams").value||0), r = Math.max(1, Math.min(n, +$("nsRounds").value||1)), b = pos($("nsBudget").value);
+  const per = Math.ceil(n/r);
+  const parts = Array.from({length:r},(_,i)=>{ const a = i*per+1, z = Math.min(n,(i+1)*per); return a<=z ? `ronde ${i+1}: tim ${a}${z>a?" sampai "+z:""}` : null; }).filter(Boolean);
+  $("nsPlan").innerHTML = `<b>Pembagian jualan:</b> ${parts.join(" · ")}.<br>Saat satu kelompok berjualan, peserta dari tim lain menjadi pembeli dengan uang <b>${rp(b)}</b> per ronde.`;
+}
+async function createSess(){
+  const b = $("nsGo"); b.disabled = true; b.textContent = "Membuat…";
+  try{
+    const name = $("nsName").value.trim() || "Simulasi Bisnis";
+    const r = await rpc("create_session", { p_name: name, p_team_count: +$("nsTeams").value, p_round_count: +$("nsRounds").value, p_budget: +$("nsBudget").value });
+    HS = [{ code:r.code, key:r.admin_key, name, at:Date.now() }].concat(HS.filter(h=>h.code!==r.code)).slice(0,12);
+    store("ibtHost", HS); toast("Sesi " + r.code + " siap! 🎉"); confetti();
+    await openRoom(r.code);
+  }catch(e){ toast(e.message); }
+  b.disabled = false; b.textContent = "Buat sesi →";
+}
+function forgetSess(code){ HS = HS.filter(h=>h.code!==code); store("ibtHost", HS); renderHostNew(); }
+async function openRoom(code){
+  const h = HS.find(x=>x.code===code); if(!h) return;
+  try{
+    await rpc("admin_check", { p_code: code, p_key: h.key });
+    H = { code, key: h.key, sess: null, teams: [], players: [], sales: [], lastSale: 0, fullAt: 0, tab: "live", sold: {}, phaseKey: "", phaseAt: Date.now() };
+    await hostLoad(true); showRoom();
+  }catch(e){ toast(e.message); }
+}
+function showRoom(){
+  $("hNew").classList.add("hidden"); $("hRoom").classList.remove("hidden");
+  renderJoinCard(); htab(H.tab || "live"); livePolling();
+  clearInterval(hTimer); hTimer = setInterval(tickTimer, 1000);
+}
+function leaveRoom(){ closeModal(); projector(false); H = null; clearInterval(hTimer); pollGen++; renderHostNew(); }
+const admin = (fn, extra) => rpc(fn, Object.assign({ p_code: H.code, p_key: H.key }, extra||{}));
+
+async function hostLoad(full){
+  const ss = await sel(`sessions?code=eq.${H.code}&select=*`);
+  const s = ss[0]; if(!s) throw new Error("Sesi tidak ditemukan.");
+  const [teams, players] = await Promise.all([
+    sel(`teams?session_id=eq.${s.id}&select=*&order=number`),
+    sel(`players?session_id=eq.${s.id}&select=id,name,team_number,is_rep,created_at&order=created_at`)
+  ]);
+  const cols = "id,team_id,buyer_id,round,units,amount,is_bundle,created_at";
+  if(full || Date.now() - H.fullAt > 20000){
+    let all = [], off = 0;
+    for(;;){ const part = await sel(`sales?session_id=eq.${s.id}&select=${cols}&order=id&limit=1000&offset=${off}`); all = all.concat(part); if(part.length < 1000) break; off += 1000; }
+    H.sales = all; H.fullAt = Date.now();
+  } else {
+    const add = await sel(`sales?session_id=eq.${s.id}&id=gt.${H.lastSale}&select=${cols}&order=id&limit=1000`);
+    H.sales = H.sales.concat(add);
+  }
+  H.lastSale = H.sales.length ? H.sales[H.sales.length-1].id : 0;
+  const key = s.status + s.round + s.phase;
+  if(key !== H.phaseKey){ if(H.phaseKey) H.phaseAt = Date.now(); H.phaseKey = key; }
+  H.sess = s; H.teams = teams; H.players = players;
+  if(curView === "host") renderRoom();
+}
+function teamStats(){
+  const st = {}; H.teams.forEach(t=>st[t.id] = { sold:0, rev:0, rRev:0 });
+  H.sales.forEach(x=>{ const o = st[x.team_id]; if(!o) return; o.sold += x.units; o.rev += x.amount; });
+  return st;
+}
+function renderRoom(){
+  if(!H || !H.sess) return;
+  renderJoinCard(); renderStage();
+  const busy = document.activeElement && $("hPane").contains(document.activeElement) && /INPUT|SELECT/.test(document.activeElement.tagName);
+  // Gambar ulang hanya bila datanya berubah, supaya klik fasilitator tidak terganggu.
+  const sig = [H.tab, H.sess.updated_at, H.sales.length, H.lastSale, H.players.length, H.teams.map(t=>t.updated_at).join(), hEvent && hEvent.k, document.body.classList.contains("proj")].join("|");
+  if(sig === H.sig && H.tab !== "result") return;
+  H.sig = sig;
+  if(H.tab === "live") renderHLive();
+  else if(H.tab === "teams"){ if(busy) H.sig = ""; else renderHTeams(); }
+  else if(H.tab === "people") renderHPeople();
+  else if(H.tab === "result" && H.resDirty !== H.sales.length + "|" + H.sess.updated_at) renderHResult();
+}
+function renderJoinCard(){
+  const s = H.sess, url = SITE + "?s=" + s.code;
+  const reps = H.players.filter(p=>p.is_rep).length;
+  const ready = H.teams.filter(t=>t.product && t.price>0 && t.qty>0).length;
+  if($("hJoin").dataset.code !== s.code){
+    let svg = "";
+    try{ const q = qrcode(0, "M"); q.addData(url); q.make(); svg = q.createSvgTag({ cellSize: 4, margin: 0, scalable: true }); }catch(e){ svg = ""; }
+    $("hJoin").innerHTML = `<div class="qr">${svg}</div><div style="min-width:0"><small>Scan atau buka</small><span class="url">${esc(url.replace(/^https?:\/\//,""))}</span><small>Kode sesi</small><div class="code">${esc(s.code)}</div><div class="cnt" id="hCnt"></div></div>`;
+    $("hJoin").dataset.code = s.code;
+  }
+  $("hCnt").innerHTML = `<span>👥 ${H.players.length} peserta</span><span>📝 ${reps}/${s.team_count} perwakilan</span><span>✓ ${ready}/${s.team_count} tim siap</span>`;
+}
+function stageInfo(){
+  const s = H.sess, ready = H.teams.filter(t=>t.product && t.price>0 && t.qty>0).length;
+  const sellers = H.teams.filter(t=>t.round===s.round).map(t=>t.number);
+  const rng = sellers.length ? `tim ${sellers[0]}${sellers.length>1?" sampai "+sellers[sellers.length-1]:""}` : "belum ada tim";
+  if(s.status==="setup") return { cls:"", sm:"Persiapan", h:"Perwakilan mengisi Lembar Usaha Tim", p:`${ready} dari ${s.team_count} tim sudah mengisi produk, harga, dan jumlah produksi. Setelah pasar dibuka, produksi dan biaya dikunci.`, act:`<button class="btn pri" onclick="askOpen()">🔓 Buka Pasar</button>` };
+  if(s.status==="closed") return { cls:"closed", sm:"Selesai", h:"Pasar ditutup 🏁", p:"Umumkan juara dari tab Hasil, lalu ajak peserta refleksi.", act:`<button class="btn pri" onclick="htab('result')">🏆 Lihat Hasil</button><button class="btn white sm" onclick="adminUpd({status:'market',phase:'done'})">Buka kembali</button>` };
+  const last = s.round >= s.round_count;
+  if(s.phase==="pitch") return { cls:"pitch", sm:`Ronde ${s.round} dari ${s.round_count}`, h:"Waktunya pitch 🎤", p:`Persilakan ${rng} pitch 1 menit, lalu buka belanja.`, act:`<button class="btn pri" onclick="adminUpd({phase:'buy'})">🛒 Mulai Belanja</button>`, tm:true };
+  if(s.phase==="buy") return { cls:"buy", sm:`Ronde ${s.round} dari ${s.round_count}`, h:"Belanja dibuka 🛒", p:`Pembeli dari tim lain sedang belanja di lapak ${rng}.`, act:`<button class="btn dark" onclick="adminUpd({phase:'done'})">■ Tutup Belanja</button>`, tm:true };
+  return { cls:"", sm:`Ronde ${s.round} dari ${s.round_count}`, h:`Ronde ${s.round} selesai`, p: last ? "Semua ronde selesai. Tutup pasar untuk menghitung laba nyata setiap tim." : `Berikutnya ronde ${s.round+1}. Minta tim yang akan berjualan bersiap pitch.`,
+    act: (last ? `<button class="btn pri" onclick="askClose()">🏁 Tutup Pasar & Umumkan</button>` : `<button class="btn pri" onclick="adminUpd({round:${s.round+1},phase:'pitch'})">Lanjut ke Ronde ${s.round+1} →</button>`) + `<button class="btn white sm" onclick="adminUpd({phase:'buy'})">↺ Buka lagi belanja</button>` };
+}
+function renderStage(){
+  const s = H.sess, i = stageInfo(), el = $("hStage");
+  const key = i.sm + i.h;
+  el.className = "stagec " + i.cls;
+  if(el.dataset.k === key + i.p) return;
+  el.innerHTML = `<small>${i.sm}</small><h2>${i.h}</h2><p>${i.p}</p><div class="sact hctl">${i.act}${i.tm?`<span class="tm" id="hTm">00:00</span>`:""}</div>${s.status!=="setup"?roundDots(s,"done"):""}`;
+  if(el.dataset.k && el.dataset.k.indexOf(key)!==0) anim(el, "enter");
+  el.dataset.k = key + i.p; tickTimer();
+}
+function tickTimer(){ const t = $("hTm"); if(!t || !H) return; const sec = Math.floor((Date.now()-H.phaseAt)/1000); t.textContent = String(Math.floor(sec/60)).padStart(2,"0") + ":" + String(sec%60).padStart(2,"0"); }
+async function adminUpd(p){
+  try{ await admin("admin_update", { p }); await hostLoad(true); }catch(e){ toast(e.message); }
+  if(p.status === "closed") htab("result");
+}
+function askOpen(){
+  const s = H.sess, ready = H.teams.filter(t=>t.product && t.price>0 && t.qty>0).length;
+  modal(`<h3>Buka pasar sekarang?</h3><p><b>${ready} dari ${s.team_count} tim</b> sudah lengkap. Setelah dibuka, jumlah produksi dan biaya setiap tim dikunci. Harga jual masih bisa diubah perwakilan.</p>${ready<s.team_count?`<p style="margin-top:6px;color:var(--red-s)">Tim yang belum lengkap tetap bisa dilengkapi lewat tab Tim, tetapi tidak bisa berjualan tanpa harga.</p>`:""}
+    <div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn pri" onclick="doOpen()">🔓 Buka Pasar</button></div>`);
+}
+async function doOpen(){ closeModal(); try{ await admin("admin_open_market"); await hostLoad(true); toast("Pasar dibuka! Ronde 1: waktunya pitch"); confetti(); }catch(e){ toast(e.message); } }
+function askClose(){ modal(`<h3>Tutup pasar?</h3><p>Penjualan berhenti dan laba nyata setiap tim dihitung. Pasar masih bisa dibuka kembali bila perlu.</p><div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn pri" onclick="closeModal();adminUpd({status:'closed',phase:'done'})">🏁 Tutup & umumkan</button></div>`); }
+
+function htab(t){
+  if(!H) return; H.tab = t;
+  document.querySelectorAll("#htabs .mtab").forEach(b=>b.classList.toggle("on", b.dataset.t===t));
+  requestAnimationFrame(hMoveInd);
+  $("hPane").classList.toggle("hidden", t==="result"); $("hRes").classList.toggle("hidden", t!=="result");
+  H.resDirty = null; H.sig = ""; renderRoom(); anim(t==="result" ? $("hRes") : $("hPane"), "enter");
+}
+
+function hMoveInd(){ const on = document.querySelector("#htabs .mtab.on"), ind = $("htabInd"); if(!on || !ind || !on.offsetWidth) return; ind.style.width = on.offsetWidth + "px"; ind.style.transform = `translateX(${on.offsetLeft}px)`; }
+addEventListener("resize", hMoveInd);
+
+// ---------- tab Pasar Live ----------
+function renderHLive(){
+  const s = H.sess, st = teamStats(), rnd = s.status==="setup" ? 1 : s.round;
+  const sellers = H.teams.filter(t=>t.round===rnd);
+  const buyers = H.players.filter(p=>!sellers.some(t=>t.number===p.team_number)).length;
+  const rSpent = H.sales.filter(x=>x.round===s.round).reduce((a,x)=>a+x.amount,0), rTot = buyers * s.budget;
+  const used = (s.events||[]).map(e=>e.k);
+  const evHTML = s.status==="market" ? `<div class="evt hctl"><div class="ecard ${hEvent?"on":""}" id="hevCard" onclick="hDraw()"><div class="ec-in"><div class="ec-back">?</div><div class="ec-front"><span>${hEvent?hEvent.i:"🎲"}</span></div></div></div>
+      <div class="etxt"><small>Kartu Kejadian Pasar</small><b>${hEvent?esc(hEvent.t):"Tarik kartu kejutan"}</b><p>${hEvent?esc(hEvent.d):"Harga bahan naik, biaya tambahan, atau peluang promosi. Setiap kartu hanya bisa dipakai sekali."}</p></div>
+      <div class="eact">${hEvent?`<button class="btn pri" onclick="hApply()">Terapkan kartu ini</button>`:""}<button class="btn purple" onclick="hDraw()">🎴 Tarik kartu</button></div></div>
+      ${used.length||s.bundle?`<div class="evlog"><span>Kartu terpakai:</span>${(s.events||[]).map(e=>`<span class="ev">${esc(e.i||"🎴")} ${esc(e.t)}</span>`).join("")}${s.bundle?` <button class="btn soft sm" onclick="adminUpd({bundle:false})">Akhiri promo paket</button>`:""}</div>`:""}` : "";
+  const prevSold = H.sold || {}; const bumps = [];
+  const cards = sellers.map(t=>{
+    const o = st[t.id], a = Math.max(0,(t.qty||0)-(t.loss||0)), out = a>0 && o.sold>=a;
+    if(prevSold[t.id]!=null && o.sold > prevSold[t.id]) bumps.push([t.id, o.rev - (H.revPrev||{})[t.id]]);
+    const changed = t.plan && t.plan.price !== t.price;
+    return `<div class="scard ${out?"out":""}" id="hc_${t.id}"><div class="who"><span class="av c${(t.number-1)%6}">${esc(initials(tname(t)))}</span><div style="min-width:0"><div class="tn">Tim ${t.number} · ${esc(tname(t))}</div><div class="pn">${esc(t.product||"Produk belum diisi")}</div></div></div>
+      <div class="pp">🪙 ${t.price?rp(t.price):"·"}${changed?` <span class="oldp">(awal ${rp(t.plan.price)})</span>`:""}${s.bundle&&t.bundle_price?` · 🎁 ${rp(t.bundle_price)}`:""}</div>
+      <div class="sold">${o.sold}</div><div class="of">terjual dari ${a} produk${t.loss?` (${t.loss} rusak)`:""}${out?" · <b style='color:var(--red)'>HABIS</b>":""}</div>${out?`<span class="stamp">SOLD OUT</span>`:""}
+      <div class="meter"><i style="width:${a?Math.min(100,o.sold/a*100):0}%"></i></div><div class="rev">Pendapatan: <b>${rp(o.rev)}</b></div></div>`;
+  }).join("");
+  const nm = id => { const p = H.players.find(x=>x.id===id); return p ? p.name : "Pembeli"; };
+  const tm = id => H.teams.find(x=>x.id===id) || {};
+  const feed = H.sales.slice(-12).reverse().map(x=>`<div><span><b>${esc(nm(x.buyer_id))}</b> beli ${esc(tm(x.team_id).product||"produk")}${x.units>1?" ×"+x.units:""} · ${rp(x.amount)}</span><button class="u hctl" title="Batalkan transaksi ini" onclick="askUndo(${x.id})">↶</button></div>`).join("");
+  const mx = Math.max(1, ...H.teams.map(t=>st[t.id].rev));
+  const board = H.teams.filter(t=>t.product||t.name).slice().sort((a,b)=>st[b.id].rev-st[a.id].rev).map(t=>`<div class="rb ${t.round===rnd&&s.status==="market"?"sell":""}"><b>${t.number}. ${esc(tname(t))}</b><div class="tr"><i style="width:${st[t.id].rev/mx*100}%"></i></div><span class="vv">${rp(st[t.id].rev)}</span></div>`).join("");
+  $("hPane").innerHTML = `${evHTML}
+    ${s.status!=="setup"?`<div class="wallet"><span class="wi">Rp</span><div class="wb"><div class="wt"><i style="width:${rTot?Math.min(100,rSpent/rTot*100):0}%"></i></div><p>Ronde ${s.round}: ${buyers} pembeli × ${rp(s.budget)} = ${rp(rTot)} beredar · sudah dibelanjakan ${rp(rSpent)}${rTot?` (${Math.round(rSpent/rTot*100)}%)`:""}</p></div></div>`:""}
+    <h3 class="hsub" style="margin-top:16px">${s.status==="setup"?"Ronde 1 nanti":"Lapak yang buka di ronde "+s.round}</h3>
+    <div class="hgrid">${cards || `<div class="card">Tidak ada tim di ronde ini.</div>`}</div>
+    <div class="h2col"><div class="card"><span class="lvtag">PENDAPATAN SEMENTARA</span><div class="rbars">${board || "<p style='color:var(--muted)'>Belum ada tim yang mengisi data.</p>"}</div></div>
+    <div class="card"><span class="lvtag">TRANSAKSI TERBARU</span><div class="feed">${feed || "<p style='color:var(--muted);font-size:14px'>Belum ada transaksi.</p>"}</div></div></div>`;
+  bumps.forEach(([id, amt])=>{ const c = $("hc_" + id); if(!c) return; c.classList.add("bump"); const r = c.getBoundingClientRect(); floatCoin(r.left + r.width/2, r.top + 60, "+" + rp(amt||0)); });
+  H.sold = {}; H.revPrev = {}; H.teams.forEach(t=>{ H.sold[t.id] = st[t.id].sold; H.revPrev[t.id] = st[t.id].rev; });
+}
+function hDraw(){
+  const used = (H.sess.events||[]).map(e=>e.k);
+  let pool = ONLINE_EVENTS.filter(e=>!used.includes(e.k) && e!==hEvent);
+  if(!pool.length && hEvent) pool = [hEvent];
+  if(!pool.length){ toast("Semua kartu kejadian sudah diterapkan"); return; }
+  hEvent = pool[Math.floor(Math.random()*pool.length)]; H.sig = ""; renderRoom();
+}
+async function hApply(){
+  if(!hEvent) return; const e = hEvent, f = e.fx || {};
+  try{
+    await admin("admin_event", { p: { k:e.k, t:e.t, i:e.i, vcPct:f.vcPct||0, fcAdd:f.fcAdd||0, loss:f.loss||0, bundle:!!f.bundle } });
+    if(f.maxAdd) await admin("admin_update", { p: { max_per_team: H.sess.max_per_team + f.maxAdd } });
+    hEvent = null; await hostLoad(true); toast("Kartu kejadian diterapkan");
+    const c = $("hevCard"); if(c){ c.classList.add("shake"); }
+  }catch(err){ toast(err.message); }
+}
+function askUndo(id){
+  const x = H.sales.find(s=>s.id===id); if(!x) return;
+  modal(`<h3>Batalkan transaksi ini?</h3><p>${rp(x.amount)} dikembalikan ke pembeli dan stok tim bertambah lagi.</p><div class="mbtns"><button class="btn soft" onclick="closeModal()">Tidak</button><button class="btn red" onclick="doUndo(${id})">Batalkan transaksi</button></div>`);
+}
+async function doUndo(id){ closeModal(); try{ await admin("admin_undo_sale", { p_sale: id }); await hostLoad(true); toast("Transaksi dibatalkan"); }catch(e){ toast(e.message); } }
+
+// ---------- tab Tim ----------
+function renderHTeams(){
+  const s = H.sess, st = teamStats();
+  const rep = n => { const p = H.players.find(x=>x.team_number===n && x.is_rep); return p ? esc(p.name) : `<span style="color:var(--muted2)">·</span>`; };
+  const opt = t => Array.from({length:s.round_count},(_,i)=>`<option value="${i+1}" ${t.round===i+1?"selected":""}>R${i+1}</option>`).join("");
+  $("hPane").innerHTML = `<div class="card"><span class="lvtag">DATA TIM · TERISI OTOMATIS DARI HP PERWAKILAN</span><h2 style="font-size:20px">Daftar tim</h2>
+    <p class="lead" style="font-size:14px">Ubah hanya untuk koreksi. ${s.status==="setup"?"Ronde jualan setiap tim bisa dipindah sebelum pasar dibuka.":"Pasar sudah dibuka: perubahan biaya dan produksi di sini tetap dipakai dalam perhitungan laba."}</p>
+    <div style="overflow-x:auto"><table class="tbl tlist"><thead><tr><th>No</th><th>Ronde</th><th>Nama tim</th><th>Produk</th><th>Harga</th><th>Biaya var.</th><th>Biaya tetap</th><th>Produksi</th><th>Perwakilan</th><th>Status</th></tr></thead><tbody>
+    ${H.teams.map(t=>`<tr><td><b>${t.number}</b></td><td><select onchange="hTeam('${t.id}','round',this.value)" ${s.status!=="setup"?"disabled":""}>${opt(t)}</select></td>
+      <td><input value="${esc(t.name)}" onchange="hTeam('${t.id}','name',this.value)"></td><td><input value="${esc(t.product)}" onchange="hTeam('${t.id}','product',this.value)"></td>
+      <td><input type="number" min="0" step="500" value="${t.price||""}" onchange="hTeam('${t.id}','price',this.value)"></td>
+      <td><input type="number" min="0" value="${t.vc||""}" onchange="hTeam('${t.id}','vc',this.value)"></td>
+      <td><input type="number" min="0" value="${t.fc||""}" onchange="hTeam('${t.id}','fc',this.value)"></td>
+      <td><input type="number" min="0" value="${t.qty||""}" onchange="hTeam('${t.id}','qty',this.value)"></td>
+      <td>${rep(t.number)}</td><td>${t.product&&t.price>0&&t.qty>0?`<span class="ok">Siap</span>`:`<span class="no">Belum lengkap</span>`}${st[t.id].sold?` <span style="font-size:12px;color:var(--muted)">${st[t.id].sold} terjual</span>`:""}</td></tr>`).join("")}
+    </tbody></table></div></div>`;
+}
+async function hTeam(id, k, v){ try{ await admin("admin_team", { p_team: id, p: { [k]: v } }); await hostLoad(true); toast("Data tim diperbarui"); }catch(e){ toast(e.message); } }
+
+// ---------- tab Peserta ----------
+function renderHPeople(){
+  const s = H.sess;
+  $("hPane").innerHTML = `<div class="card"><span class="lvtag">PESERTA · ${H.players.length} ORANG</span><h2 style="font-size:20px">Peserta per tim</h2>
+    <p class="lead" style="font-size:14px">📝 menandai perwakilan tim. Keluarkan peserta yang salah tim; mereka bisa gabung ulang dengan kode yang sama.</p>
+    <div class="pgrid">${Array.from({length:s.team_count},(_,i)=>{ const n = i+1, t = H.teams.find(x=>x.number===n) || {}, ps = H.players.filter(p=>p.team_number===n);
+      return `<div class="pt"><h4>Tim ${n}${t.name&&t.name!=="Tim "+n?" · "+esc(t.name):""}<span>${ps.length} org · R${t.round||"?"}</span></h4>${ps.map(p=>`<div class="pn2"><span>${esc(p.name)}</span>${p.is_rep?"<em>📝 wakil</em>":""}<button class="hctl" title="Keluarkan" onclick="askKick('${p.id}')">×</button></div>`).join("") || `<div class="pn2" style="color:var(--muted2)">Belum ada</div>`}</div>`; }).join("")}</div></div>`;
+}
+function askKick(id){
+  const p = H.players.find(x=>x.id===id); if(!p) return;
+  modal(`<h3>Keluarkan ${esc(p.name)}?</h3><p>Peserta ini keluar dari Tim ${p.team_number}. Transaksi yang sudah terjadi tetap tercatat.</p><div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn red" onclick="doKick('${id}')">Keluarkan</button></div>`);
+}
+async function doKick(id){ closeModal(); try{ await admin("admin_kick", { p_player: id }); await hostLoad(true); toast("Peserta dikeluarkan"); }catch(e){ toast(e.message); } }
+
+// ---------- tab Hasil: memakai tampilan hasil yang sama dengan mode luring ----------
+function liveM(){
+  const s = H.sess, by = {};
+  H.sales.forEach(x=>{ (by[x.team_id] = by[x.team_id] || []).push({ u:x.units, a:x.amount }); });
+  return Object.assign(MBLANK(), {
+    teams: H.teams.filter(t=>t.name||t.product).map(t=>({ name: tname(t), product: t.product, price: t.price, vc: t.vc, fc: t.fc, qty: t.qty, loss: t.loss, log: by[t.id] || [], plan: t.plan })),
+    fx: { vcPct: s.fx_vc_pct, fcAdd: s.fx_fc_add }, events: (s.events||[]).map(e=>e.t)
+  });
+}
+function renderHResult(){
+  const box = $("mResult");
+  if(box.parentNode !== $("hRes")){ $("hRes").appendChild(box); }
+  box.classList.remove("hidden");
+  const o = M; M = liveM();
+  try{ renderResult(); } finally { M = o; }
+  H.resDirty = H.sales.length + "|" + H.sess.updated_at;
+}
+function homeResult(){ const box = $("mResult"); if(box.parentNode !== $("vMarket")) $("vMarket").appendChild(box); }
+
+// ---------- pengaturan & proyektor ----------
+function hostMenu(){
+  const s = H.sess;
+  modal(`<h3>Pengaturan sesi ${esc(s.code)}</h3>
+    <div class="fields" style="margin-top:10px"><div class="full"><label>Nama sesi</label><input id="stName" value="${esc(s.name)}"></div>
+    <div><label>Uang per pembeli per ronde</label><input id="stBud" type="number" min="1000" step="1000" value="${s.budget}"></div>
+    <div><label>Maks. beli dari tim yang sama</label><input id="stMax" type="number" min="1" max="10" value="${s.max_per_team}"></div></div>
+    <div class="mbtns" style="flex-wrap:wrap"><button class="btn red" onclick="askResetLive()">↺ Ulangi pasar</button><button class="btn soft" onclick="leaveRoom()">Ganti sesi</button><span style="flex:1"></span><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn pri" onclick="saveSettings()">Simpan</button></div>`);
+}
+async function saveSettings(){ const p = { name: $("stName").value, budget: +$("stBud").value, max_per_team: +$("stMax").value }; closeModal(); await adminUpd(p); toast("Pengaturan disimpan"); }
+function askResetLive(){
+  modal(`<h3>Ulangi pasar?</h3><p>Semua transaksi dan kartu kejadian dihapus, harga kembali ke harga awal, dan kunci produksi dibuka. Data tim dan peserta tetap ada.</p><div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn red" onclick="doResetLive()">Ulangi pasar</button></div>`);
+}
+async function doResetLive(){ closeModal(); try{ await admin("admin_reset_market"); hEvent = null; await hostLoad(true); htab("live"); toast("Pasar diulang dari awal"); }catch(e){ toast(e.message); } }
+function projector(on){
+  document.body.classList.toggle("proj", !!on);
+  try{ if(on && !document.fullscreenElement) document.documentElement.requestFullscreen(); else if(!on && document.fullscreenElement) document.exitFullscreen(); }catch(e){}
+  if(H && H.sess){ $("hStage").dataset.k = ""; renderRoom(); }
+}
+
+// ---------- beranda: kartu lanjutkan ----------
+function renderResume(){
+  const el = $("resumeBox"); if(!el) return;
+  el.innerHTML = LV ? `<button class="resume" onclick="go('play')"><span class="av c${(LV.team-1)%6}">${esc(initials(LV.name))}</span><span><b>Lanjutkan sebagai ${esc(LV.name)}</b><small>Sesi ${esc(LV.code)} · Tim ${LV.team} · ${LV.rep?"Perwakilan":"Anggota"}</small></span><span class="go">→</span></button>` : "";
+}
+
 initParticles();
-go("home");
+// Rute awal: ?s=KODE membuka layar gabung (atau langsung ke arena bila sudah terdaftar di sesi itu)
+(function(){
+  const c = (new URLSearchParams(location.search).get("s") || "").toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,5);
+  if(c){ if(LV && LV.code === c) go("play"); else go("join", c); } else go("home");
+})();
 </script>
 </body>
 </html>
