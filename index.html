@@ -1254,6 +1254,8 @@ const uid = () => "t" + Date.now().toString(36) + Math.random().toString(36).sli
 const esc = t => { const d=document.createElement("div"); d.textContent = t==null?"":String(t); return d.innerHTML; };
 function store(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
 function fetchS(k){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):null; }catch(e){ return null; } }
+// Data dari versi sebelumnya (awalan lama) dipindahkan ke awalan baru, sekali saja.
+try{ Object.keys(localStorage).forEach(k=>{ const m = /^ibt(SimTeam|SimMarket|LiveTeam_.*|Live|Host|Beep)$/.exec(k); if(!m) return; const n = "cedc" + m[1]; if(localStorage.getItem(n) === null) localStorage.setItem(n, localStorage.getItem(k)); localStorage.removeItem(k); }); }catch(e){}
 function toast(m){ const t=$("toast"); t.textContent=m; t.classList.remove("on"); void t.offsetWidth; t.classList.add("on"); clearTimeout(t._h); t._h=setTimeout(()=>t.classList.remove("on"),2400); }
 
 // ================= LAPISAN GERAK (tampilan saja, tidak mengubah hitungan) =================
@@ -1344,7 +1346,7 @@ function bindTilt(card){
 const BLANK = () => ({ id:uid(), team:"", members:"", product:"", unit:"produk", tagline:"", customer:"", problem:"", unique:"",
   batch:20, materials:[{name:"",qty:"",u:"",cost:0}], perUnit:[{name:"Kemasan",cost:0}], fixed:[{name:"Sewa booth",cost:0}],
   strategy:"cost", markup:50, qty:20, price:0, stepNow:0, stepMax:0 });
-let T = Object.assign(BLANK(), fetchS("ibtSimTeam")||{});
+let T = Object.assign(BLANK(), fetchS("cedcSimTeam")||{});
 if(T.unit==="unit") T.unit="produk";
 if(!T.id) T.id = uid();
 const STEPS = ["Ide Usaha","Bahan & Biaya","Harga Jual","Proyeksi Laba","Pitch & Pasar"];
@@ -1382,7 +1384,7 @@ function bindInputs(){
     el.oninput = () => { T[k] = el.dataset.n!==undefined ? (el.value===""?"":pos(el.value)) : el.value; saveT(); refresh(); };
   });
 }
-function saveT(){ store(teamLive ? liveTeamKey() : "ibtSimTeam", T); }
+function saveT(){ store(teamLive ? liveTeamKey() : "cedcSimTeam", T); }
 function rowsHTML(list, key){
   if(key==="materials") return T.materials.map((m,i)=>`<tr>
     <td><input value="${esc(m.name)}" placeholder="mis. Pisang" oninput="T.materials[${i}].name=this.value;saveT();refresh()"></td>
@@ -1525,7 +1527,7 @@ function initTeam(){ bindInputs(); renderRows(); renderStrat(); step(T.stepNow||
 //    sehingga reset dan perbandingan rencana tetap bersih.
 const newTeam = () => ({ name:"", product:"", price:0, vc:0, fc:0, qty:0, loss:0, log:[], bp:0 });
 const MBLANK = () => ({ teams:[], voucher:50000, customers:30, events:[], used:[], fx:{vcPct:0, fcAdd:0}, bundle:false, open:false, tab:"setup" });
-let M = Object.assign(MBLANK(), fetchS("ibtSimMarket")||{});
+let M = Object.assign(MBLANK(), fetchS("cedcSimMarket")||{});
 // Data versi lama (sebelum ada log transaksi) diubah ke format baru.
 M.teams.forEach(t=>{
   if(!Array.isArray(t.log)) t.log = t.sold ? [{u:+t.sold, a:(+t.sold)*(+t.price||0)}] : [];
@@ -1534,7 +1536,7 @@ M.teams.forEach(t=>{
 if(!Array.isArray(M.used)) M.used = [];
 if(!M.fx) M.fx = {vcPct:0, fcAdd:0};
 if(M.tab==="sell" && !M.open) M.tab = "setup";
-function saveM(){ store("ibtSimMarket", M); }
+function saveM(){ store("cedcSimMarket", M); }
 
 const soldN = t => (t.log||[]).reduce((s,x)=>s+x.u,0);
 const revN = t => (t.log||[]).reduce((s,x)=>s+x.a,0);
@@ -1827,7 +1829,7 @@ async function api(path, opt){
 const rpc = (fn, a) => api("rpc/" + fn, { method:"POST", body: JSON.stringify(a||{}) });
 const sel = p => api(p);
 
-var LV = fetchS("ibtLive");          // pemain di perangkat ini: {token, code, team, rep, name, sid}
+var LV = fetchS("cedcLive");          // pemain di perangkat ini: {token, code, team, rep, name, sid}
 let PS = null;                        // keadaan terakhir dari server untuk pemain
 let curView = "home";
 const PHASE = { idle:"Menunggu", pitch:"Waktunya pitch", buy:"Belanja dibuka", done:"Ronde selesai" };
@@ -1862,7 +1864,7 @@ function setSync(el, st, msg){
 // ---------- hitung mundur pitch: elemen .cdn membawa waktu selesai (jam perangkat ini) ----------
 const fmtS = n => Math.floor(n/60) + ":" + String(n%60).padStart(2,"0");
 let audioCtx = null;
-const beepOn = () => fetchS("ibtBeep") !== false;
+const beepOn = () => fetchS("cedcBeep") !== false;
 function beep(n){
   if(!beepOn()) return;
   try{
@@ -1944,7 +1946,7 @@ async function doJoin(){
   try{
     const r = await rpc("join_session", { p_code: JN.sess.code || $("jCode").value, p_name: name, p_team: guest ? 0 : JN.team, p_rep: JN.role==="rep" });
     LV = { token:r.token, code:r.code, team:r.team, rep:r.is_rep, name:r.name, sid:r.session_id };
-    store("ibtLive", LV); PS = null;
+    store("cedcLive", LV); PS = null;
     toast(`Selamat datang, ${r.name}! 🎉`); confetti();
     history.replaceState(null, "", SITE + "?s=" + r.code);
     go("play", null, true);
@@ -1964,7 +1966,7 @@ async function pollPlay(){
     const st = await rpc("player_state", { p_token: LV.token });
     setSync("pSync", "ok"); setPS(st);
   }catch(e){
-    if(/tidak dikenali/i.test(e.message)){ store("ibtLive", null); LV = null; PS = null; toast("Akun Anda dikeluarkan dari sesi. Silakan gabung ulang."); go("join"); return; }
+    if(/tidak dikenali/i.test(e.message)){ store("cedcLive", null); LV = null; PS = null; toast("Akun Anda dikeluarkan dari sesi. Silakan gabung ulang."); go("join"); return; }
     setSync("pSync", "err");
   }
 }
@@ -2086,11 +2088,11 @@ function askLeave(){
   modal(`<h3>Keluar dari sesi?</h3><p>Anda bisa gabung lagi dengan kode yang sama, tetapi akan tercatat sebagai pemain baru dan riwayat belanja di perangkat ini tidak terlihat lagi.</p>
     <div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn red" onclick="leaveLive()">Keluar</button></div>`);
 }
-function leaveLive(){ store("ibtLive", null); LV = null; PS = null; closeModal(); go("home"); }
+function leaveLive(){ store("cedcLive", null); LV = null; PS = null; closeModal(); go("home"); }
 
 // ================= LEMBAR USAHA TIM TERSAMBUNG =================
 let teamLive = false;
-const liveTeamKey = () => "ibtLiveTeam_" + LV.code + "_" + LV.team;
+const liveTeamKey = () => "cedcLiveTeam_" + LV.code + "_" + LV.team;
 function seedT(){
   const t = PS && PS.teams.find(x=>x.number===LV.team);
   const o = { team: "Tim " + LV.team };
@@ -2099,7 +2101,7 @@ function seedT(){
 }
 function setTeamMode(live){
   teamLive = !!(live && LV && LV.rep);
-  T = Object.assign(BLANK(), fetchS(teamLive ? liveTeamKey() : "ibtSimTeam") || (teamLive ? seedT() : {}));
+  T = Object.assign(BLANK(), fetchS(teamLive ? liveTeamKey() : "cedcSimTeam") || (teamLive ? seedT() : {}));
   if(T.unit==="unit") T.unit = "produk";
   if(!T.id) T.id = uid();
   $("liveBar").classList.toggle("hidden", !teamLive);
@@ -2128,7 +2130,7 @@ async function repSave(){
 }
 
 // ================= RUANG FASILITATOR =================
-let HS = fetchS("ibtHost") || [];      // sesi yang dibuat di perangkat ini: [{code, key, name, at}]
+let HS = fetchS("cedcHost") || [];      // sesi yang dibuat di perangkat ini: [{code, key, name, at}]
 let H = null;                           // ruang aktif
 const ONLINE_EVENTS = EVENTS.map(e=>Object.assign({}, e, ({
   borongan: { d:"Mulai sekarang setiap pembeli boleh membeli 2 kali dari tim yang sama.", fx:{ maxAdd:1 } },
@@ -2183,12 +2185,12 @@ async function createSess(){
     const name = $("nsName").value.trim() || "Simulasi Bisnis";
     const r = await rpc("create_session", { p_name: name, p_team_count: +$("nsTeams").value, p_per_round: +$("nsPer").value, p_budget: +$("nsBudget").value, p_pitch_seconds: +$("nsPitch").value, p_open_buyers: $("nsOpen").checked });
     HS = [{ code:r.code, key:r.admin_key, name, at:Date.now() }].concat(HS.filter(h=>h.code!==r.code)).slice(0,12);
-    store("ibtHost", HS); toast("Sesi " + r.code + " siap! 🎉"); confetti();
+    store("cedcHost", HS); toast("Sesi " + r.code + " siap! 🎉"); confetti();
     await openRoom(r.code);
   }catch(e){ toast(e.message); }
   b.disabled = false; b.textContent = "Buat sesi →";
 }
-function forgetSess(code){ HS = HS.filter(h=>h.code!==code); store("ibtHost", HS); renderHostNew(); }
+function forgetSess(code){ HS = HS.filter(h=>h.code!==code); store("cedcHost", HS); renderHostNew(); }
 async function openRoom(code, tab, fromRoute){
   const h = HS.find(x=>x.code===code);
   if(!h){ toast(`Kunci fasilitator sesi ${code} tidak ada di perangkat ini. Buka dari perangkat yang membuat sesi.`); renderHostNew(); syncRoute(false); return; }
@@ -2452,7 +2454,7 @@ function hostMenu(){
 async function saveSettings(){
   const s = H.sess, p = { name: $("stName").value, budget: +$("stBud").value, max_per_team: +$("stMax").value, open_buyers: $("stOpen").checked, pitch_seconds: +$("stPitch").value };
   const nt = +$("stTeams").value, np = Math.min(+$("stPer").value, nt), relayout = s.status==="setup" && (nt !== s.team_count || np !== (s.per_round||0));
-  store("ibtBeep", $("stBeep").checked); closeModal();
+  store("cedcBeep", $("stBeep").checked); closeModal();
   try{
     if(relayout) await admin("admin_layout", { p_team_count: nt, p_per_round: np });
     await adminUpd(p); toast(relayout ? `Disimpan: ${nt} tim, ${np} tim per ronde, ${Math.ceil(nt/np)} ronde` : "Pengaturan disimpan");
