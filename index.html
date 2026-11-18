@@ -150,6 +150,19 @@ main{max-width:1240px;margin:0 auto;padding:26px 24px 70px}
 .sec-h{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:46px 0 16px;flex-wrap:wrap}
 .sec-h h2{font-size:clamp(24px,3vw,32px);font-weight:800;color:var(--ink)}
 .sec-h p{color:var(--muted);font-size:14.5px;margin-top:4px}
+/* layar tutorial: bingkai game dengan tombol putar besar */
+.tv{position:relative;aspect-ratio:16/9;border-radius:28px;overflow:hidden;background:var(--paper);border:3px solid var(--line);box-shadow:0 8px 0 var(--line2),0 34px 60px -34px rgba(20,83,45,.55)}
+.tv video{display:block;width:100%;height:100%;object-fit:cover;background:var(--paper)}
+.tvtag{position:absolute;left:18px;top:16px;z-index:2;transform:skewX(-14deg);background:linear-gradient(180deg,#FFD84D,var(--gold));border-radius:9px;padding:5px 14px;box-shadow:0 4px 0 var(--gold-s);transition:opacity .4s var(--ios)}
+.tvtag span{display:block;transform:skewX(14deg);font-family:var(--f-d);font-style:italic;font-weight:800;font-size:13px;letter-spacing:.1em;color:var(--deep)}
+.tvplay{position:absolute;left:50%;top:76%;z-index:2;width:104px;height:104px;margin:-52px 0 0 -52px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 35% 30%,#FFF1A8 0 18%,var(--gold) 52%,#E09B00);box-shadow:0 7px 0 var(--gold-s),0 0 0 10px rgba(255,196,0,.25),0 24px 40px -14px rgba(160,110,0,.7);
+  transition:transform .5s var(--spring),opacity .35s var(--ios);animation:tvPulse 2.4s var(--ios) infinite}
+.tvplay:hover{transform:scale(1.08)}
+.tvplay:active{transform:scale(.94)}
+.tvplay .tri{width:0;height:0;margin-left:8px;border-left:34px solid var(--deep);border-top:21px solid transparent;border-bottom:21px solid transparent}
+@keyframes tvPulse{50%{box-shadow:0 7px 0 var(--gold-s),0 0 0 22px rgba(255,196,0,0),0 24px 40px -14px rgba(160,110,0,.7)}}
+.tv.playing .tvplay,.tv.playing .tvtag{opacity:0;pointer-events:none}
 .lvmap{position:relative;display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
 .lvmap::before{content:"";position:absolute;left:6%;right:6%;top:78px;height:6px;border-radius:99px;
   background:repeating-linear-gradient(90deg,var(--line-g) 0 14px,transparent 14px 24px);z-index:0}
@@ -535,6 +548,9 @@ input:disabled{background:var(--paper);color:var(--muted);cursor:not-allowed;bor
   .hero{padding-top:6px;gap:26px}
   .hero .lead{font-size:16.5px}
   .lvmap{grid-template-columns:1fr;gap:12px}
+  .tv{border-radius:20px}
+  .tvplay{width:76px;height:76px;margin:-38px 0 0 -38px}
+  .tvplay .tri{border-left-width:26px;border-top-width:16px;border-bottom-width:16px;margin-left:6px}
   .cr-grid{grid-template-columns:1fr}
   .credits{padding:22px 18px 16px;border-radius:24px}
   .lv{flex-direction:row;text-align:left;align-items:stretch}
@@ -625,6 +641,13 @@ input:disabled{background:var(--paper);color:var(--muted);cursor:not-allowed;bor
 <circle cx="41" cy="41" r="5.5" fill="#DC2626" stroke="#7F1D1D" stroke-width="2.4"/>
 <path d="M39 41h4" stroke="#FECACA" stroke-width="2" stroke-linecap="round"/></svg></span><span><b>Aturan Permainan</b><span class="d">Bacakan ke peserta sebelum mulai</span></span><span class="go">→</span></button>
     </div>
+  </div>
+
+  <div class="sec-h"><div><h2>Tonton dulu, langsung paham</h2><p>Tutorial 94 detik tanpa suara. Cocok diputar di proyektor sebelum permainan dimulai.</p></div></div>
+  <div class="tv" id="tv">
+    <span class="tvtag"><span>▶ TUTORIAL</span></span>
+    <video id="tvVid" playsinline preload="metadata" poster="cara-bermain-poster.jpg" src="cara-bermain.mp4"></video>
+    <button class="tvplay" id="tvPlay" onclick="playTut()" aria-label="Putar video cara bermain"><span class="tri"></span></button>
   </div>
 
   <div class="sec-h"><div><h2>Peta Permainan</h2><p>Enam level, total sekitar 90 menit untuk tim beranggota 3 sampai 5 orang</p></div></div>
@@ -926,6 +949,12 @@ function floatCoin(x, y, text, minus){
   if(RM) return;
   const f = document.createElement("div"); f.className = "floatcoin" + (minus?" minus":""); f.textContent = text;
   f.style.left = x+"px"; f.style.top = y+"px"; document.body.appendChild(f); setTimeout(()=>f.remove(), 1300);
+}
+// Tutorial: tombol putar besar, kontrol bawaan muncul setelah video berjalan.
+function playTut(){
+  const v = $("tvVid"), box = $("tv"); v.controls = true; v.play().catch(()=>{});
+  box.classList.add("playing");
+  v.onpause = v.onended = () => { if(v.ended){ box.classList.remove("playing"); v.controls = false; } };
 }
 // Partikel koin emas kecil yang naik perlahan (hanya transform, jadi ringan di HP).
 function spawnCoins(box, n, o){
