@@ -764,6 +764,8 @@ body.proj .jcode .code{font-size:64px}
 body.proj .jcode .qr{width:180px;height:180px}
 body.proj .hgrid{grid-template-columns:repeat(auto-fill,minmax(270px,1fr))}
 body.proj .hgrid .scard .sold{font-size:72px}
+.rhelp{font-size:13.5px;color:var(--ink2);background:var(--gold-soft);border:1.5px solid #FBE38A;border-radius:14px;padding:10px 12px;margin:6px 0 10px;line-height:1.5}
+.tleg{font-size:12px;color:var(--muted);margin-top:8px}
 </style>
 </head>
 <body>
@@ -1091,10 +1093,12 @@ body.proj .hgrid .scard .sold{font-size:72px}
         <input id="jName" maxlength="40" placeholder="Nama panggilan" autocomplete="nickname">
         <label style="margin-top:16px">Nomor tim</label>
         <div class="tgrid" id="jTeams"></div>
-        <label style="margin-top:18px">Peran Anda</label>
+        <p class="tleg">⭐ artinya tim sudah punya ketua</p>
+        <label style="margin-top:18px">Peran Anda di tim</label>
+        <p class="rhelp">Semua orang ikut <b>belanja</b> saat tim lain berjualan. Bedanya hanya satu: <b>ketua tim</b> juga mengisi data usaha tim dari HP-nya.</p>
         <div class="roles">
-          <button class="role on" data-r="buyer" onclick="pickRole('buyer')"><span class="ri">🛒</span><b>Anggota tim</b><span>Belanja dengan uang virtual saat tim lain berjualan</span></button>
-          <button class="role" data-r="rep" onclick="pickRole('rep')"><span class="ri">📝</span><b>Perwakilan tim</b><span>Satu orang per tim. Mengisi Lembar Usaha Tim dan tetap bisa belanja</span></button>
+          <button class="role on" data-r="buyer" onclick="pickRole('buyer')"><span class="ri">🛒</span><b>Anggota tim</b><span>Belanja dengan uang virtual saat tim lain berjualan, dan bantu pitch saat giliran tim Anda.</span></button>
+          <button class="role" data-r="rep" onclick="pickRole('rep')"><span class="ri">⭐</span><b>Ketua tim</b><span>Hanya 1 orang per tim. Sama seperti anggota, ditambah mengisi Lembar Usaha Tim: produk, biaya, dan harga jual.</span></button>
         </div>
         <div class="nav"><button class="btn soft" onclick="go('home')">← Beranda</button><button class="btn pri" id="jGo" onclick="doJoin()">Masuk permainan →</button></div>
       </div>
@@ -1695,7 +1699,7 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ closeModal(); clo
 function showRules(){
   modal(`<h3>Aturan Permainan</h3><ul>
   <li>Peserta dibagi menjadi tim (misalnya 20 tim berisi 5 orang). Semua peserta membuka situs ini di HP, memasukkan <b>kode sesi</b> dari layar fasilitator, lalu memilih timnya.</li>
-  <li>Satu orang per tim menjadi <b>perwakilan</b>: mengisi Lembar Usaha Tim (5 level). Isiannya otomatis terkirim ke fasilitator.</li>
+  <li>Setiap tim memilih satu <b>ketua tim</b>. Ketua mengisi Lembar Usaha Tim (5 level) dari HP-nya, isiannya otomatis terkirim ke fasilitator. Anggota lain cukup gabung sebagai <b>anggota tim</b>. Semua orang, termasuk ketua, ikut belanja saat tim lain berjualan.</li>
   <li>Biaya dan harga harus realistis (harga pasar di Medan). Fasilitator boleh mengoreksi angka yang tidak masuk akal.</li>
   <li><b>Jumlah produksi dan biaya dikunci</b> saat pasar dibuka. Produk yang tidak terjual tetap menjadi beban. Harga jual masih boleh diubah.</li>
   <li>Pasar berjalan beberapa <b>ronde</b>. Di setiap ronde sebagian tim pitch 1 menit lalu membuka lapak, peserta dari tim lain menjadi pembeli.</li>
@@ -1808,12 +1812,12 @@ async function lookupSession(){
 function renderJoinTeams(){
   $("jTeams").innerHTML = Array.from({length:JN.sess.team_count},(_,i)=>{
     const n = i+1, c = JN.counts[n]||0;
-    return `<button class="tbtn ${JN.team===n?"on":""}" onclick="pickTeam(${n})"><b>${n}</b><small>${c} org${JN.reps[n]?" · 📝":""}</small></button>`;
+    return `<button class="tbtn ${JN.team===n?"on":""}" onclick="pickTeam(${n})"><b>${n}</b><small>${c} org${JN.reps[n]?" · ⭐":""}</small></button>`;
   }).join("");
   const repBtn = document.querySelector('.role[data-r="rep"]');
   const taken = JN.team && JN.reps[JN.team];
   repBtn.disabled = !!taken;
-  repBtn.querySelector("span:last-child").textContent = taken ? `Tim ${JN.team} sudah punya perwakilan` : "Satu orang per tim. Mengisi Lembar Usaha Tim dan tetap bisa belanja";
+  repBtn.querySelector("span:last-child").textContent = taken ? `Tim ${JN.team} sudah punya ketua. Pilih Anggota tim.` : "Hanya 1 orang per tim. Sama seperti anggota, ditambah mengisi Lembar Usaha Tim: produk, biaya, dan harga jual.";
   if(taken && JN.role==="rep") pickRole("buyer");
 }
 function pickTeam(n){ JN.team = n; renderJoinTeams(); }
@@ -1859,11 +1863,11 @@ function setPS(st){
 function teamLeft(t){ return Math.max(0, (t.qty||0) - (t.loss||0) - (t.sold||0)); }
 function renderPlay(prev){
   const st = PS, s = st.session, me = st.me, mine = st.teams.find(t=>t.number===me.team) || {number:me.team};
-  $("pTeam").textContent = `Tim ${me.team}${mine.name ? " · " + mine.name : ""} · ${me.is_rep ? "Perwakilan" : "Anggota"}`;
+  $("pTeam").textContent = `Tim ${me.team}${mine.name ? " · " + mine.name : ""} · ${me.is_rep ? "Ketua" : "Anggota"}`;
   const selling = s.status==="market" && mine.round===s.round;
   // pita ronde
   let cls = "", sm = "", big = "", p = "";
-  if(s.status==="setup"){ sm = "Persiapan"; big = "Menunggu pasar dibuka"; p = me.is_rep ? "Isi Lembar Usaha Tim sekarang. Data otomatis terkirim ke fasilitator." : `Tim Anda berjualan di ronde ${mine.round||"?"}. Bantu perwakilan menyiapkan produk dan pitch.`; }
+  if(s.status==="setup"){ sm = "Persiapan"; big = "Menunggu pasar dibuka"; p = me.is_rep ? "Isi Lembar Usaha Tim sekarang. Data otomatis terkirim ke fasilitator." : `Tim Anda berjualan di ronde ${mine.round||"?"}. Bantu ketua tim menyiapkan produk dan pitch.`; }
   else if(s.status==="closed"){ cls = "closed"; sm = "Selesai"; big = "Pasar ditutup 🏁"; p = "Perhatikan layar proyektor untuk pengumuman juara."; }
   else {
     cls = s.phase==="buy" ? "buy" : s.phase==="pitch" ? "pitch" : "";
@@ -1874,11 +1878,11 @@ function renderPlay(prev){
   const band = $("pBand"); band.className = "rband " + cls;
   band.innerHTML = `<small>${sm}</small><b>${big}</b><p>${p}</p>${s.status!=="setup" ? roundDots(s) : ""}`;
   if(prev && (prev.session.phase!==s.phase || prev.session.round!==s.round || prev.session.status!==s.status)) anim(band, "enter");
-  // perwakilan
+  // ketua tim
   $("pRep").innerHTML = me.is_rep ? (()=>{
     const ready = mine.product && mine.price>0 && mine.qty>0;
     const bp = s.bundle ? `<div class="bp"><input type="number" min="0" step="500" id="bpIn" value="${mine.bundle_price||""}" placeholder="Harga paket 2 produk"><button class="btn purple sm" onclick="saveBundle()">Simpan paket</button></div>` : "";
-    return `<div class="repcard"><div class="rt"><b>📝 Anda perwakilan Tim ${me.team}</b><span>${ready ? `${esc(mine.product)} · ${rp(mine.price)} · ${mine.qty} ${esc(mine.unit||"produk")}` : "Lembar Usaha Tim belum lengkap: isi produk, harga jual, dan jumlah produksi."}</span></div><button class="btn ${ready?"soft":"pri"}" onclick="go('team','live')">${ready?"Buka":"Isi"} Lembar Usaha →</button>${bp}</div>`;
+    return `<div class="repcard"><div class="rt"><b>⭐ Anda ketua Tim ${me.team}</b><span>${ready ? `${esc(mine.product)} · ${rp(mine.price)} · ${mine.qty} ${esc(mine.unit||"produk")}` : "Lembar Usaha Tim belum lengkap: isi produk, harga jual, dan jumlah produksi."}</span></div><button class="btn ${ready?"soft":"pri"}" onclick="go('team','live')">${ready?"Buka":"Isi"} Lembar Usaha →</button>${bp}</div>`;
   })() : "";
   // isi utama
   let main = "";
@@ -1975,7 +1979,7 @@ function setTeamMode(live){
 function updLiveBar(){
   if(!teamLive) return;
   const s = PS && PS.session, locked = s && s.status !== "setup";
-  $("lbTxt").innerHTML = `Tersambung ke sesi <b>${esc(LV.code)}</b> sebagai perwakilan <b>Tim ${LV.team}</b>. Setiap perubahan otomatis terkirim ke fasilitator.`;
+  $("lbTxt").innerHTML = `Tersambung ke sesi <b>${esc(LV.code)}</b> sebagai ketua <b>Tim ${LV.team}</b>. Setiap perubahan otomatis terkirim ke fasilitator.`;
   $("lbLock").classList.toggle("hidden", !locked);
 }
 let repTimer = null, repBusy = false, repDirty = false, lastSent = "";
@@ -1998,8 +2002,8 @@ let HS = fetchS("ibtHost") || [];      // sesi yang dibuat di perangkat ini: [{c
 let H = null;                           // ruang aktif
 const ONLINE_EVENTS = EVENTS.map(e=>Object.assign({}, e, ({
   borongan: { d:"Mulai sekarang setiap pembeli boleh membeli 2 kali dari tim yang sama.", fx:{ maxAdd:1 } },
-  diskon:   { d:"Perwakilan tim boleh mengubah harga jual sekarang di Lembar Usaha (Level 3). Penjualan sebelumnya tetap tercatat dengan harga lama." },
-  bundling: { d:"Perwakilan tim mengisi harga paket 2 produk di HP. Pembeli bisa langsung membeli paket." },
+  diskon:   { d:"Ketua tim boleh mengubah harga jual sekarang di Lembar Usaha (Level 3). Penjualan sebelumnya tetap tercatat dengan harga lama." },
+  bundling: { d:"Ketua tim mengisi harga paket 2 produk di HP. Pembeli bisa langsung membeli paket." },
 })[e.k] || {}));
 let hEvent = null, hTimer = null;
 
@@ -2113,13 +2117,13 @@ function renderJoinCard(){
     $("hJoin").innerHTML = `<div class="qr">${svg}</div><div style="min-width:0"><small>Scan atau buka</small><span class="url">${esc(url.replace(/^https?:\/\//,""))}</span><small>Kode sesi</small><div class="code">${esc(s.code)}</div><div class="cnt" id="hCnt"></div></div>`;
     $("hJoin").dataset.code = s.code;
   }
-  $("hCnt").innerHTML = `<span>👥 ${H.players.length} peserta</span><span>📝 ${reps}/${s.team_count} perwakilan</span><span>✓ ${ready}/${s.team_count} tim siap</span>`;
+  $("hCnt").innerHTML = `<span>👥 ${H.players.length} peserta</span><span>⭐ ${reps}/${s.team_count} ketua</span><span>✓ ${ready}/${s.team_count} tim siap</span>`;
 }
 function stageInfo(){
   const s = H.sess, ready = H.teams.filter(t=>t.product && t.price>0 && t.qty>0).length;
   const sellers = H.teams.filter(t=>t.round===s.round).map(t=>t.number);
   const rng = sellers.length ? `tim ${sellers[0]}${sellers.length>1?" sampai "+sellers[sellers.length-1]:""}` : "belum ada tim";
-  if(s.status==="setup") return { cls:"", sm:"Persiapan", h:"Perwakilan mengisi Lembar Usaha Tim", p:`${ready} dari ${s.team_count} tim sudah mengisi produk, harga, dan jumlah produksi. Setelah pasar dibuka, produksi dan biaya dikunci.`, act:`<button class="btn pri" onclick="askOpen()">🔓 Buka Pasar</button>` };
+  if(s.status==="setup") return { cls:"", sm:"Persiapan", h:"Ketua tim mengisi Lembar Usaha Tim", p:`${ready} dari ${s.team_count} tim sudah mengisi produk, harga, dan jumlah produksi. Setelah pasar dibuka, produksi dan biaya dikunci.`, act:`<button class="btn pri" onclick="askOpen()">🔓 Buka Pasar</button>` };
   if(s.status==="closed") return { cls:"closed", sm:"Selesai", h:"Pasar ditutup 🏁", p:"Umumkan juara dari tab Hasil, lalu ajak peserta refleksi.", act:`<button class="btn pri" onclick="htab('result')">🏆 Lihat Hasil</button><button class="btn white sm" onclick="adminUpd({status:'market',phase:'done'})">Buka kembali</button>` };
   const last = s.round >= s.round_count;
   if(s.phase==="pitch") return { cls:"pitch", sm:`Ronde ${s.round} dari ${s.round_count}`, h:"Waktunya pitch 🎤", p:`Persilakan ${rng} pitch 1 menit, lalu buka belanja.`, act:`<button class="btn pri" onclick="adminUpd({phase:'buy'})">🛒 Mulai Belanja</button>`, tm:true };
@@ -2143,7 +2147,7 @@ async function adminUpd(p){
 }
 function askOpen(){
   const s = H.sess, ready = H.teams.filter(t=>t.product && t.price>0 && t.qty>0).length;
-  modal(`<h3>Buka pasar sekarang?</h3><p><b>${ready} dari ${s.team_count} tim</b> sudah lengkap. Setelah dibuka, jumlah produksi dan biaya setiap tim dikunci. Harga jual masih bisa diubah perwakilan.</p>${ready<s.team_count?`<p style="margin-top:6px;color:var(--red-s)">Tim yang belum lengkap tetap bisa dilengkapi lewat tab Tim, tetapi tidak bisa berjualan tanpa harga.</p>`:""}
+  modal(`<h3>Buka pasar sekarang?</h3><p><b>${ready} dari ${s.team_count} tim</b> sudah lengkap. Setelah dibuka, jumlah produksi dan biaya setiap tim dikunci. Harga jual masih bisa diubah ketua tim.</p>${ready<s.team_count?`<p style="margin-top:6px;color:var(--red-s)">Tim yang belum lengkap tetap bisa dilengkapi lewat tab Tim, tetapi tidak bisa berjualan tanpa harga.</p>`:""}
     <div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn pri" onclick="doOpen()">🔓 Buka Pasar</button></div>`);
 }
 async function doOpen(){ closeModal(); try{ await admin("admin_open_market"); await hostLoad(true); toast("Pasar dibuka! Ronde 1: waktunya pitch"); confetti(); }catch(e){ toast(e.message); } }
@@ -2223,9 +2227,9 @@ function renderHTeams(){
   const s = H.sess, st = teamStats();
   const rep = n => { const p = H.players.find(x=>x.team_number===n && x.is_rep); return p ? esc(p.name) : `<span style="color:var(--muted2)">·</span>`; };
   const opt = t => Array.from({length:s.round_count},(_,i)=>`<option value="${i+1}" ${t.round===i+1?"selected":""}>R${i+1}</option>`).join("");
-  $("hPane").innerHTML = `<div class="card"><span class="lvtag">DATA TIM · TERISI OTOMATIS DARI HP PERWAKILAN</span><h2 style="font-size:20px">Daftar tim</h2>
+  $("hPane").innerHTML = `<div class="card"><span class="lvtag">DATA TIM · TERISI OTOMATIS DARI HP KETUA TIM</span><h2 style="font-size:20px">Daftar tim</h2>
     <p class="lead" style="font-size:14px">Ubah hanya untuk koreksi. ${s.status==="setup"?"Ronde jualan setiap tim bisa dipindah sebelum pasar dibuka.":"Pasar sudah dibuka: perubahan biaya dan produksi di sini tetap dipakai dalam perhitungan laba."}</p>
-    <div style="overflow-x:auto"><table class="tbl tlist"><thead><tr><th>No</th><th>Ronde</th><th>Nama tim</th><th>Produk</th><th>Harga</th><th>Biaya var.</th><th>Biaya tetap</th><th>Produksi</th><th>Perwakilan</th><th>Status</th></tr></thead><tbody>
+    <div style="overflow-x:auto"><table class="tbl tlist"><thead><tr><th>No</th><th>Ronde</th><th>Nama tim</th><th>Produk</th><th>Harga</th><th>Biaya var.</th><th>Biaya tetap</th><th>Produksi</th><th>Ketua</th><th>Status</th></tr></thead><tbody>
     ${H.teams.map(t=>`<tr><td><b>${t.number}</b></td><td><select onchange="hTeam('${t.id}','round',this.value)" ${s.status!=="setup"?"disabled":""}>${opt(t)}</select></td>
       <td><input value="${esc(t.name)}" onchange="hTeam('${t.id}','name',this.value)"></td><td><input value="${esc(t.product)}" onchange="hTeam('${t.id}','product',this.value)"></td>
       <td><input type="number" min="0" step="500" value="${t.price||""}" onchange="hTeam('${t.id}','price',this.value)"></td>
@@ -2241,9 +2245,9 @@ async function hTeam(id, k, v){ try{ await admin("admin_team", { p_team: id, p: 
 function renderHPeople(){
   const s = H.sess;
   $("hPane").innerHTML = `<div class="card"><span class="lvtag">PESERTA · ${H.players.length} ORANG</span><h2 style="font-size:20px">Peserta per tim</h2>
-    <p class="lead" style="font-size:14px">📝 menandai perwakilan tim. Keluarkan peserta yang salah tim; mereka bisa gabung ulang dengan kode yang sama.</p>
+    <p class="lead" style="font-size:14px">⭐ menandai ketua tim. Keluarkan peserta yang salah tim; mereka bisa gabung ulang dengan kode yang sama.</p>
     <div class="pgrid">${Array.from({length:s.team_count},(_,i)=>{ const n = i+1, t = H.teams.find(x=>x.number===n) || {}, ps = H.players.filter(p=>p.team_number===n);
-      return `<div class="pt"><h4>Tim ${n}${t.name&&t.name!=="Tim "+n?" · "+esc(t.name):""}<span>${ps.length} org · R${t.round||"?"}</span></h4>${ps.map(p=>`<div class="pn2"><span>${esc(p.name)}</span>${p.is_rep?"<em>📝 wakil</em>":""}<button class="hctl" title="Keluarkan" onclick="askKick('${p.id}')">×</button></div>`).join("") || `<div class="pn2" style="color:var(--muted2)">Belum ada</div>`}</div>`; }).join("")}</div></div>`;
+      return `<div class="pt"><h4>Tim ${n}${t.name&&t.name!=="Tim "+n?" · "+esc(t.name):""}<span>${ps.length} org · R${t.round||"?"}</span></h4>${ps.map(p=>`<div class="pn2"><span>${esc(p.name)}</span>${p.is_rep?"<em>⭐ ketua</em>":""}<button class="hctl" title="Keluarkan" onclick="askKick('${p.id}')">×</button></div>`).join("") || `<div class="pn2" style="color:var(--muted2)">Belum ada</div>`}</div>`; }).join("")}</div></div>`;
 }
 function askKick(id){
   const p = H.players.find(x=>x.id===id); if(!p) return;
@@ -2293,7 +2297,7 @@ function projector(on){
 // ---------- beranda: kartu lanjutkan ----------
 function renderResume(){
   const el = $("resumeBox"); if(!el) return;
-  el.innerHTML = LV ? `<button class="resume" onclick="go('play')"><span class="av c${(LV.team-1)%6}">${esc(initials(LV.name))}</span><span><b>Lanjutkan sebagai ${esc(LV.name)}</b><small>Sesi ${esc(LV.code)} · Tim ${LV.team} · ${LV.rep?"Perwakilan":"Anggota"}</small></span><span class="go">→</span></button>` : "";
+  el.innerHTML = LV ? `<button class="resume" onclick="go('play')"><span class="av c${(LV.team-1)%6}">${esc(initials(LV.name))}</span><span><b>Lanjutkan sebagai ${esc(LV.name)}</b><small>Sesi ${esc(LV.code)} · Tim ${LV.team} · ${LV.rep?"Ketua":"Anggota"}</small></span><span class="go">→</span></button>` : "";
 }
 
 // ================= ALAMAT HALAMAN (router) =================

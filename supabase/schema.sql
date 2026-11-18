@@ -285,7 +285,7 @@ begin
   if p_team is null or p_team < 1 or p_team > s.team_count then
     raise exception 'Nomor tim harus antara 1 sampai %.', s.team_count; end if;
   if p_rep and exists(select 1 from players where session_id = s.id and team_number = p_team and is_rep) then
-    raise exception 'Tim % sudah punya perwakilan. Gabung sebagai pembeli.', p_team; end if;
+    raise exception 'Tim % sudah punya ketua. Pilih Anggota tim.', p_team; end if;
   insert into players(session_id, name, team_number, is_rep)
   values (s.id, left(trim(p_name), 40), p_team, coalesce(p_rep, false)) returning * into p;
   t := _token();
@@ -293,7 +293,7 @@ begin
   return json_build_object('player_id', p.id, 'token', t, 'session_id', s.id, 'code', s.code,
                            'team', p_team, 'is_rep', p.is_rep, 'name', p.name);
 exception when unique_violation then
-  raise exception 'Tim % sudah punya perwakilan. Gabung sebagai pembeli.', p_team;
+  raise exception 'Tim % sudah punya ketua. Pilih Anggota tim.', p_team;
 end $$;
 
 -- Keadaan lengkap untuk HP pemain (dipanggil berkala)
@@ -322,13 +322,13 @@ begin
   );
 end $$;
 
--- Perwakilan tim menyimpan Lembar Usaha Tim. Setelah pasar dibuka, produksi dan biaya terkunci.
+-- Ketua tim menyimpan Lembar Usaha Tim. Setelah pasar dibuka, produksi dan biaya terkunci.
 create or replace function public.rep_save(p_token text, p jsonb) returns json
 language plpgsql security definer set search_path = public as $$
 declare me players; s sessions;
 begin
   me := _me(p_token);
-  if not me.is_rep then raise exception 'Hanya perwakilan tim yang bisa mengubah data tim.'; end if;
+  if not me.is_rep then raise exception 'Hanya ketua tim yang bisa mengubah data tim.'; end if;
   select * into s from sessions where id = me.session_id;
   update teams set
     name = left(coalesce(p->>'name', name), 60),

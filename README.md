@@ -16,7 +16,7 @@ Desain dan pengembangan digital: Ilman Akbar Effendi, S.IP., M.I.Kom., Kepala Ca
 Permainan bisa dimainkan dari HP setiap peserta. Data tersimpan di database Supabase (proyek `simulasi-bisnis`, organisasi CEDC UNPRI).
 
 1. **Fasilitator** membuka *Ruang Fasilitator*, membuat sesi (jumlah tim, ronde, uang virtual per ronde), lalu menayangkan kode dan QR di proyektor.
-2. **Peserta** memindai QR atau memasukkan kode, mengisi nama, memilih nomor tim, dan memilih peran: *Anggota tim* (pembeli) atau *Perwakilan tim* (satu orang per tim, mengisi Lembar Usaha Tim yang otomatis terkirim).
+2. **Peserta** memindai QR atau memasukkan kode, mengisi nama, memilih nomor tim, dan memilih peran: *Anggota tim* atau *Ketua tim* (satu orang per tim, juga mengisi Lembar Usaha Tim yang otomatis terkirim). Semua orang ikut belanja saat tim lain berjualan.
 3. Fasilitator membuka pasar (produksi dan biaya terkunci), lalu menjalankan setiap ronde: pitch, belanja, tutup belanja, ronde berikutnya.
 4. Setelah ronde terakhir, fasilitator menutup pasar dan mengumumkan juara dari tab *Hasil*.
 
