@@ -825,6 +825,10 @@ body.proj .cdn.big{font-size:80px}
 .pod.p1 .crown{font-size:44px;filter:drop-shadow(0 4px 8px rgba(160,110,0,.45))}
 @media (prefers-reduced-motion: reduce){.rain{display:none}.pod.p1::before{animation:none}}
 .pod .pname,.pod .pval{background:rgba(255,255,255,.88);border-radius:999px;padding:2px 12px;box-shadow:0 2px 10px rgba(20,83,45,.08)}
+
+/* cegah geser horizontal di Safari lama: efek dekoratif yang keluar tepi dipotong */
+html,body{overflow-x:hidden}
+@supports (overflow:clip){html,body{overflow-x:clip}}
 </style>
 </head>
 <body>
@@ -887,10 +891,10 @@ body.proj .cdn.big{font-size:80px}
     </div>
   </div>
 
-  <div class="sec-h"><div><h2>Tonton dulu, langsung paham</h2><p>Tutorial 94 detik tanpa suara. Cocok diputar di proyektor sebelum permainan dimulai.</p></div></div>
+  <div class="sec-h"><div><h2>Tonton trailernya</h2><p>49 detik tanpa suara: belajar, bertanding, sampai juara. Putar di proyektor untuk membuka sesi.</p></div></div>
   <div class="tv" id="tv">
-    <span class="tvtag"><span>▶ TUTORIAL</span></span>
-    <video id="tvVid" playsinline preload="metadata" poster="cara-bermain-poster.jpg" src="cara-bermain.mp4"></video>
+    <span class="tvtag"><span>▶ TRAILER</span></span>
+    <video id="tvVid" playsinline preload="metadata" poster="trailer-poster.jpg" src="trailer.mp4"></video>
     <button class="tvplay" id="tvPlay" onclick="playTut()" aria-label="Putar video cara bermain"><span class="tri"></span></button>
   </div>
 
