@@ -31,6 +31,11 @@ create table if not exists public.sessions(
 
 -- Pembeli umum (peserta tanpa tim, team_number = 0) hanya bila fasilitator mengizinkan
 alter table public.sessions add column if not exists open_buyers boolean not null default false;
+-- Antrean pitch: urutan tim penjual di ronde aktif, kapan waktu tim saat ini mulai, dan durasinya
+alter table public.sessions add column if not exists pitch_idx int not null default 0;
+alter table public.sessions add column if not exists pitch_at timestamptz;
+alter table public.sessions add column if not exists pitch_seconds int not null default 60;
+alter table public.sessions add column if not exists per_round int not null default 5;
 
 create table if not exists public.session_keys(
   session_id uuid primary key references public.sessions(id) on delete cascade,
@@ -147,30 +152,65 @@ begin
 end $$;
 
 -- ---------- fasilitator ----------
-create or replace function public.create_session(p_name text, p_team_count int, p_round_count int, p_budget int)
+drop function if exists public.create_session(text,int,int,int);
+create or replace function public.create_session(p_name text, p_team_count int, p_per_round int, p_budget int,
+  p_pitch_seconds int default 60, p_open_buyers boolean default false)
 returns json language plpgsql security definer set search_path = public as $$
-declare s sessions; k text; c text; i int; per int;
+declare s sessions; k text; c text; i int; r int;
 begin
-  if p_team_count < 2 or p_team_count > 40 then raise exception 'Jumlah tim harus 2 sampai 40.'; end if;
-  if p_round_count < 1 or p_round_count > p_team_count then raise exception 'Jumlah ronde tidak valid.'; end if;
+  if p_team_count < 1 or p_team_count > 40 then raise exception 'Jumlah tim harus 1 sampai 40.'; end if;
+  if p_per_round < 1 or p_per_round > p_team_count then raise exception 'Tim per ronde harus 1 sampai %.', p_team_count; end if;
   if p_budget < 1000 then raise exception 'Uang virtual per ronde terlalu kecil.'; end if;
+  r := ceil(p_team_count::numeric / p_per_round);
   loop c := _code(); exit when not exists(select 1 from sessions where code = c); end loop;
-  insert into sessions(code, name, team_count, round_count, budget)
-  values (c, coalesce(nullif(trim(p_name),''),'Simulasi Bisnis'), p_team_count, p_round_count, p_budget)
+  insert into sessions(code, name, team_count, round_count, per_round, budget, pitch_seconds, open_buyers)
+  values (c, coalesce(nullif(trim(p_name),''),'Simulasi Bisnis'), p_team_count, r, p_per_round, p_budget,
+          greatest(10, least(600, coalesce(p_pitch_seconds, 60))), coalesce(p_open_buyers, false))
   returning * into s;
   k := _token();
   insert into session_keys values (s.id, k);
-  per := ceil(p_team_count::numeric / p_round_count);
   for i in 1..p_team_count loop
-    insert into teams(session_id, number, round) values (s.id, i, ceil(i::numeric / per));
+    insert into teams(session_id, number, round) values (s.id, i, ceil(i::numeric / p_per_round));
   end loop;
   return json_build_object('id', s.id, 'code', s.code, 'admin_key', k);
+end $$;
+
+-- Ubah jumlah tim dan tim per ronde selama persiapan. Ronde setiap tim disusun ulang berurutan.
+create or replace function public.admin_layout(p_code text, p_key text, p_team_count int, p_per_round int) returns json
+language plpgsql security definer set search_path = public as $$
+declare s sessions; i int; busy int;
+begin
+  s := _admin(p_code, p_key);
+  if s.status <> 'setup' then raise exception 'Susunan tim hanya bisa diubah sebelum pasar dibuka.'; end if;
+  if p_team_count < 1 or p_team_count > 40 then raise exception 'Jumlah tim harus 1 sampai 40.'; end if;
+  if p_per_round < 1 or p_per_round > p_team_count then raise exception 'Tim per ronde harus 1 sampai %.', p_team_count; end if;
+  select min(team_number) into busy from players where session_id = s.id and team_number > p_team_count;
+  if busy is not null then raise exception 'Tim % sudah punya peserta. Keluarkan dulu pesertanya sebelum mengurangi jumlah tim.', busy; end if;
+  delete from teams where session_id = s.id and number > p_team_count;
+  for i in (s.team_count + 1)..p_team_count loop
+    insert into teams(session_id, number) values (s.id, i) on conflict do nothing;
+  end loop;
+  update teams set round = ceil(number::numeric / p_per_round), updated_at = now() where session_id = s.id;
+  update sessions set team_count = p_team_count, per_round = p_per_round,
+    round_count = ceil(p_team_count::numeric / p_per_round), updated_at = now() where id = s.id;
+  return json_build_object('ok', true);
+end $$;
+
+-- Antrean pitch: pindah ke tim ke-p_idx; p_start = waktu langsung berjalan
+create or replace function public.admin_pitch(p_code text, p_key text, p_idx int, p_start boolean) returns json
+language plpgsql security definer set search_path = public as $$
+declare s sessions;
+begin
+  s := _admin(p_code, p_key);
+  update sessions set pitch_idx = greatest(0, p_idx),
+    pitch_at = case when p_start then now() else null end, updated_at = now() where id = s.id;
+  return json_build_object('ok', true, 'now', extract(epoch from now()));
 end $$;
 
 create or replace function public.admin_check(p_code text, p_key text) returns json
 language plpgsql stable security definer set search_path = public as $$
 declare s sessions;
-begin s := _admin(p_code, p_key); return json_build_object('id', s.id, 'code', s.code); end $$;
+begin s := _admin(p_code, p_key); return json_build_object('id', s.id, 'code', s.code, 'now', extract(epoch from now())); end $$;
 
 -- Ubah pengaturan sesi: nama, uang per ronde, batas per tim, status, ronde, fase, promo paket
 create or replace function public.admin_update(p_code text, p_key text, p jsonb) returns json
@@ -187,6 +227,9 @@ begin
     status = case when p ? 'status' and p->>'status' in ('setup','market','closed') then p->>'status' else status end,
     bundle = case when p ? 'bundle' then (p->>'bundle')::boolean else bundle end,
     open_buyers = case when p ? 'open_buyers' then (p->>'open_buyers')::boolean else open_buyers end,
+    pitch_seconds = greatest(10, least(600, _int(p->>'pitch_seconds', pitch_seconds))),
+    pitch_idx = case when p ? 'phase' or p ? 'round' then 0 else pitch_idx end,
+    pitch_at = case when p ? 'phase' or p ? 'round' then null else pitch_at end,
     updated_at = now()
   where id = s.id;
   return json_build_object('ok', true);
@@ -199,7 +242,7 @@ declare s sessions;
 begin
   s := _admin(p_code, p_key);
   update teams set plan = jsonb_build_object('price', price, 'vc', vc, 'fc', fc, 'qty', qty) where session_id = s.id;
-  update sessions set status = 'market', round = 1, phase = 'pitch', updated_at = now() where id = s.id;
+  update sessions set status = 'market', round = 1, phase = 'pitch', pitch_idx = 0, pitch_at = null, updated_at = now() where id = s.id;
   return json_build_object('ok', true);
 end $$;
 
@@ -315,7 +358,8 @@ begin
     'session', json_build_object('id', s.id, 'code', s.code, 'name', s.name, 'status', s.status, 'round', s.round,
       'phase', s.phase, 'round_count', s.round_count, 'team_count', s.team_count, 'budget', s.budget,
       'max_per_team', s.max_per_team, 'bundle', s.bundle, 'events', s.events, 'open_buyers', s.open_buyers,
-      'fx_vc_pct', s.fx_vc_pct, 'fx_fc_add', s.fx_fc_add),
+      'fx_vc_pct', s.fx_vc_pct, 'fx_fc_add', s.fx_fc_add, 'pitch_idx', s.pitch_idx, 'pitch_seconds', s.pitch_seconds,
+      'pitch_left', case when s.pitch_at is null then null else greatest(0, s.pitch_seconds - extract(epoch from now() - s.pitch_at)) end),
     'spent', spent,
     'bought', (select coalesce(json_agg(json_build_object('team_id', team_id, 'units', units, 'amount', amount, 'round', round)), '[]'::json)
                from sales where buyer_id = me.id),
@@ -389,7 +433,7 @@ end $$;
 -- ---------- izin menjalankan fungsi ----------
 revoke all on function public._me(text), public._admin(text,text), public._token(), public._code(), public._int(text,int) from public, anon, authenticated;
 grant execute on function
-  public.create_session(text,int,int,int), public.admin_check(text,text), public.admin_update(text,text,jsonb),
+  public.create_session(text,int,int,int,int,boolean), public.admin_layout(text,text,int,int), public.admin_pitch(text,text,int,boolean), public.admin_check(text,text), public.admin_update(text,text,jsonb),
   public.admin_open_market(text,text), public.admin_event(text,text,jsonb), public.admin_team(text,text,uuid,jsonb),
   public.admin_undo_sale(text,text,bigint), public.admin_kick(text,text,uuid), public.admin_reset_market(text,text),
   public.join_session(text,text,int,boolean), public.player_state(text), public.rep_save(text,jsonb), public.buy(text,uuid,boolean)

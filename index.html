@@ -778,6 +778,25 @@ body.proj .hgrid .scard .sold{font-size:72px}
 .chk input{width:20px!important;height:20px;flex:none;margin-top:1px;accent-color:var(--acc)}
 .chk b{color:var(--ink);font-size:14px}
 .pgrid .pt.guest{border-color:#FBE38A;background:var(--gold-soft)}
+.srow{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.cdn{font-family:var(--f-m);font-weight:600;font-variant-numeric:tabular-nums;background:rgba(255,255,255,.2);border-radius:12px;padding:5px 11px;font-size:20px;white-space:nowrap;margin-left:auto}
+.cdn.big{font-size:52px;padding:6px 16px;border-radius:18px;line-height:1.05}
+.cdn.idle{opacity:.55}
+.cdn.warn{background:var(--gold);color:var(--gold-ink);animation:cdpulse 1s infinite}
+.cdn.over{background:var(--red);color:#fff;font-size:inherit}
+.cdn.big.over{font-size:30px;padding:14px 18px}
+@keyframes cdpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+[data-cdbox].warn{box-shadow:0 8px 0 #6B4500,0 0 0 4px var(--gold)!important}
+[data-cdbox].over{box-shadow:0 8px 0 #7F1D1D,0 0 0 4px var(--red)!important}
+.pq{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.pq span{font-size:12.5px;font-weight:800;border-radius:999px;padding:4px 11px;background:rgba(255,255,255,.16)}
+.pq span.on{background:#fff;color:var(--pdeep)}
+.pq span.done{opacity:.6}
+.mic{position:absolute;top:-12px;left:16px;font-size:12px;font-weight:800;color:#fff;background:linear-gradient(120deg,var(--pdeep),var(--pacc));border-radius:999px;padding:4px 11px;box-shadow:0 3px 0 #2A0A55;z-index:2}
+.scard.nowp,.bcard.nowp{border-color:var(--pacc);box-shadow:0 6px 0 var(--pdeep),0 0 0 4px var(--pline),0 24px 40px -30px rgba(61,16,122,.6);margin-top:8px}
+.rband .srow b{flex:1;min-width:0}
+body.proj .stagec h2{font-size:40px}
+body.proj .cdn.big{font-size:80px}
 </style>
 </head>
 <body>
@@ -1795,6 +1814,33 @@ function setSync(el, st, msg){
   s.querySelector("span").textContent = msg || ({ok:"Tersambung", wait:"Menyimpan…", err:"Terputus", lock:"Tersimpan"}[st]);
 }
 
+// ---------- hitung mundur pitch: elemen .cdn membawa waktu selesai (jam perangkat ini) ----------
+const fmtS = n => Math.floor(n/60) + ":" + String(n%60).padStart(2,"0");
+let audioCtx = null;
+const beepOn = () => fetchS("ibtBeep") !== false;
+function beep(n){
+  if(!beepOn()) return;
+  try{
+    audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+    for(let i=0;i<n;i++){ const o = audioCtx.createOscillator(), g = audioCtx.createGain(), t = audioCtx.currentTime + i*0.28;
+      o.type = "sine"; o.frequency.value = n>1 ? 660 : 880; g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.35, t+0.02); g.gain.exponentialRampToValueAtTime(0.0001, t+0.22);
+      o.connect(g).connect(audioCtx.destination); o.start(t); o.stop(t+0.25); }
+  }catch(e){}
+}
+function cdTick(){
+  document.querySelectorAll(".cdn").forEach(el=>{
+    const end = +el.dataset.end; if(!end) return;
+    const left = Math.max(0, Math.ceil((end - Date.now())/1000));
+    el.textContent = left > 0 ? fmtS(left) : "Waktu habis";
+    el.classList.toggle("warn", left > 0 && left <= 10); el.classList.toggle("over", left === 0);
+    const box = el.closest("[data-cdbox]"); if(box){ box.classList.toggle("warn", left > 0 && left <= 10); box.classList.toggle("over", left === 0); }
+    if(el.dataset.beep){ const k = el.dataset.beep;
+      if(left <= 10 && left > 0 && H && H.beep10 !== k){ H.beep10 = k; beep(1); }
+      if(left === 0 && H && H.beep0 !== k){ H.beep0 = k; beep(3); } }
+  });
+}
+setInterval(cdTick, 250);
+
 // ================= GABUNG =================
 const JN = { sess:null, team:null, role:"buyer", reps:{}, counts:{} };
 function initJoin(code){
@@ -1878,7 +1924,7 @@ async function pollPlay(){
   }
 }
 function setPS(st){
-  const prev = PS; PS = st;
+  const prev = PS; PS = st; st.recvAt = Date.now();
   if(prev && prev.session.phase !== st.session.phase && st.session.phase === "buy" && navigator.vibrate) navigator.vibrate(120);
   if(curView === "play") renderPlay(prev);
   if(curView === "team" && teamLive) updLiveBar();
@@ -1889,18 +1935,33 @@ function renderPlay(prev){
   $("pTeam").textContent = me.team ? `Tim ${me.team}${mine.name ? " · " + mine.name : ""} · ${me.is_rep ? "Ketua" : "Anggota"}` : "Pembeli umum";
   const selling = s.status==="market" && mine.round===s.round;
   // pita ronde
-  let cls = "", sm = "", big = "", p = "";
+  let cls = "", sm = "", big = "", p = "", pq = [], pi = 0, pcur = null, cd = "";
   if(s.status==="setup"){ sm = "Persiapan"; big = "Menunggu pasar dibuka"; p = !me.team ? "Anda pembeli umum. Belanja dibuka setelah tim yang berjualan selesai pitch." : me.is_rep ? "Isi Lembar Usaha Tim sekarang. Data otomatis terkirim ke fasilitator." : `Tim Anda berjualan di ronde ${mine.round||"?"}. Bantu ketua tim menyiapkan produk dan pitch.`; }
   else if(s.status==="closed"){ cls = "closed"; sm = "Selesai"; big = "Pasar ditutup 🏁"; p = "Perhatikan layar proyektor untuk pengumuman juara."; }
   else {
     cls = s.phase==="buy" ? "buy" : s.phase==="pitch" ? "pitch" : "";
     sm = `Ronde ${s.round} dari ${s.round_count}`;
+    pq = st.teams.filter(t=>t.round===s.round).sort((a,b)=>a.number-b.number);
+    pi = Math.min(s.pitch_idx||0, Math.max(0, pq.length-1)); pcur = s.phase==="pitch" ? pq[pi] : null;
     big = selling ? (s.phase==="pitch" ? "Giliran tim Anda pitch! 🎤" : s.phase==="buy" ? "Lapak Anda sedang dibuka" : "Ronde jualan Anda selesai") : (PHASE[s.phase] || "");
     p = selling ? "Tim Anda berjualan di ronde ini, jadi tidak bisa belanja dulu." : s.phase==="pitch" ? "Dengarkan pitch tim yang berjualan. Belanja dibuka sebentar lagi." : s.phase==="buy" ? `Belanjakan uang virtual Anda, maksimal ${s.max_per_team} kali per tim.` : "Tunggu fasilitator membuka ronde berikutnya.";
+    if(pcur){
+      const mi = pq.findIndex(t=>t.number===me.team), run = s.pitch_left != null;
+      cd = run ? `<span class="cdn" data-end="${st.recvAt + s.pitch_left*1000}"></span>` : "";
+      if(mi === pi){ big = run ? "Tim Anda sedang pitch 🎤" : "Giliran tim Anda! Maju ke depan 🎤"; p = `Waktu ${s.pitch_seconds} detik. Ceritakan masalah pelanggan, keunikan produk, dan harganya.`; }
+      else if(mi === pi + 1){ big = "Giliran tim Anda berikutnya, bersiap! ⏳"; p = `Sekarang Tim ${pcur.number} · ${esc(pcur.product||tname(pcur))} sedang pitch.`; }
+      else if(mi > pi + 1){ big = `Urutan pitch tim Anda: ke-${mi+1}`; p = `Sekarang Tim ${pcur.number} · ${esc(pcur.product||tname(pcur))} sedang pitch.`; }
+      else if(mi >= 0){ big = "Tim Anda sudah pitch ✓"; p = "Tunggu tim lain selesai, lalu belanja dibuka untuk pembeli."; }
+      else { big = `🎤 Tim ${pcur.number} · ${esc(pcur.product||tname(pcur))}`; p = run ? "Sedang pitch. Dengarkan baik-baik, produknya ada di urutan paling atas." : "Bersiap pitch. Dengarkan baik-baik, produknya ada di urutan paling atas."; }
+      const key = s.round + "|" + pi + "|" + mi;
+      if(prev && navigator.vibrate && (mi === pi || mi === pi + 1) && (prev.session.pitch_idx !== s.pitch_idx || prev.session.phase !== "pitch")) navigator.vibrate([90,60,90]);
+    }
   }
   const band = $("pBand"); band.className = "rband " + cls;
-  band.innerHTML = `<small>${sm}</small><b>${big}</b><p>${p}</p>${s.status!=="setup" ? roundDots(s) : ""}`;
-  if(prev && (prev.session.phase!==s.phase || prev.session.round!==s.round || prev.session.status!==s.status)) anim(band, "enter");
+  band.setAttribute("data-cdbox", "");
+  band.innerHTML = `<small>${sm}</small><div class="srow"><b>${big}</b>${cd}</div><p>${p}</p>${s.status!=="setup" ? roundDots(s) : ""}`;
+  if(prev && (prev.session.phase!==s.phase || prev.session.round!==s.round || prev.session.status!==s.status || prev.session.pitch_idx!==s.pitch_idx)) anim(band, "enter");
+  cdTick();
   // ketua tim
   $("pRep").innerHTML = me.is_rep ? (()=>{
     const ready = mine.product && mine.price>0 && mine.qty>0;
@@ -1915,7 +1976,7 @@ function renderPlay(prev){
     main = `<div class="card seller"><span class="lvtag">LAPAK TIM ${me.team}</span><div class="big">${mine.sold||0}</div><div class="of">terjual dari ${a} ${esc(mine.unit||"produk")}${l<=0&&a?" · <b style='color:var(--red)'>HABIS</b>":""}</div><div class="meter"><i style="width:${a?Math.min(100,(mine.sold||0)/a*100):0}%"></i></div><div class="of">Pendapatan <b style="font-family:var(--f-d);color:var(--ink)">${rp(mine.revenue||0)}</b></div></div>`;
   } else {
     const rnd = s.status==="setup" ? 1 : s.round;
-    const list = st.teams.filter(t=>t.round===rnd);
+    const list = st.teams.filter(t=>t.round===rnd).sort((a,b)=>(pcur && a.id===pcur.id ? -1 : pcur && b.id===pcur.id ? 1 : a.number-b.number));
     const left$ = Math.max(0, s.budget - st.spent), canBuy = s.status==="market" && s.phase==="buy";
     main = `<div class="wallet2"><span class="wi">Rp</span><div><small>Sisa uang virtual ronde ${s.status==="setup"?"ini":s.round}</small><b>${rp(s.status==="setup"?s.budget:left$)}</b><div class="of">dari ${rp(s.budget)} per ronde · tidak terbawa ke ronde berikutnya</div></div></div>
       <h3 class="hsub">${s.status==="setup" ? "Tim yang berjualan di ronde 1" : "Tim yang berjualan sekarang"}</h3>
@@ -1930,7 +1991,8 @@ function renderPlay(prev){
         else if(!canBuy){ lab = s.status==="setup" ? "Belum dibuka" : "Tunggu belanja dibuka"; }
         else if(t.price > left$){ lab = "Uang tidak cukup"; dis = true; }
         const bundle = s.bundle && t.bundle_price>0 && !own && !got && canBuy ? `<button class="buy b2" onclick="askBuy('${t.id}',true)" ${l<2||t.bundle_price>left$?"disabled":""}>🎁 Paket 2 · ${rp(t.bundle_price)}</button>` : "";
-        return `<div class="bcard ${l<=0&&t.qty?"out":""}"><div class="who"><span class="av c${(t.number-1)%6}">${esc(initials(tname(t)))}</span><div style="min-width:0"><div class="tn">Tim ${t.number} · ${esc(tname(t))}</div><div class="pn">${esc(t.product||"Produk belum diisi")}</div></div></div>
+        const nowP = pcur && t.id === pcur.id;
+        return `<div class="bcard ${l<=0&&t.qty?"out":""}${nowP?" nowp":""}">${nowP?'<span class="mic">🎤 Sedang pitch</span>':""}<div class="who"><span class="av c${(t.number-1)%6}">${esc(initials(tname(t)))}</span><div style="min-width:0"><div class="tn">Tim ${t.number} · ${esc(tname(t))}</div><div class="pn">${esc(t.product||"Produk belum diisi")}</div></div></div>
           ${t.tagline?`<p class="tg">“${esc(t.tagline)}”</p>`:""}${uq.length?`<div class="uq">${uq.map(u=>`<span>${esc(u)}</span>`).join("")}</div>`:""}
           <div class="row2"><span class="pp">🪙 ${t.price?rp(t.price):"·"}</span><span class="stk">${t.qty?`${l} tersisa`:""}</span></div>
           <button class="buy${gcls}" onclick="askBuy('${t.id}',false)" ${dis?"disabled":""}>${lab}${!dis?` · ${rp(t.price)}`:""}</button>${bundle}
@@ -2040,12 +2102,13 @@ function renderHostNew(){
   $("hNew").innerHTML = `<div class="card"><span class="lvtag">MODE DARING · FASILITATOR</span><h2>Buat sesi permainan</h2>
     <p class="lead">Peserta bergabung dari HP masing-masing dengan kode sesi. Semua data tersinkron ke layar ini.</p>
     <label>Pilihan cepat</label>
-    <div class="presets"><button class="preset" onclick="preset('kelas')"><b>🏫 Kelas</b><span>20 sampai 40 orang · 4 tim · 1 ronde · ada pembeli umum</span></button><button class="preset" onclick="preset('inkubasi')"><b>🚀 Inkubasi</b><span>100 orang · 20 tim · 4 ronde · semua masuk tim</span></button></div>
+    <div class="presets"><button class="preset" onclick="preset('kelas')"><b>🏫 Kelas</b><span>20 sampai 40 orang · 4 tim · semua tim jualan di 1 ronde · ada pembeli umum</span></button><button class="preset" onclick="preset('inkubasi')"><b>🚀 Inkubasi</b><span>100 orang · 20 tim · 5 tim per ronde · semua masuk tim</span></button></div>
     <div class="fields">
       <div class="full"><label>Nama sesi</label><input id="nsName" value="Simulasi Bisnis CEDC UNPRI" maxlength="60"></div>
-      <div><label>Jumlah tim</label><input id="nsTeams" type="number" min="2" max="40" value="20" oninput="planText()"></div>
-      <div><label>Jumlah ronde jualan</label><input id="nsRounds" type="number" min="1" max="10" value="4" oninput="planText()"></div>
-      <div class="full"><label>🪙 Uang virtual per pembeli per ronde (Rp)</label><input id="nsBudget" type="number" min="1000" step="1000" value="20000" oninput="planText()"></div>
+      <div><label>Jumlah tim</label><input id="nsTeams" type="number" min="1" max="40" value="20" oninput="planText()"></div>
+      <div><label>Tim yang berjualan per ronde</label><input id="nsPer" type="number" min="1" max="40" value="5" oninput="planText()"></div>
+      <div><label>🪙 Uang virtual per pembeli per ronde (Rp)</label><input id="nsBudget" type="number" min="1000" step="1000" value="20000" oninput="planText()"></div>
+      <div><label>🎤 Waktu pitch per tim (detik)</label><input id="nsPitch" type="number" min="10" max="600" step="10" value="60" oninput="planText()"></div>
       <label class="full chk"><input type="checkbox" id="nsOpen" onchange="planText()"><span><b>Izinkan pembeli umum</b><br>Peserta boleh gabung tanpa tim dan hanya belanja. Cocok untuk kelas dengan sedikit tim.</span></label>
     </div>
     <div class="hplan" id="nsPlan"></div>
@@ -2056,24 +2119,24 @@ function renderHostNew(){
   planText();
 }
 function preset(k){
-  const v = k === "kelas" ? { t:4, r:1, b:20000, o:true, n:"Simulasi Bisnis Kelas" } : { t:20, r:4, b:20000, o:false, n:"Simulasi Bisnis CEDC UNPRI" };
-  $("nsTeams").value = v.t; $("nsRounds").value = v.r; $("nsBudget").value = v.b; $("nsOpen").checked = v.o; $("nsName").value = v.n;
+  const v = k === "kelas" ? { t:4, per:4, b:20000, o:true, n:"Simulasi Bisnis Kelas" } : { t:20, per:5, b:20000, o:false, n:"Simulasi Bisnis CEDC UNPRI" };
+  $("nsTeams").value = v.t; $("nsPer").value = v.per; $("nsBudget").value = v.b; $("nsPitch").value = 60; $("nsOpen").checked = v.o; $("nsName").value = v.n;
   document.querySelectorAll(".preset").forEach(b=>b.classList.toggle("on", b.getAttribute("onclick").includes(k)));
   planText();
 }
 function planText(){
-  const n = Math.max(2, +$("nsTeams").value||0), r = Math.max(1, Math.min(n, +$("nsRounds").value||1)), b = pos($("nsBudget").value);
-  const per = Math.ceil(n/r);
-  const parts = Array.from({length:r},(_,i)=>{ const a = i*per+1, z = Math.min(n,(i+1)*per); return a<=z ? `ronde ${i+1}: tim ${a}${z>a?" sampai "+z:""}` : null; }).filter(Boolean);
-  const open = $("nsOpen").checked;
-  $("nsPlan").innerHTML = `<b>Pembagian jualan:</b> ${parts.join(" · ")}.<br>${r>1?"Saat satu kelompok berjualan, peserta dari tim lain menjadi pembeli":"Semua tim berjualan bersamaan"}${open?(r>1?", ditambah pembeli umum":", pembelinya adalah pembeli umum"):""}. Setiap pembeli memegang <b>${rp(b)}</b> per ronde.${r===1&&!open?"<br><b style='color:var(--red-s)'>Perhatian:</b> dengan 1 ronde dan tanpa pembeli umum, tidak ada yang bisa belanja.":""}`;
+  const n = Math.max(1, Math.min(40, +$("nsTeams").value||0)), per = Math.max(1, Math.min(n, +$("nsPer").value||1)), r = Math.ceil(n/per), b = pos($("nsBudget").value), ps = Math.max(10, +$("nsPitch").value||60);
+  if(+$("nsTeams").value && +$("nsPer").value > n){ $("nsPer").value = n; }
+  $("nsPer").max = n;
+  const parts = Array.from({length:r},(_,i)=>{ const a = i*per+1, z = Math.min(n,(i+1)*per); return `ronde ${i+1}: tim ${a}${z>a?" sampai "+z:""}`; });
+  const open = $("nsOpen").checked, mins = Math.round(r * (per*ps/60 + 1 + 5));
+  $("nsPlan").innerHTML = `<b>${r} ronde.</b> ${parts.join(" · ")}.<br>Perkiraan waktu pasar sekitar <b>${mins} menit</b> (pitch ${per} × ${ps} detik, ganti tim, dan 5 menit belanja per ronde).<br>${r>1?"Saat satu kelompok berjualan, peserta dari tim lain menjadi pembeli":"Semua tim berjualan bersamaan"}${open?(r>1?", ditambah pembeli umum":", pembelinya adalah pembeli umum"):""}. Setiap pembeli memegang <b>${rp(b)}</b> per ronde.${r===1&&!open?"<br><b style='color:var(--red-s)'>Perhatian:</b> dengan 1 ronde dan tanpa pembeli umum, tidak ada yang bisa belanja.":""}`;
 }
 async function createSess(){
   const b = $("nsGo"); b.disabled = true; b.textContent = "Membuat…";
   try{
     const name = $("nsName").value.trim() || "Simulasi Bisnis";
-    const r = await rpc("create_session", { p_name: name, p_team_count: +$("nsTeams").value, p_round_count: +$("nsRounds").value, p_budget: +$("nsBudget").value });
-    if($("nsOpen").checked) await rpc("admin_update", { p_code: r.code, p_key: r.admin_key, p: { open_buyers: true } });
+    const r = await rpc("create_session", { p_name: name, p_team_count: +$("nsTeams").value, p_per_round: +$("nsPer").value, p_budget: +$("nsBudget").value, p_pitch_seconds: +$("nsPitch").value, p_open_buyers: $("nsOpen").checked });
     HS = [{ code:r.code, key:r.admin_key, name, at:Date.now() }].concat(HS.filter(h=>h.code!==r.code)).slice(0,12);
     store("ibtHost", HS); toast("Sesi " + r.code + " siap! 🎉"); confetti();
     await openRoom(r.code);
@@ -2085,8 +2148,8 @@ async function openRoom(code, tab, fromRoute){
   const h = HS.find(x=>x.code===code);
   if(!h){ toast(`Kunci fasilitator sesi ${code} tidak ada di perangkat ini. Buka dari perangkat yang membuat sesi.`); renderHostNew(); syncRoute(false); return; }
   try{
-    await rpc("admin_check", { p_code: code, p_key: h.key });
-    H = { code, key: h.key, sess: null, teams: [], players: [], sales: [], lastSale: 0, fullAt: 0, tab: tab || "live", sold: {}, phaseKey: "", phaseAt: Date.now() };
+    const ck = await rpc("admin_check", { p_code: code, p_key: h.key });
+    H = { off: ck.now*1000 - Date.now(), code, key: h.key, sess: null, teams: [], players: [], sales: [], lastSale: 0, fullAt: 0, tab: tab || "live", sold: {}, phaseKey: "", phaseAt: Date.now() };
     await hostLoad(true);
     if(curView !== "host") return;
     routing++; try{ showRoom(); } finally { routing--; }
@@ -2157,23 +2220,37 @@ function renderJoinCard(){
 function stageInfo(){
   const s = H.sess, ready = H.teams.filter(t=>t.product && t.price>0 && t.qty>0).length;
   const sellers = H.teams.filter(t=>t.round===s.round).map(t=>t.number);
-  const rng = sellers.length ? `tim ${sellers[0]}${sellers.length>1?" sampai "+sellers[sellers.length-1]:""}` : "belum ada tim";
+  const rng = sellers.length ? "tim " + (sellers.length>1 ? sellers.slice(0,-1).join(", ") + " dan " + sellers[sellers.length-1] : sellers[0]) : "belum ada tim";
   if(s.status==="setup") return { cls:"", sm:"Persiapan", h:"Ketua tim mengisi Lembar Usaha Tim", p:`${ready} dari ${s.team_count} tim sudah mengisi produk, harga, dan jumlah produksi. Setelah pasar dibuka, produksi dan biaya dikunci.`, act:`<button class="btn pri" onclick="askOpen()">🔓 Buka Pasar</button>` };
   if(s.status==="closed") return { cls:"closed", sm:"Selesai", h:"Pasar ditutup 🏁", p:"Umumkan juara dari tab Hasil, lalu ajak peserta refleksi.", act:`<button class="btn pri" onclick="htab('result')">🏆 Lihat Hasil</button><button class="btn white sm" onclick="adminUpd({status:'market',phase:'done'})">Buka kembali</button>` };
   const last = s.round >= s.round_count;
-  if(s.phase==="pitch") return { cls:"pitch", sm:`Ronde ${s.round} dari ${s.round_count}`, h:"Waktunya pitch 🎤", p:`Persilakan ${rng} pitch 1 menit, lalu buka belanja.`, act:`<button class="btn pri" onclick="adminUpd({phase:'buy'})">🛒 Mulai Belanja</button>`, tm:true };
+  if(s.phase==="pitch"){
+    const q = H.teams.filter(t=>t.round===s.round).sort((a,b)=>a.number-b.number), idx = Math.min(s.pitch_idx||0, Math.max(0,q.length-1)), cur = q[idx], last = idx >= q.length-1;
+    if(!cur) return { cls:"pitch", sm:`Ronde ${s.round} dari ${s.round_count}`, h:"Tidak ada tim di ronde ini", p:"Buka belanja atau lanjutkan ke ronde berikutnya.", act:`<button class="btn pri" onclick="adminUpd({phase:'buy'})">🛒 Mulai Belanja</button>` };
+    const run = !!s.pitch_at, end = run ? new Date(s.pitch_at).getTime() - (H.off||0) + s.pitch_seconds*1000 : 0;
+    const queue = q.map((t,i)=>`<span class="${i<idx?"done":i===idx?"on":""}">${i<idx?"✓ ":""}Tim ${t.number}</span>`).join("");
+    const act = (run ? (last ? `<button class="btn pri" onclick="adminUpd({phase:'buy'})">🛒 Mulai Belanja</button>` : `<button class="btn pri" onclick="hPitch(${idx+1},false)">Tim berikutnya →</button>`) + `<button class="btn white sm" onclick="hPitch(${idx},true)">↺ Ulang waktu</button>`
+      : `<button class="btn pri" onclick="hPitch(${idx},true)">▶ Mulai pitch Tim ${cur.number}</button>`) + (!last||!run ? `<button class="btn white sm" onclick="adminUpd({phase:'buy'})">Langsung buka belanja</button>` : "");
+    return { cls:"pitch", sm:`Ronde ${s.round} dari ${s.round_count} · pitch ${idx+1} dari ${q.length}`, h:`🎤 Tim ${cur.number} · ${esc(cur.product||tname(cur))}`,
+      p: run ? `${esc(tname(cur))} sedang pitch.` : `Persilakan ${esc(tname(cur))} maju ke depan, lalu mulai hitung mundur ${s.pitch_seconds} detik.`,
+      act, cd: run ? `<span class="cdn big" data-end="${end}" data-beep="${s.round}-${idx}-${s.pitch_at}">${fmtS(s.pitch_seconds)}</span>` : `<span class="cdn big idle">${fmtS(s.pitch_seconds)}</span>`, queue, key: `${s.round}|${idx}|${s.pitch_at}|${s.pitch_seconds}` };
+  }
   if(s.phase==="buy") return { cls:"buy", sm:`Ronde ${s.round} dari ${s.round_count}`, h:"Belanja dibuka 🛒", p:`Pembeli dari tim lain sedang belanja di lapak ${rng}.`, act:`<button class="btn dark" onclick="adminUpd({phase:'done'})">■ Tutup Belanja</button>`, tm:true };
   return { cls:"", sm:`Ronde ${s.round} dari ${s.round_count}`, h:`Ronde ${s.round} selesai`, p: last ? "Semua ronde selesai. Tutup pasar untuk menghitung laba nyata setiap tim." : `Berikutnya ronde ${s.round+1}. Minta tim yang akan berjualan bersiap pitch.`,
     act: (last ? `<button class="btn pri" onclick="askClose()">🏁 Tutup Pasar & Umumkan</button>` : `<button class="btn pri" onclick="adminUpd({round:${s.round+1},phase:'pitch'})">Lanjut ke Ronde ${s.round+1} →</button>`) + `<button class="btn white sm" onclick="adminUpd({phase:'buy'})">↺ Buka lagi belanja</button>` };
 }
 function renderStage(){
   const s = H.sess, i = stageInfo(), el = $("hStage");
-  const key = i.sm + i.h;
-  el.className = "stagec " + i.cls;
-  if(el.dataset.k === key + i.p) return;
-  el.innerHTML = `<small>${i.sm}</small><h2>${i.h}</h2><p>${i.p}</p><div class="sact hctl">${i.act}${i.tm?`<span class="tm" id="hTm">00:00</span>`:""}</div>${s.status!=="setup"?roundDots(s,"done"):""}`;
+  const key = i.sm + i.h, full = key + i.p + i.act + (i.key||"");
+  if(el.dataset.k === full) return;
+  el.className = "stagec " + i.cls; el.setAttribute("data-cdbox", "");
+  el.innerHTML = `<small>${i.sm}</small><div class="srow"><div style="min-width:0;flex:1"><h2>${i.h}</h2><p>${i.p}</p></div>${i.cd||""}</div>${i.queue?`<div class="pq">${i.queue}</div>`:""}<div class="sact hctl">${i.act}${i.tm?`<span class="tm" id="hTm">00:00</span>`:""}</div>${s.status!=="setup"?roundDots(s,"done"):""}`;
   if(el.dataset.k && el.dataset.k.indexOf(key)!==0) anim(el, "enter");
-  el.dataset.k = key + i.p; tickTimer();
+  el.dataset.k = full; tickTimer(); cdTick();
+}
+async function hPitch(idx, start){
+  if(audioCtx === null && beepOn()){ try{ audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){} }
+  try{ const r = await admin("admin_pitch", { p_idx: idx, p_start: start }); if(r && r.now) H.off = r.now*1000 - Date.now(); await hostLoad(true); }catch(e){ toast(e.message); }
 }
 function tickTimer(){ const t = $("hTm"); if(!t || !H) return; const sec = Math.floor((Date.now()-H.phaseAt)/1000); t.textContent = String(Math.floor(sec/60)).padStart(2,"0") + ":" + String(sec%60).padStart(2,"0"); }
 async function adminUpd(p){
@@ -2216,7 +2293,8 @@ function renderHLive(){
     const o = st[t.id], a = Math.max(0,(t.qty||0)-(t.loss||0)), out = a>0 && o.sold>=a;
     if(prevSold[t.id]!=null && o.sold > prevSold[t.id]) bumps.push([t.id, o.rev - (H.revPrev||{})[t.id]]);
     const changed = t.plan && t.plan.price !== t.price;
-    return `<div class="scard ${out?"out":""}" id="hc_${t.id}"><div class="who"><span class="av c${(t.number-1)%6}">${esc(initials(tname(t)))}</span><div style="min-width:0"><div class="tn">Tim ${t.number} · ${esc(tname(t))}</div><div class="pn">${esc(t.product||"Produk belum diisi")}</div></div></div>
+    const nowP = s.status==="market" && s.phase==="pitch" && t.number === (H.teams.filter(x=>x.round===s.round).sort((a,b)=>a.number-b.number)[s.pitch_idx||0]||{}).number;
+    return `<div class="scard ${out?"out":""}${nowP?" nowp":""}" id="hc_${t.id}">${nowP?'<span class="mic">🎤 Sedang pitch</span>':""}<div class="who"><span class="av c${(t.number-1)%6}">${esc(initials(tname(t)))}</span><div style="min-width:0"><div class="tn">Tim ${t.number} · ${esc(tname(t))}</div><div class="pn">${esc(t.product||"Produk belum diisi")}</div></div></div>
       <div class="pp">🪙 ${t.price?rp(t.price):"·"}${changed?` <span class="oldp">(awal ${rp(t.plan.price)})</span>`:""}${s.bundle&&t.bundle_price?` · 🎁 ${rp(t.bundle_price)}`:""}</div>
       <div class="sold">${o.sold}</div><div class="of">terjual dari ${a} produk${t.loss?` (${t.loss} rusak)`:""}${out?" · <b style='color:var(--red)'>HABIS</b>":""}</div>${out?`<span class="stamp">SOLD OUT</span>`:""}
       <div class="meter"><i style="width:${a?Math.min(100,o.sold/a*100):0}%"></i></div><div class="rev">Pendapatan: <b>${rp(o.rev)}</b></div></div>`;
@@ -2317,10 +2395,24 @@ function hostMenu(){
     <div class="fields" style="margin-top:10px"><div class="full"><label>Nama sesi</label><input id="stName" value="${esc(s.name)}"></div>
     <div><label>Uang per pembeli per ronde</label><input id="stBud" type="number" min="1000" step="1000" value="${s.budget}"></div>
     <div><label>Maks. beli dari tim yang sama</label><input id="stMax" type="number" min="1" max="10" value="${s.max_per_team}"></div>
-    <label class="full chk"><input type="checkbox" id="stOpen" ${s.open_buyers?"checked":""}><span><b>Izinkan pembeli umum</b><br>Peserta boleh gabung tanpa tim dan hanya belanja.</span></label></div>
+    <div><label>Jumlah tim</label><input id="stTeams" type="number" min="1" max="40" value="${s.team_count}" ${s.status!=="setup"?"disabled":""}></div>
+    <div><label>Tim yang berjualan per ronde</label><input id="stPer" type="number" min="1" max="40" value="${s.per_round||Math.ceil(s.team_count/s.round_count)}" ${s.status!=="setup"?"disabled":""}></div>
+    <p class="full" style="font-size:12.5px;color:var(--muted);margin-top:-4px">${s.status==="setup"?"Mengubah dua angka di atas menyusun ulang ronde setiap tim secara berurutan. Pindahan manual di tab Tim akan tertimpa.":"Susunan tim terkunci karena pasar sudah dibuka."}</p>
+    <div><label>🎤 Waktu pitch per tim (detik)</label><input id="stPitch" type="number" min="10" max="600" step="10" value="${s.pitch_seconds||60}"></div>
+    <div></div>
+    <label class="full chk"><input type="checkbox" id="stOpen" ${s.open_buyers?"checked":""}><span><b>Izinkan pembeli umum</b><br>Peserta boleh gabung tanpa tim dan hanya belanja.</span></label>
+    <label class="full chk"><input type="checkbox" id="stBeep" ${beepOn()?"checked":""}><span><b>Bunyi aba-aba pitch di perangkat ini</b><br>Bunyi singkat saat sisa 10 detik dan tiga kali saat waktu habis.</span></label></div>
     <div class="mbtns" style="flex-wrap:wrap"><button class="btn red" onclick="askResetLive()">↺ Ulangi pasar</button><button class="btn soft" onclick="leaveRoom()">Ganti sesi</button><span style="flex:1"></span><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn pri" onclick="saveSettings()">Simpan</button></div>`);
 }
-async function saveSettings(){ const p = { name: $("stName").value, budget: +$("stBud").value, max_per_team: +$("stMax").value, open_buyers: $("stOpen").checked }; closeModal(); await adminUpd(p); toast("Pengaturan disimpan"); }
+async function saveSettings(){
+  const s = H.sess, p = { name: $("stName").value, budget: +$("stBud").value, max_per_team: +$("stMax").value, open_buyers: $("stOpen").checked, pitch_seconds: +$("stPitch").value };
+  const nt = +$("stTeams").value, np = Math.min(+$("stPer").value, nt), relayout = s.status==="setup" && (nt !== s.team_count || np !== (s.per_round||0));
+  store("ibtBeep", $("stBeep").checked); closeModal();
+  try{
+    if(relayout) await admin("admin_layout", { p_team_count: nt, p_per_round: np });
+    await adminUpd(p); toast(relayout ? `Disimpan: ${nt} tim, ${np} tim per ronde, ${Math.ceil(nt/np)} ronde` : "Pengaturan disimpan");
+  }catch(e){ toast(e.message); }
+}
 function askResetLive(){
   modal(`<h3>Ulangi pasar?</h3><p>Semua transaksi dan kartu kejadian dihapus, harga kembali ke harga awal, dan kunci produksi dibuka. Data tim dan peserta tetap ada.</p><div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn red" onclick="doResetLive()">Ulangi pasar</button></div>`);
 }

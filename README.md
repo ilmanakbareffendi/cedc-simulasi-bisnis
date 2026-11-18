@@ -24,6 +24,10 @@ Semua aturan (stok, saldo per ronde, batas beli per tim, larangan beli produk ti
 
 **Mode kelas (20 sampai 40 orang):** di Ruang Fasilitator pilih *Kelas*. Sesi dibuat dengan sedikit tim, 1 ronde, dan peran *Pembeli umum* (peserta tanpa tim yang hanya belanja). Peran ini bisa dinyalakan atau dimatikan di *Pengaturan* sesi; untuk sesi inkubasi biarkan mati agar semua peserta masuk tim.
 
+**Antrean pitch:** di fase pitch, layar fasilitator menampilkan tim yang sedang pitch, hitung mundur (bawaan 60 detik), dan urutan tim. Fasilitator menekan *Mulai pitch* lalu *Tim berikutnya*. Sisa 10 detik ditandai kuning dan bunyi singkat, waktu habis ditandai merah. HP pembeli menyorot produk tim yang sedang pitch, dan tim berikutnya mendapat aba-aba bersiap.
+
+**Pengaturan bebas:** jumlah tim, tim yang berjualan per ronde (jumlah ronde dihitung otomatis), uang virtual per ronde, batas beli per tim, waktu pitch, pembeli umum, dan bunyi aba-aba. Jumlah tim dan tim per ronde bisa diubah di *Pengaturan* selama pasar belum dibuka; ronde setiap tim juga bisa dipindah satu per satu di tab *Tim*.
+
 Catatan: proyek Supabase paket gratis berhenti sementara setelah 7 hari tanpa aktivitas. Buka dasbor Supabase sehari sebelum acara untuk memastikan proyek aktif.
 
 Mode luring (satu perangkat, tanpa internet) tetap tersedia dari tautan di bawah menu beranda.
