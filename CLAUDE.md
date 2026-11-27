@@ -6,10 +6,17 @@ Pemilik: Career and Alumni Relations Unit, Pusat Pengembangan Karir dan Kewiraus
 Acuan: Standar Pengembangan Web CEDC UNPRI v1.0.
 
 ## Struktur saat ini
-- `index.html`: seluruh aplikasi dalam satu file, sekitar 2.580 baris (CSS sekitar 830 baris, JavaScript sekitar 1.330 baris).
+- `index.html`: markup halaman saja (sekitar 430 baris).
+- `assets/css/`: `base.css` (dasar, tombol, beranda), `permainan.css` (lembar tim, pasar, hasil, modal), `daring.css` (gabung, arena, fasilitator, logo).
+- `assets/js/config.js`: alamat dan kunci publik Supabase.
+- `assets/js/utils/`: `utils.js` (`$`, `rp`, `esc`, penyimpanan, `toast`) dan `umum.js` (fungsi bersama tampilan).
+- `assets/js/services/daring.js`: akses API Supabase, polling, hitung mundur.
+- `assets/js/features/`: gerak, lembar tim, pasar luring, gabung, arena pemain, lembar tersambung, ruang fasilitator, tab fasilitator, beranda, router.
+- `assets/js/main.js`: titik masuk.
 - `supabase/schema.sql`: tabel, RLS, dan semua fungsi RPC. Tabel hanya bisa dibaca publik; perubahan hanya lewat fungsi.
 - `qrcode.min.js`: pustaka QR yang disalin ke repo.
 - Logo CEDC (`cedc-*.png`), trailer (`trailer.mp4`, `trailer-poster.jpg`).
+- Semua file JavaScript adalah skrip klasik tanpa `"use strict"`, dimuat berurutan dan berbagi nama global (handler `onclick` di HTML yang dibangun JavaScript bergantung pada ini). Urutan tag `<script>` di `index.html` penting.
 
 ## Struktur target (Standar Pengembangan Web CEDC UNPRI v1.0)
 
@@ -29,7 +36,7 @@ tests/  docs/
 ## Catatan khusus
 - Logo CEDC tidak boleh diubah warna atau bentuknya.
 - Aturan permainan (stok, saldo, batas beli) wajib tetap dicek di fungsi database.
-- Refactor ke struktur target dilakukan bertahap, satu bagian per sesi, tanpa mengubah perilaku.
+- Langkah berikutnya: ganti handler `onclick="..."` dengan `addEventListener` dan atribut `data-*`, ubah ke ES modules, lalu pasang Content Security Policy.
 
 ## Aturan wajib
 

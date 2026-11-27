@@ -38,7 +38,9 @@ Mode luring (satu perangkat, tanpa internet) tetap tersedia dari tautan di bawah
 3. Buka `http://localhost:8000`. Mode daring memakai database Supabase yang sama dengan versi tayang.
 
 ## Struktur
-- `index.html`: seluruh aplikasi dalam satu file. Pemecahan ke modul dijadwalkan sesuai Standar Pengembangan Web CEDC UNPRI.
+- `index.html`: markup halaman.
+- `assets/css/`: tiga file gaya per bagian.
+- `assets/js/`: `config.js` (Supabase), `utils/`, `services/daring.js`, `features/` (satu file per layar), dan `main.js`.
 - `supabase/schema.sql`: struktur database, RLS, dan fungsi aturan permainan. Jalankan di SQL Editor Supabase untuk membuat ulang database.
 - `qrcode.min.js`: pustaka pembuat QR.
 - `CLAUDE.md`: aturan kerja untuk alat AI dan programmer.
