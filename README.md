@@ -31,3 +31,23 @@ Semua aturan (stok, saldo per ronde, batas beli per tim, larangan beli produk ti
 Catatan: proyek Supabase paket gratis berhenti sementara setelah 7 hari tanpa aktivitas. Buka dasbor Supabase sehari sebelum acara untuk memastikan proyek aktif.
 
 Mode luring (satu perangkat, tanpa internet) tetap tersedia dari tautan di bawah menu beranda.
+
+## Menjalankan di komputer sendiri
+1. Unduh atau clone repo ini.
+2. Di folder repo, jalankan `python3 -m http.server 8000`.
+3. Buka `http://localhost:8000`. Mode daring memakai database Supabase yang sama dengan versi tayang.
+
+## Struktur
+- `index.html`: seluruh aplikasi dalam satu file. Pemecahan ke modul dijadwalkan sesuai Standar Pengembangan Web CEDC UNPRI.
+- `supabase/schema.sql`: struktur database, RLS, dan fungsi aturan permainan. Jalankan di SQL Editor Supabase untuk membuat ulang database.
+- `qrcode.min.js`: pustaka pembuat QR.
+- `CLAUDE.md`: aturan kerja untuk alat AI dan programmer.
+- `CHANGELOG.md`: catatan perubahan.
+
+## Keamanan data
+Kunci yang ada di kode hanya kunci publik Supabase. Aksesnya dibatasi Row Level Security: tabel hanya bisa dibaca, dan perubahan hanya lewat fungsi di `supabase/schema.sql`. Nama peserta dan nama tim dapat dibaca publik selama sesi masih tersimpan.
+
+## Pemilik dan kontak
+Career and Alumni Relations Unit, Pusat Pengembangan Karir dan Kewirausahaan (CEDC) UNPRI. Kontak: ilmanakbareffendi@unprimdn.ac.id.
+
+Status hak cipta dan lisensi akan dicantumkan di file `LICENSE` setelah ditetapkan.
