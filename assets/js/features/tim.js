@@ -43,15 +43,15 @@ function bindInputs(){
 function saveT(){ store(teamLive ? liveTeamKey() : "cedcSimTeam", T); }
 function rowsHTML(list, key){
   if(key==="materials") return T.materials.map((m,i)=>`<tr>
-    <td><input value="${esc(m.name)}" placeholder="mis. Pisang" oninput="T.materials[${i}].name=this.value;saveT();refresh()"></td>
-    <td style="width:80px"><input type="number" min="0" value="${esc(m.qty)}" placeholder="5" oninput="T.materials[${i}].qty=this.value;saveT()"></td>
-    <td style="width:90px"><input value="${esc(m.u)}" placeholder="kg" oninput="T.materials[${i}].u=this.value;saveT()"></td>
-    <td style="width:150px"><input type="number" min="0" step="500" value="${m.cost||""}" placeholder="0" oninput="T.materials[${i}].cost=pos(this.value);saveT();refresh()"></td>
-    <td style="width:40px"><button class="del" onclick="delRow('materials',${i})" aria-label="Hapus">✕</button></td></tr>`).join("");
+    <td><input value="${esc(m.name)}" placeholder="mis. Pisang" data-on-input="h104" data-input-a0="${esc(JSON.stringify(i))}"></td>
+    <td style="width:80px"><input type="number" min="0" value="${esc(m.qty)}" placeholder="5" data-on-input="h105" data-input-a0="${esc(JSON.stringify(i))}"></td>
+    <td style="width:90px"><input value="${esc(m.u)}" placeholder="kg" data-on-input="h106" data-input-a0="${esc(JSON.stringify(i))}"></td>
+    <td style="width:150px"><input type="number" min="0" step="500" value="${m.cost||""}" placeholder="0" data-on-input="h107" data-input-a0="${esc(JSON.stringify(i))}"></td>
+    <td style="width:40px"><button class="del" data-on-click="h108" data-click-a0="${esc(JSON.stringify(i))}" aria-label="Hapus">✕</button></td></tr>`).join("");
   return T[key].map((m,i)=>`<tr>
-    <td><input value="${esc(m.name)}" oninput="T.${key}[${i}].name=this.value;saveT();refresh()"></td>
-    <td colspan="2" style="width:200px"><input type="number" min="0" step="${key==='fixed'?1000:100}" value="${m.cost||""}" placeholder="0" oninput="T.${key}[${i}].cost=pos(this.value);saveT();refresh()"></td>
-    <td style="width:40px"><button class="del" onclick="delRow('${key}',${i})" aria-label="Hapus">✕</button></td></tr>`).join("");
+    <td><input value="${esc(m.name)}" data-on-input="h109" data-input-a0="${esc(key)}" data-input-t0="s" data-input-a1="${esc(JSON.stringify(i))}"></td>
+    <td colspan="2" style="width:200px"><input type="number" min="0" step="${key==='fixed'?1000:100}" value="${m.cost||""}" placeholder="0" data-on-input="h110" data-input-a0="${esc(key)}" data-input-t0="s" data-input-a1="${esc(JSON.stringify(i))}"></td>
+    <td style="width:40px"><button class="del" data-on-click="h111" data-click-a0="${esc(key)}" data-click-t0="s" data-click-a1="${esc(JSON.stringify(i))}" aria-label="Hapus">✕</button></td></tr>`).join("");
 }
 function renderRows(){
   $("matBody").innerHTML = rowsHTML(null,"materials");
@@ -73,13 +73,13 @@ function step(n){
 function renderSteps(){
   $("steps").innerHTML = STEPS.map((s,i)=>{
     const st = i===T.stepNow ? "on" : i<=T.stepMax ? "done" : "";
-    return `<button class="stp ${st}" onclick="step(${i})"><span class="n">${st==="done"?"✓":i+1}</span><span class="t">${s}</span></button>`;
+    return `<button class="stp ${st}" data-on-click="h112" data-click-a0="${esc(JSON.stringify(i))}"><span class="n">${st==="done"?"✓":i+1}</span><span class="t">${s}</span></button>`;
   }).join("");
   const xp = Math.min(5, (T.stepMax||0)+1);
   $("qfill").style.width = (xp/5*100)+"%"; $("qxp").textContent = `XP ${xp}/5`;
 }
 function renderStrat(){
-  $("stratBox").innerHTML = STRATS.map(s=>`<button class="sopt ${T.strategy===s.k?'on':''}" onclick="T.strategy='${s.k}';saveT();renderStrat();refresh()"><b>${s.t}</b><span>${s.d}</span></button>`).join("");
+  $("stratBox").innerHTML = STRATS.map(s=>`<button class="sopt ${T.strategy===s.k?'on':''}" data-on-click="h113" data-click-a0="${esc(s.k)}" data-click-t0="s"><b>${s.t}</b><span>${s.d}</span></button>`).join("");
 }
 function usePsych(){
   const c = calc(T);
@@ -171,5 +171,5 @@ function sendToMarket(){
   if(ex>=0) Object.assign(M.teams[ex], row); else M.teams.push(Object.assign(newTeam(), row));
   M.teams = M.teams.filter(t=>t.name||t.product); saveM(); toast("Tim masuk ke Pasar Live");
 }
-function askResetTeam(){ modal(`<h3>Kosongkan lembar usaha?</h3><p>Semua isian tim di perangkat ini akan dihapus.</p><div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn red" onclick="T=BLANK();saveT();closeModal();initTeam()">Ya, kosongkan</button></div>`); }
+function askResetTeam(){ modal(`<h3>Kosongkan lembar usaha?</h3><p>Semua isian tim di perangkat ini akan dihapus.</p><div class="mbtns"><button class="btn soft" data-on-click="h48">Batal</button><button class="btn red" data-on-click="h114">Ya, kosongkan</button></div>`); }
 function initTeam(){ bindInputs(); renderRows(); renderStrat(); step(T.stepNow||0); }

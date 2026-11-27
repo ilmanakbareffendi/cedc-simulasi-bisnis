@@ -18,26 +18,26 @@ function renderHostNew(){
   $("hNew").innerHTML = `<div class="card"><span class="lvtag">MODE DARING · FASILITATOR</span><h2>Buat sesi permainan</h2>
     <p class="lead">Peserta bergabung dari HP masing-masing dengan kode sesi. Semua data tersinkron ke layar ini.</p>
     <label>Pilihan cepat</label>
-    <div class="presets"><button class="preset" onclick="preset('kelas')"><b>🏫 Kelas</b><span>20 sampai 40 orang · 4 tim · semua tim jualan di 1 ronde · ada pembeli umum</span></button><button class="preset" onclick="preset('inkubasi')"><b>🚀 Inkubasi</b><span>100 orang · 20 tim · 5 tim per ronde · semua masuk tim</span></button></div>
+    <div class="presets"><button class="preset" data-preset="kelas" data-on-click="h69"><b>🏫 Kelas</b><span>20 sampai 40 orang · 4 tim · semua tim jualan di 1 ronde · ada pembeli umum</span></button><button class="preset" data-preset="inkubasi" data-on-click="h70"><b>🚀 Inkubasi</b><span>100 orang · 20 tim · 5 tim per ronde · semua masuk tim</span></button></div>
     <div class="fields">
       <div class="full"><label>Nama sesi</label><input id="nsName" value="Simulasi Bisnis CEDC UNPRI" maxlength="60"></div>
-      <div><label>Jumlah tim</label><input id="nsTeams" type="number" min="1" max="40" value="20" oninput="planText()"></div>
-      <div><label>Tim yang berjualan per ronde</label><input id="nsPer" type="number" min="1" max="40" value="5" oninput="planText()"></div>
-      <div><label>🪙 Uang virtual per pembeli per ronde (Rp)</label><input id="nsBudget" type="number" min="1000" step="1000" value="20000" oninput="planText()"></div>
-      <div><label>🎤 Waktu pitch per tim (detik)</label><input id="nsPitch" type="number" min="10" max="600" step="10" value="60" oninput="planText()"></div>
-      <label class="full chk"><input type="checkbox" id="nsOpen" onchange="planText()"><span><b>Izinkan pembeli umum</b><br>Peserta boleh gabung tanpa tim dan hanya belanja. Cocok untuk kelas dengan sedikit tim.</span></label>
+      <div><label>Jumlah tim</label><input id="nsTeams" type="number" min="1" max="40" value="20" data-on-input="h71"></div>
+      <div><label>Tim yang berjualan per ronde</label><input id="nsPer" type="number" min="1" max="40" value="5" data-on-input="h71"></div>
+      <div><label>🪙 Uang virtual per pembeli per ronde (Rp)</label><input id="nsBudget" type="number" min="1000" step="1000" value="20000" data-on-input="h71"></div>
+      <div><label>🎤 Waktu pitch per tim (detik)</label><input id="nsPitch" type="number" min="10" max="600" step="10" value="60" data-on-input="h71"></div>
+      <label class="full chk"><input type="checkbox" id="nsOpen" data-on-change="h72"><span><b>Izinkan pembeli umum</b><br>Peserta boleh gabung tanpa tim dan hanya belanja. Cocok untuk kelas dengan sedikit tim.</span></label>
     </div>
     <div class="hplan" id="nsPlan"></div>
-    <div class="nav"><button class="btn soft" onclick="go('home')">← Beranda</button><button class="btn pri" id="nsGo" onclick="createSess()">Buat sesi →</button></div></div>
+    <div class="nav"><button class="btn soft" data-on-click="h1">← Beranda</button><button class="btn pri" id="nsGo" data-on-click="h73">Buat sesi →</button></div></div>
     <div class="card"><span class="lvtag">SESI TERSIMPAN</span><h2 style="font-size:20px">Lanjutkan sesi</h2>
     <p class="lead" style="font-size:14px">Kunci fasilitator tersimpan hanya di perangkat ini. Jangan bagikan tautan ruang fasilitator.</p>
-    <div class="slist">${HS.length ? HS.map(h=>`<div class="si"><b>${esc(h.code)}</b><span>${esc(h.name||"")}</span><button class="btn dark sm" onclick="openRoom('${h.code}')">Buka</button><button class="x" title="Hapus dari perangkat ini" onclick="forgetSess('${h.code}')">×</button></div>`).join("") : `<p style="color:var(--muted);font-size:14px">Belum ada sesi di perangkat ini.</p>`}</div></div>`;
+    <div class="slist">${HS.length ? HS.map(h=>`<div class="si"><b>${esc(h.code)}</b><span>${esc(h.name||"")}</span><button class="btn dark sm" data-on-click="h74" data-click-a0="${esc(h.code)}" data-click-t0="s">Buka</button><button class="x" title="Hapus dari perangkat ini" data-on-click="h75" data-click-a0="${esc(h.code)}" data-click-t0="s">×</button></div>`).join("") : `<p style="color:var(--muted);font-size:14px">Belum ada sesi di perangkat ini.</p>`}</div></div>`;
   planText();
 }
 function preset(k){
   const v = k === "kelas" ? { t:4, per:4, b:20000, o:true, n:"Simulasi Bisnis Kelas" } : { t:20, per:5, b:20000, o:false, n:"Simulasi Bisnis CEDC UNPRI" };
   $("nsTeams").value = v.t; $("nsPer").value = v.per; $("nsBudget").value = v.b; $("nsPitch").value = 60; $("nsOpen").checked = v.o; $("nsName").value = v.n;
-  document.querySelectorAll(".preset").forEach(b=>b.classList.toggle("on", b.getAttribute("onclick").includes(k)));
+  document.querySelectorAll(".preset").forEach(b=>b.classList.toggle("on", b.dataset.preset === k));
   planText();
 }
 function planText(){
@@ -137,23 +137,23 @@ function stageInfo(){
   const s = H.sess, ready = H.teams.filter(t=>t.product && t.price>0 && t.qty>0).length;
   const sellers = H.teams.filter(t=>t.round===s.round).map(t=>t.number);
   const rng = sellers.length ? "tim " + (sellers.length>1 ? sellers.slice(0,-1).join(", ") + " dan " + sellers[sellers.length-1] : sellers[0]) : "belum ada tim";
-  if(s.status==="setup") return { cls:"", sm:"Persiapan", h:"Ketua tim mengisi Lembar Usaha Tim", p:`${ready} dari ${s.team_count} tim sudah mengisi produk, harga, dan jumlah produksi. Setelah pasar dibuka, produksi dan biaya dikunci.`, act:`<button class="btn pri" onclick="askOpen()">🔓 Buka Pasar</button>` };
-  if(s.status==="closed") return { cls:"closed", sm:"Selesai", h:"Pasar ditutup 🏁", p:"Umumkan juara dari tab Hasil, lalu ajak peserta refleksi.", act:`<button class="btn pri" onclick="htab('result')">🏆 Lihat Hasil</button><button class="btn white sm" onclick="adminUpd({status:'market',phase:'done'})">Buka kembali</button>` };
+  if(s.status==="setup") return { cls:"", sm:"Persiapan", h:"Ketua tim mengisi Lembar Usaha Tim", p:`${ready} dari ${s.team_count} tim sudah mengisi produk, harga, dan jumlah produksi. Setelah pasar dibuka, produksi dan biaya dikunci.`, act:`<button class="btn pri" data-on-click="h76">🔓 Buka Pasar</button>` };
+  if(s.status==="closed") return { cls:"closed", sm:"Selesai", h:"Pasar ditutup 🏁", p:"Umumkan juara dari tab Hasil, lalu ajak peserta refleksi.", act:`<button class="btn pri" data-on-click="h39">🏆 Lihat Hasil</button><button class="btn white sm" data-on-click="h77">Buka kembali</button>` };
   const last = s.round >= s.round_count;
   if(s.phase==="pitch"){
     const q = H.teams.filter(t=>t.round===s.round).sort((a,b)=>a.number-b.number), idx = Math.min(s.pitch_idx||0, Math.max(0,q.length-1)), cur = q[idx], last = idx >= q.length-1;
-    if(!cur) return { cls:"pitch", sm:`Ronde ${s.round} dari ${s.round_count}`, h:"Tidak ada tim di ronde ini", p:"Buka belanja atau lanjutkan ke ronde berikutnya.", act:`<button class="btn pri" onclick="adminUpd({phase:'buy'})">🛒 Mulai Belanja</button>` };
+    if(!cur) return { cls:"pitch", sm:`Ronde ${s.round} dari ${s.round_count}`, h:"Tidak ada tim di ronde ini", p:"Buka belanja atau lanjutkan ke ronde berikutnya.", act:`<button class="btn pri" data-on-click="h78">🛒 Mulai Belanja</button>` };
     const run = !!s.pitch_at, end = run ? new Date(s.pitch_at).getTime() - (H.off||0) + s.pitch_seconds*1000 : 0;
     const queue = q.map((t,i)=>`<span class="${i<idx?"done":i===idx?"on":""}">${i<idx?"✓ ":""}Tim ${t.number}</span>`).join("");
-    const act = (run ? (last ? `<button class="btn pri" onclick="adminUpd({phase:'buy'})">🛒 Mulai Belanja</button>` : `<button class="btn pri" onclick="hPitch(${idx+1},false)">Tim berikutnya →</button>`) + `<button class="btn white sm" onclick="hPitch(${idx},true)">↺ Ulang waktu</button>`
-      : `<button class="btn pri" onclick="hPitch(${idx},true)">▶ Mulai pitch Tim ${cur.number}</button>`) + (!last||!run ? `<button class="btn white sm" onclick="adminUpd({phase:'buy'})">Langsung buka belanja</button>` : "");
+    const act = (run ? (last ? `<button class="btn pri" data-on-click="h78">🛒 Mulai Belanja</button>` : `<button class="btn pri" data-on-click="h79" data-click-a0="${esc(JSON.stringify(idx+1))}">Tim berikutnya →</button>`) + `<button class="btn white sm" data-on-click="h80" data-click-a0="${esc(JSON.stringify(idx))}">↺ Ulang waktu</button>`
+      : `<button class="btn pri" data-on-click="h80" data-click-a0="${esc(JSON.stringify(idx))}">▶ Mulai pitch Tim ${cur.number}</button>`) + (!last||!run ? `<button class="btn white sm" data-on-click="h78">Langsung buka belanja</button>` : "");
     return { cls:"pitch", sm:`Ronde ${s.round} dari ${s.round_count} · pitch ${idx+1} dari ${q.length}`, h:`🎤 Tim ${cur.number} · ${esc(cur.product||tname(cur))}`,
       p: run ? `${esc(tname(cur))} sedang pitch.` : `Persilakan ${esc(tname(cur))} maju ke depan, lalu mulai hitung mundur ${s.pitch_seconds} detik.`,
       act, cd: run ? `<span class="cdn big" data-end="${end}" data-beep="${s.round}-${idx}-${s.pitch_at}">${fmtS(s.pitch_seconds)}</span>` : `<span class="cdn big idle">${fmtS(s.pitch_seconds)}</span>`, queue, key: `${s.round}|${idx}|${s.pitch_at}|${s.pitch_seconds}` };
   }
-  if(s.phase==="buy") return { cls:"buy", sm:`Ronde ${s.round} dari ${s.round_count}`, h:"Belanja dibuka 🛒", p:`Pembeli dari tim lain sedang belanja di lapak ${rng}.`, act:`<button class="btn dark" onclick="adminUpd({phase:'done'})">■ Tutup Belanja</button>`, tm:true };
+  if(s.phase==="buy") return { cls:"buy", sm:`Ronde ${s.round} dari ${s.round_count}`, h:"Belanja dibuka 🛒", p:`Pembeli dari tim lain sedang belanja di lapak ${rng}.`, act:`<button class="btn dark" data-on-click="h81">■ Tutup Belanja</button>`, tm:true };
   return { cls:"", sm:`Ronde ${s.round} dari ${s.round_count}`, h:`Ronde ${s.round} selesai`, p: last ? "Semua ronde selesai. Tutup pasar untuk menghitung laba nyata setiap tim." : `Berikutnya ronde ${s.round+1}. Minta tim yang akan berjualan bersiap pitch.`,
-    act: (last ? `<button class="btn pri" onclick="askClose()">🏁 Tutup Pasar & Umumkan</button>` : `<button class="btn pri" onclick="adminUpd({round:${s.round+1},phase:'pitch'})">Lanjut ke Ronde ${s.round+1} →</button>`) + `<button class="btn white sm" onclick="adminUpd({phase:'buy'})">↺ Buka lagi belanja</button>` };
+    act: (last ? `<button class="btn pri" data-on-click="h82">🏁 Tutup Pasar & Umumkan</button>` : `<button class="btn pri" data-on-click="h83" data-click-a0="${esc(JSON.stringify(s.round+1))}">Lanjut ke Ronde ${s.round+1} →</button>`) + `<button class="btn white sm" data-on-click="h78">↺ Buka lagi belanja</button>` };
 }
 function renderStage(){
   const s = H.sess, i = stageInfo(), el = $("hStage");
@@ -176,10 +176,10 @@ async function adminUpd(p){
 function askOpen(){
   const s = H.sess, ready = H.teams.filter(t=>t.product && t.price>0 && t.qty>0).length;
   modal(`<h3>Buka pasar sekarang?</h3><p><b>${ready} dari ${s.team_count} tim</b> sudah lengkap. Setelah dibuka, jumlah produksi dan biaya setiap tim dikunci. Harga jual masih bisa diubah ketua tim.</p>${ready<s.team_count?`<p style="margin-top:6px;color:var(--red-s)">Tim yang belum lengkap tetap bisa dilengkapi lewat tab Tim, tetapi tidak bisa berjualan tanpa harga.</p>`:""}
-    <div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn pri" onclick="doOpen()">🔓 Buka Pasar</button></div>`);
+    <div class="mbtns"><button class="btn soft" data-on-click="h48">Batal</button><button class="btn pri" data-on-click="h84">🔓 Buka Pasar</button></div>`);
 }
 async function doOpen(){ closeModal(); try{ await admin("admin_open_market"); await hostLoad(true); toast("Pasar dibuka! Ronde 1: waktunya pitch"); confetti(); }catch(e){ toast(e.message); } }
-function askClose(){ modal(`<h3>Tutup pasar?</h3><p>Penjualan berhenti dan laba nyata setiap tim dihitung. Pasar masih bisa dibuka kembali bila perlu.</p><div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn pri" onclick="closeModal();adminUpd({status:'closed',phase:'done'})">🏁 Tutup & umumkan</button></div>`); }
+function askClose(){ modal(`<h3>Tutup pasar?</h3><p>Penjualan berhenti dan laba nyata setiap tim dihitung. Pasar masih bisa dibuka kembali bila perlu.</p><div class="mbtns"><button class="btn soft" data-on-click="h48">Batal</button><button class="btn pri" data-on-click="h85">🏁 Tutup & umumkan</button></div>`); }
 
 function htab(t){
   if(!H) return; H.tab = t;

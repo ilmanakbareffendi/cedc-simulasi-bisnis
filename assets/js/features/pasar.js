@@ -66,13 +66,13 @@ function renderMSetup(){
   $("voucher").value = M.voucher; $("customers").value = M.customers;
   $("voucher").disabled = L; $("customers").disabled = L;
   $("mtBody").innerHTML = M.teams.map((t,i)=>`<tr>
-    <td><input value="${esc(t.name)}" placeholder="Tim ${i+1}" oninput="setTeam(${i},'name',this.value)"></td>
-    <td><input value="${esc(t.product)}" placeholder="Produk" oninput="setTeam(${i},'product',this.value)"></td>
-    <td><input type="number" min="0" step="500" value="${t.price||""}" oninput="setTeam(${i},'price',pos(this.value))"></td>
-    <td><input type="number" min="0" step="100" value="${t.vc||""}" ${dis} oninput="setTeam(${i},'vc',Math.round(pos(this.value)))"></td>
-    <td><input type="number" min="0" step="1000" value="${t.fc||""}" ${dis} oninput="setTeam(${i},'fc',pos(this.value))"></td>
-    <td><input type="number" min="0" value="${t.qty||""}" ${dis} oninput="setTeam(${i},'qty',Math.floor(pos(this.value)))"></td>
-    <td>${L?"":`<button class="del" onclick="M.teams.splice(${i},1);saveM();renderMSetup()" aria-label="Hapus tim">✕</button>`}</td></tr>`).join("");
+    <td><input value="${esc(t.name)}" placeholder="Tim ${i+1}" data-on-input="h87" data-input-a0="${esc(JSON.stringify(i))}"></td>
+    <td><input value="${esc(t.product)}" placeholder="Produk" data-on-input="h88" data-input-a0="${esc(JSON.stringify(i))}"></td>
+    <td><input type="number" min="0" step="500" value="${t.price||""}" data-on-input="h89" data-input-a0="${esc(JSON.stringify(i))}"></td>
+    <td><input type="number" min="0" step="100" value="${t.vc||""}" ${dis} data-on-input="h90" data-input-a0="${esc(JSON.stringify(i))}"></td>
+    <td><input type="number" min="0" step="1000" value="${t.fc||""}" ${dis} data-on-input="h91" data-input-a0="${esc(JSON.stringify(i))}"></td>
+    <td><input type="number" min="0" value="${t.qty||""}" ${dis} data-on-input="h92" data-input-a0="${esc(JSON.stringify(i))}"></td>
+    <td>${L?"":`<button class="del" data-on-click="h93" data-click-a0="${esc(JSON.stringify(i))}" aria-label="Hapus tim">✕</button>`}</td></tr>`).join("");
 }
 function addTeam(silent){ M.teams.push(newTeam()); saveM(); if(!silent) renderMSetup(); }
 
@@ -90,13 +90,13 @@ function askOpenMarket(){
   if(new Set(names).size !== names.length) errs.push("Ada nama tim yang sama. Bedakan namanya agar hasil tidak tertukar.");
   if(!(M.voucher>0) || !(M.customers>0)) errs.push("Uang virtual per pelanggan dan jumlah pelanggan belum diisi.");
   if(errs.length){
-    modal(`<h3>Data belum lengkap</h3><p>Lengkapi dulu sebelum pasar dibuka:</p><ul>${errs.map(e=>`<li>${e}</li>`).join("")}</ul><div class="mbtns"><button class="btn dark" onclick="closeModal()">Perbaiki</button></div>`);
+    modal(`<h3>Data belum lengkap</h3><p>Lengkapi dulu sebelum pasar dibuka:</p><ul>${errs.map(e=>`<li>${e}</li>`).join("")}</ul><div class="mbtns"><button class="btn dark" data-on-click="h48">Perbaiki</button></div>`);
     return;
   }
   modal(`<h3>Buka pasar sekarang?</h3>
     <p>Setelah pasar dibuka, <b>jumlah produksi, biaya variabel, dan biaya tetap setiap tim dikunci</b>, dan rencana laba disimpan sebagai pembanding di akhir. Harga jual masih boleh diubah.</p>
     ${warns.length?`<p style="margin-top:8px"><b>Perhatian:</b></p><ul>${warns.map(w=>`<li>${w}</li>`).join("")}</ul>`:""}
-    <div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn pri" onclick="openMarket()">Ya, buka pasar</button></div>`);
+    <div class="mbtns"><button class="btn soft" data-on-click="h48">Batal</button><button class="btn pri" data-on-click="h94">Ya, buka pasar</button></div>`);
 }
 function openMarket(){
   M.teams = activeTeams();
@@ -111,13 +111,13 @@ function renderSell(){
     if(!(t.name||t.product)) return "";
     const a = avail(t), s = soldN(t), rem = left(t), out = rem<=0;
     const changed = t.plan && t.plan.price !== t.price;
-    const bundle = M.bundle ? `<div class="bund"><input type="number" min="0" step="500" value="${t.bp||""}" placeholder="Harga paket" title="Harga untuk 1 paket berisi 2 produk" oninput="M.teams[${i}].bp=pos(this.value);saveM();bundleWarn(${i})"><button onclick="sellBundle(${i})" ${rem<2?"disabled":""}>+1 paket</button></div><div class="bw" id="bw${i}"></div>` : "";
+    const bundle = M.bundle ? `<div class="bund"><input type="number" min="0" step="500" value="${t.bp||""}" placeholder="Harga paket" title="Harga untuk 1 paket berisi 2 produk" data-on-input="h95" data-input-a0="${esc(JSON.stringify(i))}" data-input-a1="${esc(JSON.stringify(i))}"><button data-on-click="h96" data-click-a0="${esc(JSON.stringify(i))}" ${rem<2?"disabled":""}>+1 paket</button></div><div class="bw" id="bw${i}"></div>` : "";
     return `<div class="scard ${out?'out':''}${i===bumpIdx?' bump':''}" id="sc${i}"><div class="who"><span class="av c${i%6}">${esc(initials(t.name))}</span><div style="min-width:0"><div class="tn">${esc(t.name)}</div><div class="pn">${esc(t.product)}</div></div></div>
       <div class="pp">🪙 ${rp(t.price)}${changed?` <span class="oldp">(awal ${rp(t.plan.price)})</span>`:""}</div>
       <div class="sold">${s}</div><div class="of">terjual dari ${a} produk${t.loss?` (${t.loss} rusak)`:""}${out?" · <b style='color:var(--red)'>HABIS</b>":""}</div>${out?`<span class="stamp">SOLD OUT</span>`:""}
       <div class="meter"><i style="width:${a?Math.min(100,s/a*100):0}%"></i></div>
       <div class="rev">Pendapatan: <b>${rp(revN(t))}</b></div>
-      <div class="sbtns"><button class="minus" onclick="undoSale(${i})" title="Batalkan transaksi terakhir tim ini" ${t.log.length?"":"disabled"}>↶ Batal</button><button class="plus" onclick="sell(${i},1)" ${out?"disabled":""}>+1 terjual</button><button class="plus5" onclick="sell(${i},5)" ${out?"disabled":""}>+5</button></div>
+      <div class="sbtns"><button class="minus" data-on-click="h97" data-click-a0="${esc(JSON.stringify(i))}" title="Batalkan transaksi terakhir tim ini" ${t.log.length?"":"disabled"}>↶ Batal</button><button class="plus" data-on-click="h98" data-click-a0="${esc(JSON.stringify(i))}" ${out?"disabled":""}>+1 terjual</button><button class="plus5" data-on-click="h99" data-click-a0="${esc(JSON.stringify(i))}" ${out?"disabled":""}>+5</button></div>
       ${bundle}</div>`;
   }).join("") : `<div class="card">Belum ada tim. Isi dulu di tab <b>Daftar Tim</b>.</div>`;
   bumpIdx = -1;
@@ -128,14 +128,14 @@ function renderSell(){
   $("moneyInfo").className = over ? "warnm" : "";
   $("moneyInfo").textContent = `Uang virtual beredar: ${rp(total)} · sudah dibelanjakan: ${rp(spent)}${total?` (${Math.round(spent/total*100)}%)`:""} · sisa: ${rp(Math.max(0,total-spent))}` + (over ? " · ⚠ Belanja melebihi uang yang beredar. Periksa kembali catatan penjualan." : "");
   $("evLog").innerHTML = (M.events.length ? "<span>Kartu terpakai:</span>" + M.events.map(e=>{ const ev = EVENTS.find(x=>x.t===e); return `<span class="ev">${ev?ev.i:"🎴"} ${esc(e)}</span>`; }).join("") : "")
-    + (M.bundle ? ` <button class="btn soft sm" onclick="endBundle()">Akhiri promo paket</button>` : "");
+    + (M.bundle ? ` <button class="btn soft sm" data-on-click="h100">Akhiri promo paket</button>` : "");
 }
 // Catat transaksi. Jika total belanja akan melebihi uang yang beredar, fasilitator diminta memastikan dulu.
 function record(i, entry){
   const total = moneyTotal();
   if(total && moneySpent() + entry.a > total){
     window._pending = [i, entry];
-    modal(`<h3>Uang virtual tidak cukup</h3><p>Transaksi ini membuat total belanja (${rp(moneySpent()+entry.a)}) melebihi uang virtual yang beredar (${rp(total)}). Biasanya ini tanda ada penjualan yang tercatat dua kali.</p><p>Catat tetap hanya jika pembelinya memakai uang tambahan, misalnya fasilitator pada kartu Pembeli Borongan.</p><div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn red" onclick="closeModal();commit(..._pending)">Tetap catat</button></div>`);
+    modal(`<h3>Uang virtual tidak cukup</h3><p>Transaksi ini membuat total belanja (${rp(moneySpent()+entry.a)}) melebihi uang virtual yang beredar (${rp(total)}). Biasanya ini tanda ada penjualan yang tercatat dua kali.</p><p>Catat tetap hanya jika pembelinya memakai uang tambahan, misalnya fasilitator pada kartu Pembeli Borongan.</p><div class="mbtns"><button class="btn soft" data-on-click="h48">Batal</button><button class="btn red" data-on-click="h101">Tetap catat</button></div>`);
     return;
   }
   commit(i, entry);
@@ -250,4 +250,4 @@ function resetSales(){
 function askResetMarket(){ modal(`<h3>Reset pasar?</h3>
   <p><b>Ulangi pasar:</b> data tim tetap ada. Semua penjualan, kartu kejadian, dan kunci pasar dihapus, dan harga kembali ke harga awal.</p>
   <p style="margin-top:6px"><b>Hapus semua:</b> seluruh data pasar, termasuk daftar tim, dihapus.</p>
-  <div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn soft" onclick="resetSales()">Ulangi pasar</button><button class="btn red" onclick="M=MBLANK();curEvent=null;saveM();closeModal();mtab('setup')">Hapus semua</button></div>`); }
+  <div class="mbtns"><button class="btn soft" data-on-click="h48">Batal</button><button class="btn soft" data-on-click="h102">Ulangi pasar</button><button class="btn red" data-on-click="h103">Hapus semua</button></div>`); }

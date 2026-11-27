@@ -15,7 +15,7 @@ function showRules(){
   <li>Fasilitator boleh menarik <b>Kartu Kejadian Pasar</b> selama pasar berlangsung.</li>
   <li><b>Pemenang = laba nyata tertinggi</b>: pendapatan − (jumlah produksi × biaya variabel) − biaya tetap.</li></ul>
   <p style="font-size:13px;color:var(--muted);margin-top:8px">Mode luring (tanpa internet): setiap tim mengisi lembar di perangkatnya, fasilitator mencatat penjualan di satu perangkat.</p>
-  <div class="mbtns"><button class="btn dark" onclick="closeModal()">Mengerti</button></div>`);
+  <div class="mbtns"><button class="btn dark" data-on-click="h48">Mengerti</button></div>`);
 }
 const VIEWS = { home:"vHome", team:"vTeam", market:"vMarket", join:"vJoin", play:"vPlay", host:"vHost" };
 const TITLES = { home:"Layar Utama", team:"Lembar Usaha Tim", market:"Pasar Live (luring)", join:"Gabung Permainan", play:"Arena Pasar", host:"Ruang Fasilitator" };

@@ -16,7 +16,9 @@ Acuan: Standar Pengembangan Web CEDC UNPRI v1.0.
 - `supabase/schema.sql`: tabel, RLS, dan semua fungsi RPC. Tabel hanya bisa dibaca publik; perubahan hanya lewat fungsi.
 - `qrcode.min.js`: pustaka QR yang disalin ke repo.
 - Logo CEDC (`cedc-*.png`), trailer (`trailer.mp4`, `trailer-poster.jpg`).
-- Semua file JavaScript adalah skrip klasik tanpa `"use strict"`, dimuat berurutan dan berbagi nama global (handler `onclick` di HTML yang dibangun JavaScript bergantung pada ini). Urutan tag `<script>` di `index.html` penting.
+- `assets/js/utils/aksi.js`: semua tindakan tombol dan isian. Elemen memakai `data-on-click="hN"` (atau `data-on-input`, `data-on-change`) dengan argumen `data-click-a0`, `data-click-a1`, dan seterusnya; `data-click-t0="s"` menandai argumen bertipe teks. Satu pendengar di `document` menjalankan fungsi `AKSI.hN`. Jangan menulis `onclick="..."` lagi: CSP akan memblokirnya. Untuk tombol baru, tambahkan fungsi baru di `AKSI` dengan nama yang menjelaskan tugasnya.
+- Content Security Policy dipasang lewat tag meta di `index.html`: skrip hanya dari repo sendiri, koneksi keluar hanya ke Supabase, huruf dari Google Fonts.
+- Semua file JavaScript adalah skrip klasik tanpa `"use strict"`, dimuat berurutan dan berbagi nama global. Urutan tag `<script>` di `index.html` penting.
 
 ## Struktur target (Standar Pengembangan Web CEDC UNPRI v1.0)
 
@@ -36,7 +38,7 @@ tests/  docs/
 ## Catatan khusus
 - Logo CEDC tidak boleh diubah warna atau bentuknya.
 - Aturan permainan (stok, saldo, batas beli) wajib tetap dicek di fungsi database.
-- Langkah berikutnya: ganti handler `onclick="..."` dengan `addEventListener` dan atribut `data-*`, ubah ke ES modules, lalu pasang Content Security Policy.
+- Langkah berikutnya: beri nama yang bermakna untuk fungsi `AKSI.hN`, lalu ubah ke ES modules.
 
 ## Aturan wajib
 
