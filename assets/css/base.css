@@ -1,0 +1,237 @@
+/* =========================================================
+   ARCADE PASAR · desain game untuk Simulasi Bisnis CEDC UNPRI
+   Hijau CEDC = untung & progres · Emas = koin & aksi
+   Ungu UNPRI + Anggur = kejutan & juara · Merah = rugi
+   ========================================================= */
+:root{
+  color-scheme: light only;
+  --deep:#14532D; --acc:#15803D; --light:#4ADE80; --soft:#ECFDF3; --line-g:#BBF7D0;
+  --gold:#FFC400; --gold-s:#D9A300; --gold-soft:#FFF5CA; --gold-ink:#5C3D00;
+  --pdeep:#3D107A; --pacc:#6A2BC2; --plight:#B794F6; --psoft:#F4EFFC; --pline:#DCCFF5;
+  --ang:#8A2F7C; --angL:#E59CD6;
+  --red:#DC2626; --red-s:#991B1B; --red-soft:#FEF2F2; --red-line:#FECACA;
+  --ink:#101828; --ink2:#33413A; --muted:#5B6B60; --muted2:#8B978E;
+  --paper:#F4F8F3; --card:#FFFFFF; --line:#E1E8DF; --line2:#D3DED0;
+  --f-d:"Plus Jakarta Sans","Segoe UI",system-ui,sans-serif;
+  --f-b:"Manrope","Segoe UI",system-ui,sans-serif;
+  --f-m:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  /* kurva gerak: --ios untuk perpindahan, --spring untuk efek memantul kecil */
+  --ios:cubic-bezier(.32,.72,0,1);
+  --spring:cubic-bezier(.34,1.56,.64,1);
+  --r-card:22px; --r-btn:14px;
+  --sh-card:0 1px 0 rgba(255,255,255,.9) inset, 0 18px 40px -24px rgba(20,83,45,.35);
+}
+@supports (transition-timing-function: linear(0, 1)){
+  :root{ --spring: linear(0, .009, .035 2.1%, .141, .281 6.7%, .723 12.9%, .938 16.7%, 1.017, 1.077, 1.121, 1.149 24.3%, 1.159, 1.163, 1.161, 1.154 29.9%, 1.129 32.8%, 1.051 39.6%, 1.017 43.1%, .991, .977 51%, .974 53.8%, .975 57.1%, .997 69.8%, 1.003 76.9%, 1.004 83.8%, 1); }
+}
+html{color-scheme:light only;-webkit-text-size-adjust:100%}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--f-b);color:var(--ink);background:var(--paper);min-height:100vh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+/* papan permainan: pola titik + dua cahaya lembut, dipasang tetap di belakang */
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(circle at 1px 1px, rgba(20,83,45,.075) 1px, transparent 0) 0 0/24px 24px,
+    radial-gradient(900px 520px at 105% -8%, rgba(74,222,128,.22), transparent 62%),
+    radial-gradient(760px 520px at -8% 108%, rgba(183,148,246,.20), transparent 62%),
+    radial-gradient(520px 360px at 50% 120%, rgba(255,196,0,.10), transparent 70%),
+    var(--paper)}
+h1,h2,h3,.disp{font-family:var(--f-d);letter-spacing:-.02em}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;-webkit-tap-highlight-color:transparent}
+input,select,textarea{font-family:var(--f-b);font-size:15px;font-weight:600;border:2px solid var(--line);border-radius:12px;padding:10px 12px;background:#fff;color:var(--ink);width:100%;transition:border-color .25s var(--ios),box-shadow .25s var(--ios),background .25s}
+input::placeholder,textarea::placeholder{color:var(--muted2);font-weight:500}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 4px rgba(74,222,128,.25)}
+textarea{resize:vertical;min-height:70px;line-height:1.5}
+label{font-size:13px;font-weight:800;color:var(--deep);display:block;margin-bottom:6px}
+.hidden{display:none!important}
+.num-t{font-variant-numeric:tabular-nums}
+:focus-visible{outline:3px solid var(--plight);outline-offset:2px}
+
+/* ---------- tombol 3D: tertekan saat diklik ---------- */
+.btn{--c:#fff;--s:var(--line2);--t:var(--ink);
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  background:var(--c);color:var(--t);border-radius:var(--r-btn);padding:12px 20px;
+  font-family:var(--f-d);font-weight:800;font-size:15px;letter-spacing:-.01em;
+  box-shadow:0 4px 0 var(--s);transform:translateY(0);
+  transition:transform .35s var(--spring),box-shadow .35s var(--spring),filter .2s;user-select:none;white-space:nowrap}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 0 var(--s);filter:brightness(1.03)}
+.btn:active{transform:translateY(4px);box-shadow:0 0 0 var(--s);transition-duration:.08s}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:0 4px 0 var(--s)}
+.btn.soft{--c:#fff;--s:var(--line2);--t:var(--deep);border:2px solid var(--line)}
+.btn.pri{--c:var(--gold);--s:var(--gold-s);--t:var(--deep)}
+.btn.dark{--c:var(--acc);--s:var(--deep);--t:#fff}
+.btn.red{--c:var(--red);--s:var(--red-s);--t:#fff}
+.btn.purple{--c:var(--pacc);--s:var(--pdeep);--t:#fff}
+.btn.sm{padding:8px 14px;font-size:13px;border-radius:12px}
+
+/* ---------- header ---------- */
+header{position:sticky;top:0;z-index:30;display:flex;align-items:center;gap:12px;padding:10px 24px;
+  background:rgba(255,255,255,.72);-webkit-backdrop-filter:saturate(180%) blur(18px);backdrop-filter:saturate(180%) blur(18px);
+  border-bottom:1px solid rgba(20,83,45,.08)}
+.brand{display:flex;align-items:center;gap:12px;min-width:0;cursor:pointer}
+.crest{width:52px;height:auto;flex:none;transition:transform .55s var(--spring);transform-origin:50% 60%}
+.brand:hover .crest{transform:rotate(-8deg) scale(1.08)}
+.brand:active .crest{transform:scale(.94)}
+.kop{display:flex;flex-direction:column;min-width:0;line-height:1.15}
+.kop b{font-family:var(--f-d);font-size:23px;font-weight:800;color:var(--deep);letter-spacing:-.02em}
+.kop .k2{font-family:var(--f-b);font-size:15px;font-weight:700;color:var(--acc);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kop .k3{font-family:var(--f-b);font-size:11.5px;font-weight:400;color:var(--muted);white-space:nowrap}
+header .sp{flex:1}
+.modechip{display:inline-flex;align-items:center;gap:8px;font-family:var(--f-d);font-weight:800;font-size:13px;color:var(--deep);background:#fff;border:2px solid var(--line);border-radius:999px;padding:7px 14px}
+.modechip i{width:8px;height:8px;border-radius:50%;background:var(--light);box-shadow:0 0 0 4px rgba(74,222,128,.25);animation:blink 2.4s var(--ios) infinite}
+@keyframes blink{50%{box-shadow:0 0 0 7px rgba(74,222,128,0)}}
+main{max-width:1240px;margin:0 auto;padding:26px 24px 70px}
+
+/* ---------- transisi tampilan ---------- */
+.enter{animation:viewIn .7s var(--ios) both}
+@keyframes viewIn{from{opacity:0;transform:translateY(18px) scale(.985)}}
+.enter-r{animation:slideR .6s var(--ios) both}
+.enter-l{animation:slideL .6s var(--ios) both}
+@keyframes slideR{from{opacity:0;transform:translateX(42px)}}
+@keyframes slideL{from{opacity:0;transform:translateX(-42px)}}
+.stag>*{animation:popIn .7s var(--ios) both}
+.stag>*:nth-child(2){animation-delay:.06s}.stag>*:nth-child(3){animation-delay:.12s}.stag>*:nth-child(4){animation-delay:.18s}
+.stag>*:nth-child(5){animation-delay:.24s}.stag>*:nth-child(6){animation-delay:.3s}.stag>*:nth-child(7){animation-delay:.36s}.stag>*:nth-child(8){animation-delay:.42s}
+@keyframes popIn{from{opacity:0;transform:translateY(16px) scale(.96)}}
+
+/* ---------- BERANDA: layar judul game ---------- */
+.hero{position:relative;display:grid;grid-template-columns:1.1fr .9fr;gap:34px;align-items:center;padding:20px 0 8px}
+.pill{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--deep);background:#fff;border:2px solid var(--line);border-radius:999px;padding:6px 13px}
+.pill i{width:7px;height:7px;border-radius:50%;background:var(--acc)}
+.hero h1{font-size:clamp(40px,6vw,76px);line-height:.98;font-weight:800;margin:16px 0 0;color:var(--ink)}
+.grad{color:var(--acc);background:linear-gradient(95deg,var(--deep) 0%,var(--acc) 45%,var(--light) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding:0 .04em .08em}
+.grad-p{color:var(--pacc);background:linear-gradient(95deg,var(--pdeep),var(--pacc) 50%,var(--angL));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;padding:0 .04em .08em}
+.hero .lead{font-size:18px;line-height:1.55;color:var(--ink2);margin-top:18px;max-width:34em}
+.hero .lead b{color:var(--deep)}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}
+.chip{display:inline-flex;align-items:center;gap:7px;font-size:13px;font-weight:700;color:var(--ink2);background:rgba(255,255,255,.8);border:1.5px solid var(--line);border-radius:999px;padding:6px 12px}
+.chip b{font-family:var(--f-d);color:var(--deep)}
+/* koin melayang di latar hero */
+.coins{position:absolute;inset:0;pointer-events:none;z-index:-1;overflow:visible}
+.coin{position:absolute;width:var(--z,46px);height:var(--z,46px);border-radius:50%;display:grid;place-items:center;
+  font-family:var(--f-d);font-weight:800;font-size:calc(var(--z,46px)*.3);color:var(--gold-ink);
+  background:radial-gradient(circle at 35% 30%,#FFE58A 0 18%,var(--gold) 45%,#E8A800 100%);
+  box-shadow:inset 0 -4px 0 rgba(160,110,0,.35),0 10px 22px -10px rgba(160,110,0,.6);animation:floaty 6s ease-in-out infinite}
+@keyframes floaty{50%{transform:translateY(-14px) rotate(8deg)}}
+/* menu mode */
+.menu{display:flex;flex-direction:column;gap:14px}
+.mode{--c:#fff;--s:var(--line2);position:relative;display:flex;align-items:center;gap:16px;text-align:left;
+  background:var(--c);border:2px solid var(--line);border-radius:22px;padding:18px 20px;
+  box-shadow:0 6px 0 var(--s),0 22px 40px -28px rgba(20,83,45,.45);
+  transition:transform .4s var(--spring),box-shadow .4s var(--spring)}
+.mode:hover{transform:translateY(-3px) rotate(-.4deg);box-shadow:0 9px 0 var(--s),0 28px 44px -26px rgba(20,83,45,.5)}
+.mode:active{transform:translateY(6px);box-shadow:0 0 0 var(--s);transition-duration:.08s}
+.mode .ic{width:62px;height:62px;border-radius:18px;display:grid;place-items:center;flex:none;border:2px solid var(--line);box-shadow:inset 0 -4px 0 rgba(0,0,0,.06)}
+.mode .ic .ico{width:42px;height:42px;transition:transform .5s var(--spring)}
+.mode:hover .ic .ico{transform:translateY(-3px) rotate(-6deg) scale(1.08)}
+.mode b{font-family:var(--f-d);font-size:19px;font-weight:800;color:var(--ink);display:block;letter-spacing:-.01em}
+.mode span.d{font-size:13.5px;color:var(--muted);display:block;margin-top:2px;line-height:1.4}
+.mode .go{margin-left:auto;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--paper);font-weight:800;color:var(--deep);flex:none;transition:transform .4s var(--spring)}
+.mode:hover .go{transform:translateX(4px)}
+.mode .tag{position:absolute;top:-10px;right:18px;font-family:var(--f-m);font-size:10.5px;font-weight:600;letter-spacing:.1em;padding:3px 9px;border-radius:999px}
+.mode.m1 .ic{background:var(--gold-soft);border-color:#FBE38A}
+.mode.m1 .tag{background:var(--gold);color:var(--deep)}
+.mode.m2 .ic{background:var(--soft);border-color:var(--line-g)}
+.mode.m2 .tag{background:var(--acc);color:#fff}
+.mode.m3 .ic{background:var(--psoft);border-color:var(--pline)}
+.mode.m3 .tag{background:var(--pacc);color:#fff}
+/* peta level */
+.sec-h{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:46px 0 16px;flex-wrap:wrap}
+.sec-h h2{font-size:clamp(24px,3vw,32px);font-weight:800;color:var(--ink)}
+.sec-h p{color:var(--muted);font-size:14.5px;margin-top:4px}
+/* layar tutorial: bingkai game dengan tombol putar besar */
+.tv{position:relative;aspect-ratio:16/9;border-radius:28px;overflow:hidden;background:var(--paper);border:3px solid var(--line);box-shadow:0 8px 0 var(--line2),0 34px 60px -34px rgba(20,83,45,.55)}
+.tv video{display:block;width:100%;height:100%;object-fit:cover;background:var(--paper)}
+.tvtag{position:absolute;left:18px;top:16px;z-index:2;transform:skewX(-14deg);background:linear-gradient(180deg,#FFD84D,var(--gold));border-radius:9px;padding:5px 14px;box-shadow:0 4px 0 var(--gold-s);transition:opacity .4s var(--ios)}
+.tvtag span{display:block;transform:skewX(14deg);font-family:var(--f-d);font-style:italic;font-weight:800;font-size:13px;letter-spacing:.1em;color:var(--deep)}
+.tvplay{position:absolute;left:50%;top:76%;z-index:2;width:104px;height:104px;margin:-52px 0 0 -52px;border-radius:50%;display:grid;place-items:center;
+  background:radial-gradient(circle at 35% 30%,#FFF1A8 0 18%,var(--gold) 52%,#E09B00);box-shadow:0 7px 0 var(--gold-s),0 0 0 10px rgba(255,196,0,.25),0 24px 40px -14px rgba(160,110,0,.7);
+  transition:transform .5s var(--spring),opacity .35s var(--ios);animation:tvPulse 2.4s var(--ios) infinite}
+.tvplay:hover{transform:scale(1.08)}
+.tvplay:active{transform:scale(.94)}
+.tvplay .tri{width:0;height:0;margin-left:8px;border-left:34px solid var(--deep);border-top:21px solid transparent;border-bottom:21px solid transparent}
+@keyframes tvPulse{50%{box-shadow:0 7px 0 var(--gold-s),0 0 0 22px rgba(255,196,0,0),0 24px 40px -14px rgba(160,110,0,.7)}}
+.tv.playing .tvplay,.tv.playing .tvtag{opacity:0;pointer-events:none}
+.lvmap{position:relative;display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
+.lvmap::before{content:"";position:absolute;left:6%;right:6%;top:78px;height:6px;border-radius:99px;
+  background:repeating-linear-gradient(90deg,var(--line-g) 0 14px,transparent 14px 24px);z-index:0}
+.lv{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px}
+/* label stage: banner miring tegas (terinspirasi UI game petarung modern) */
+.lv .stage{display:inline-block;transform:skewX(-14deg);background:linear-gradient(180deg,#FFD84D,var(--gold));border-radius:7px;padding:4px 11px;box-shadow:0 3px 0 var(--gold-s),0 8px 14px -8px rgba(160,110,0,.7)}
+.lv .stage span{display:block;transform:skewX(14deg);font-family:var(--f-d);font-style:italic;font-weight:800;font-size:11.5px;letter-spacing:.1em;color:var(--deep)}
+/* slot item: ubin bulat dengan cincin dalam, cahaya di belakang ikon */
+.lv .node{position:relative;transition:transform .6s var(--spring)}
+.lv .tile{position:relative;width:92px;height:92px;display:grid;place-items:center;border-radius:26px;overflow:hidden;
+  background:radial-gradient(circle at 50% 42%,#fff 0 22%,var(--tbg) 70%);border:2.5px solid var(--tb);
+  box-shadow:inset 0 0 0 4px rgba(255,255,255,.75),inset 0 -7px 0 rgba(0,0,0,.06),0 6px 0 var(--tb),0 18px 26px -16px var(--tb)}
+/* sinar "dapat item": berputar pelan saat disentuh */
+.lv .tile::before{content:"";position:absolute;inset:-30%;background:repeating-conic-gradient(from 0deg,rgba(255,255,255,0) 0 12deg,rgba(255,255,255,.85) 12deg 20deg);
+  -webkit-mask:radial-gradient(circle,#000 18%,transparent 62%);mask:radial-gradient(circle,#000 18%,transparent 62%);opacity:0;transition:opacity .5s var(--ios);animation:rays 9s linear infinite}
+.lv:hover .tile::before,.st-chest .tile::before{opacity:.9}
+@keyframes rays{to{transform:rotate(360deg)}}
+/* kilau menyapu berkala */
+.lv .tile::after{content:"";position:absolute;top:-20%;bottom:-20%;width:34%;left:-60%;transform:skewX(-18deg);background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent);animation:sweep 5s var(--ios) infinite;animation-delay:var(--sd,0s)}
+@keyframes sweep{0%,72%{left:-60%}100%{left:140%}}
+.lv .tile .ico{position:relative;z-index:1;width:62px;height:62px;filter:drop-shadow(0 4px 0 rgba(0,0,0,.08))}
+.lv:hover .node{transform:translateY(-10px) rotate(-3deg)}
+.lv:active .node{transform:translateY(2px) scale(.97);transition-duration:.1s}
+/* koin kecil melompat keluar saat ubin disentuh */
+.lv .node::after{content:"";position:absolute;z-index:3;left:50%;top:-4px;width:16px;height:16px;margin-left:-8px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FFF4B8 0 20%,var(--gold) 52%,#D48C00);box-shadow:inset 0 -2px 0 rgba(138,90,0,.45),0 0 10px rgba(255,196,0,.6);opacity:0;pointer-events:none}
+.lv:hover .node::after{animation:coinPop .9s var(--ios) forwards}
+@keyframes coinPop{0%{opacity:0;transform:translateY(8px) rotateY(0)}20%{opacity:1}55%{transform:translateY(-40px) rotateY(540deg)}80%{opacity:1}100%{opacity:0;transform:translateY(-32px) rotateY(720deg)}}
+.st-bulb{--tbg:#FFF3BF;--tb:#E0A800;--sd:0s}.st-crate{--tbg:#FBE3C8;--tb:#B9773A;--sd:.5s}.st-tag{--tbg:#D3F8DF;--tb:#22A355;--sd:1s}
+.st-coin{--tbg:#FFEFB0;--tb:#D49A00;--sd:1.5s}.st-mega{--tbg:#FFE0E0;--tb:#DC4B4B;--sd:2s}.st-chest{--tbg:#EADFFB;--tb:#7C3AED;--sd:2.5s}
+/* gerak diam: halus, ada squash and stretch seperti animasi game modern */
+.st-bulb .ico{animation:glow 2.6s ease-in-out infinite}
+@keyframes glow{50%{filter:drop-shadow(0 0 10px rgba(255,196,0,.95)) drop-shadow(0 4px 0 rgba(0,0,0,.08))}}
+.st-bulb .rays{transform-origin:32px 27px;animation:raysPulse 2.6s ease-in-out infinite}
+@keyframes raysPulse{50%{transform:scale(1.12);opacity:.6}}
+.st-crate .ico{transform-origin:50% 92%;animation:hop 2.8s var(--ios) infinite}
+@keyframes hop{0%,58%,100%{transform:translateY(0) scale(1,1)}64%{transform:translateY(0) scale(1.1,.88)}74%{transform:translateY(-9px) scale(.94,1.07)}84%{transform:translateY(0) scale(1.08,.92)}92%{transform:translateY(0) scale(1,1)}}
+.st-tag .ico{transform-origin:14% 12%;animation:swing 2.6s ease-in-out infinite}
+@keyframes swing{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(8deg)}}
+.st-coin .tile{perspective:300px}
+.st-coin .ico{animation:spin3d 2.6s cubic-bezier(.45,.05,.55,.95) infinite}
+@keyframes spin3d{0%{transform:rotateY(0)}60%,100%{transform:rotateY(360deg)}}
+.st-mega .ico{transform-origin:20% 50%;animation:shout 2.2s var(--ios) infinite}
+@keyframes shout{0%,55%,100%{transform:scale(1) rotate(0)}62%{transform:scale(1.1) rotate(-4deg)}72%{transform:scale(.98) rotate(1deg)}82%{transform:scale(1)}}
+.st-mega .w1,.st-mega .w2{animation:wave 2.2s var(--ios) infinite}
+.st-mega .w2{animation-delay:.12s}
+@keyframes wave{0%,55%{opacity:0;transform:translateX(-4px)}65%{opacity:1}100%{opacity:0;transform:translateX(5px)}}
+.st-chest .ico{animation:bob 2.4s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-4px)}}
+.lv .box{background:#fff;border:2px solid var(--line);border-radius:18px;padding:12px 12px 14px;width:100%;box-shadow:var(--sh-card);flex:1}
+.lv b{display:block;font-family:var(--f-d);font-size:15.5px;color:var(--ink)}
+.lv p{font-size:12.5px;color:var(--muted);line-height:1.45;margin-top:4px}
+.lv .min{display:inline-block;margin-top:8px;font-family:var(--f-m);font-size:11px;font-weight:600;color:var(--deep);background:var(--soft);border:1px solid var(--line-g);border-radius:999px;padding:2px 9px}
+.credits{position:relative;overflow:hidden;margin-top:56px;border-radius:28px;padding:26px 28px 18px;color:#fff;
+  background:radial-gradient(circle at 100% 0,rgba(74,222,128,.28),transparent 45%),radial-gradient(circle at 0 100%,rgba(255,196,0,.14),transparent 50%),linear-gradient(150deg,#1A6338,var(--deep) 55%,#0C3A1F);
+  box-shadow:0 8px 0 #0A2E18,0 30px 50px -34px rgba(20,83,45,.8)}
+.credits::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at 1px 1px,rgba(255,255,255,.07) 1px,transparent 0) 0 0/16px 16px}
+.credits>*{position:relative}
+.cr-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.credits .wm b{color:#fff}
+.credits .wm small{color:var(--light)}
+.credits .emb{filter:drop-shadow(0 3px 0 #082814)}
+.cr-top p{font-family:var(--f-d);font-weight:800;font-size:15px;color:#CDE9D5}
+.cr-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:20px}
+.cr{background:rgba(255,255,255,.07);border:1.5px solid rgba(255,255,255,.12);border-radius:18px;padding:16px 18px;transition:transform .45s var(--spring),background .3s}
+.cr:hover{transform:translateY(-3px);background:rgba(255,255,255,.1)}
+.cr small{display:inline-block;font-family:var(--f-m);font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--deep);background:var(--gold);border-radius:999px;padding:3px 10px;box-shadow:0 2px 0 var(--gold-s)}
+.cr b{display:block;font-family:var(--f-d);font-size:18px;font-weight:800;margin-top:10px;letter-spacing:-.01em}
+.cr span{display:block;font-size:13.5px;color:#CDE9D5;margin-top:4px;line-height:1.5}
+.cr-bot{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:18px;padding-top:14px;border-top:1px dashed rgba(255,255,255,.16);font-size:12px;color:#9FD6B0}
+/* lambang 3 batang CEDC UNPRI (kaki halaman, papan skor, favicon) */
+.logo{display:flex;align-items:center;gap:10px;flex:none}
+.emb{width:44px;height:44px;flex:none;filter:drop-shadow(0 3px 0 #082814) drop-shadow(0 8px 14px rgba(0,0,0,.25));transition:transform .5s var(--spring)}
+.logo:hover .emb{transform:rotate(-8deg) scale(1.08)}
+.wm{display:flex;flex-direction:column;line-height:1}
+.wm b{font-family:var(--f-d);font-size:22px;font-weight:800;letter-spacing:-.03em}
+.wm small{font-family:var(--f-m);font-size:10px;font-weight:600;letter-spacing:.42em;margin-top:3px}
+/* partikel koin emas: di latar halaman dan di dalam kotak kredit */
+.coinfield{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.pc{position:absolute;bottom:-16px;left:var(--x);width:var(--s);height:var(--s);opacity:var(--o);animation:rise var(--d) linear var(--dl) infinite;will-change:transform}
+.pc i{display:block;width:100%;height:100%;border-radius:50%;background:radial-gradient(circle at 35% 30%,#FFE58A 0 22%,#FFC400 52%,#D99A00);box-shadow:inset 0 -1px 0 rgba(138,90,0,.55),0 0 6px rgba(255,196,0,.35);animation:spin 1s steps(6) infinite;animation-delay:var(--dl)}
+@keyframes rise{from{transform:translate(0,0)}to{transform:translate(var(--dx),var(--rise))}}
+.credits>.cr-coins{position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.cr-coins .tw{position:absolute;width:6px;height:6px;background:var(--gold);box-shadow:0 0 8px rgba(255,196,0,.8);clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);animation:twinkle 1.8s steps(2) infinite}
+.homefoot{margin-top:40px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);padding-top:18px;border-top:1px solid var(--line)}
