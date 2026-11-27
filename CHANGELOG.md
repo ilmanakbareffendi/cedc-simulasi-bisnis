@@ -4,6 +4,10 @@ Semua perubahan penting pada project ini dicatat di sini. Format mengikuti [Keep
 
 ## [Belum dirilis]
 
+## [1.0.0] - 2026-11-27
+
+Versi pertama yang memenuhi Standar Pengembangan Web CEDC UNPRI v1.0.
+
 ### Diubah
 - Kode dipecah dari satu `index.html` (2.583 baris) menjadi 3 file CSS dan 15 file JavaScript menurut layar dan fungsinya. Alamat dan kunci publik Supabase dipindah ke `assets/js/config.js`. Tidak ada file di atas 340 baris. Tampilan dan perilaku tidak berubah: diuji dengan membandingkan 13 langkah (beranda, empat langkah lembar tim dengan isian, pasar, hasil, gabung, fasilitator) sebelum dan sesudah.
 
