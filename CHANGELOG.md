@@ -4,6 +4,15 @@ Semua perubahan penting pada project ini dicatat di sini. Format mengikuti [Keep
 
 ## [Belum dirilis]
 
+### Keamanan
+- Content Security Policy: skrip hanya dari repo sendiri, koneksi keluar hanya ke Supabase.
+
+### Diubah
+- 149 handler `onclick`, `oninput`, dan `onchange` yang tertanam di HTML diganti atribut `data-on-*` dan satu pendengar terdelegasi di `assets/js/utils/aksi.js`, tanpa `eval`. Diuji dengan dua penelusuran acak yang dapat diulang (182 langkah klik dan isian) terhadap versi sebelumnya: semua identik.
+
+### Diperbaiki
+- Tanda tombol preset aktif di ruang fasilitator kini membaca `data-preset`, bukan isi atribut `onclick`.
+
 ## [1.0.0] - 2026-11-27
 
 Versi pertama yang memenuhi Standar Pengembangan Web CEDC UNPRI v1.0.

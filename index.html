@@ -2,6 +2,7 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; media-src 'self'; connect-src 'self' https://mdhnvznrtjzhgcvletbq.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self'">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#F4F8F3">
 <title>Simulasi Bisnis: Dari Ide ke Pasar · CEDC UNPRI</title>
@@ -16,7 +17,7 @@
 <body>
 <div class="coinfield" id="coinfield" aria-hidden="true"></div>
 <header>
-  <div class="brand" onclick="go('home')" role="button" tabindex="0" aria-label="Ke beranda">
+  <div class="brand" data-on-click="h1" role="button" tabindex="0" aria-label="Ke beranda">
     <img class="crest" src="cedc-lambang.png" alt="Lambang Universitas Prima Indonesia">
     <img class="ctext" src="cedc-teks-ungu.png" alt="CEDC UNPRI, Career, Entrepreneurship, and Development Center"><span class="gsep"></span><div class="gname"><b>Simulasi Bisnis</b><span>Dari Ide ke Pasar</span></div>
   </div>
@@ -24,7 +25,7 @@
   </div>
   <span class="sp"></span>
   <span class="modechip"><i></i><span id="hTitle">Layar Utama</span></span>
-  <button class="btn soft sm" id="homeBtn" onclick="go('home')">⌂ Beranda</button>
+  <button class="btn soft sm" id="homeBtn" data-on-click="h1">⌂ Beranda</button>
 </header>
 
 <main>
@@ -44,14 +45,14 @@
     </div>
     <div class="menu stag">
       <div id="resumeBox"></div>
-      <button class="mode m1" onclick="go('join')"><span class="tag">PESERTA</span><span class="ic"><svg class="ico ico-clip" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="lB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#DCA06A"/><stop offset="1" stop-color="#A86B34"/></linearGradient></defs>
+      <button class="mode m1" data-on-click="h2"><span class="tag">PESERTA</span><span class="ic"><svg class="ico ico-clip" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="lB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#DCA06A"/><stop offset="1" stop-color="#A86B34"/></linearGradient></defs>
 <rect x="11" y="10" width="42" height="49" rx="7" fill="url(#lB)" stroke="#4A2A12" stroke-width="3"/>
 <rect x="16.5" y="16" width="31" height="38" rx="3.5" fill="#fff" stroke="#CBD5E1" stroke-width="2"/>
 <rect x="23" y="5.5" width="18" height="10" rx="3.5" fill="#94A3B8" stroke="#334155" stroke-width="2.6"/>
 <path d="M22 25h20M22 32h15" stroke="#CBD5E1" stroke-width="3" stroke-linecap="round"/>
 <path d="m21.5 42 3.5 3.5 6.5-7" fill="none" stroke="#16A34A" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M35 43h7" stroke="#CBD5E1" stroke-width="3" stroke-linecap="round"/></svg></span><span><b>Gabung Permainan</b><span class="d">Scan QR atau masukkan kode dari layar fasilitator</span></span><span class="go">→</span></button>
-      <button class="mode m2" onclick="go('host')"><span class="tag">FASILITATOR</span><span class="ic"><svg class="ico ico-stall" viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="sC"><rect x="7" y="10" width="50" height="15" rx="4"/></clipPath><linearGradient id="sW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#DCA06A"/><stop offset="1" stop-color="#A86B34"/></linearGradient></defs>
+      <button class="mode m2" data-on-click="h3"><span class="tag">FASILITATOR</span><span class="ic"><svg class="ico ico-stall" viewBox="0 0 64 64" aria-hidden="true"><defs><clipPath id="sC"><rect x="7" y="10" width="50" height="15" rx="4"/></clipPath><linearGradient id="sW" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#DCA06A"/><stop offset="1" stop-color="#A86B34"/></linearGradient></defs>
 <rect x="12" y="24" width="4" height="30" rx="2" fill="#8B5A2B" stroke="#3B1F0B" stroke-width="2"/>
 <rect x="48" y="24" width="4" height="30" rx="2" fill="#8B5A2B" stroke="#3B1F0B" stroke-width="2"/>
 <g clip-path="url(#sC)"><rect x="7" y="10" width="50" height="15" fill="#EF4444"/><rect x="7" y="10" width="5" height="14" fill="#fff"/><rect x="17" y="10" width="5" height="14" fill="#fff"/><rect x="27" y="10" width="5" height="14" fill="#fff"/><rect x="37" y="10" width="5" height="14" fill="#fff"/><rect x="47" y="10" width="5" height="14" fill="#fff"/></g>
@@ -62,14 +63,14 @@
 <rect x="39" y="32" width="9" height="10" rx="2" fill="#FFC400" stroke="#8A5A00" stroke-width="2.2"/>
 <rect x="6" y="42" width="52" height="11" rx="3.5" fill="url(#sW)" stroke="#3B1F0B" stroke-width="2.8"/>
 <path d="M10 45.5h44" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".5"/></svg></span><span><b>Ruang Fasilitator</b><span class="d">Buat sesi, atur ronde, tayangkan papan pasar di proyektor</span></span><span class="go">→</span></button>
-      <button class="mode m3" onclick="showRules()"><span class="tag">WAJIB BACA</span><span class="ic"><svg class="ico ico-scroll" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="pP" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF6D8"/><stop offset="1" stop-color="#F6D48E"/></linearGradient><linearGradient id="pR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EDB97E"/><stop offset="1" stop-color="#B9773A"/></linearGradient></defs>
+      <button class="mode m3" data-on-click="h4"><span class="tag">WAJIB BACA</span><span class="ic"><svg class="ico ico-scroll" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="pP" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFF6D8"/><stop offset="1" stop-color="#F6D48E"/></linearGradient><linearGradient id="pR" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#EDB97E"/><stop offset="1" stop-color="#B9773A"/></linearGradient></defs>
 <rect x="14" y="12" width="36" height="40" rx="3" fill="url(#pP)" stroke="#5C3A12" stroke-width="2.8"/>
 <rect x="9" y="7" width="46" height="9" rx="4.5" fill="url(#pR)" stroke="#5C3A12" stroke-width="2.8"/>
 <rect x="9" y="48" width="46" height="9" rx="4.5" fill="url(#pR)" stroke="#5C3A12" stroke-width="2.8"/>
 <path d="M20 23h24M20 29.5h24M20 36h16" stroke="#C08A3E" stroke-width="2.8" stroke-linecap="round"/>
 <circle cx="41" cy="41" r="5.5" fill="#DC2626" stroke="#7F1D1D" stroke-width="2.4"/>
 <path d="M39 41h4" stroke="#FECACA" stroke-width="2" stroke-linecap="round"/></svg></span><span><b>Aturan Permainan</b><span class="d">Bacakan ke peserta sebelum mulai</span></span><span class="go">→</span></button>
-      <p class="offl">Tanpa internet? Pakai <b>mode luring</b> di satu perangkat: <button onclick="go('team')">Lembar Usaha Tim</button> · <button onclick="go('market')">Pasar Live</button></p>
+      <p class="offl">Tanpa internet? Pakai <b>mode luring</b> di satu perangkat: <button data-on-click="h5">Lembar Usaha Tim</button> · <button data-on-click="h6">Pasar Live</button></p>
     </div>
   </div>
 
@@ -77,7 +78,7 @@
   <div class="tv" id="tv">
     <span class="tvtag"><span>▶ TRAILER</span></span>
     <video id="tvVid" playsinline preload="metadata" poster="trailer-poster.jpg" src="trailer.mp4"></video>
-    <button class="tvplay" id="tvPlay" onclick="playTut()" aria-label="Putar video cara bermain"><span class="tri"></span></button>
+    <button class="tvplay" id="tvPlay" data-on-click="h7" aria-label="Putar video cara bermain"><span class="tri"></span></button>
   </div>
 
   <div class="sec-h"><div><h2>Peta Permainan</h2><p>Enam level, total sekitar 90 menit untuk tim beranggota 3 sampai 5 orang</p></div></div>
@@ -133,7 +134,7 @@
 
 <!-- ================= LEMBAR TIM ================= -->
 <section id="vTeam" class="view hidden">
-  <div class="livebar hidden" id="liveBar"><span class="lt" id="lbTxt"></span><span class="sync" id="lbSync"><i></i><span>Tersambung</span></span><button class="btn soft sm" onclick="go('play')">← Arena Pasar</button><div class="lockline hidden" id="lbLock">🔒 Pasar sudah dibuka. Jumlah produksi dan biaya tidak berubah lagi di server. Harga jual masih bisa diubah di Level 3.</div></div>
+  <div class="livebar hidden" id="liveBar"><span class="lt" id="lbTxt"></span><span class="sync" id="lbSync"><i></i><span>Tersambung</span></span><button class="btn soft sm" data-on-click="h8">← Arena Pasar</button><div class="lockline hidden" id="lbLock">🔒 Pasar sudah dibuka. Jumlah produksi dan biaya tidak berubah lagi di server. Harga jual masih bisa diubah di Level 3.</div></div>
   <div class="quest">
     <div class="qtop"><b>Misi Tim</b><span id="qxp">XP 0/5</span></div>
     <div class="qbar"><i id="qfill" style="width:0%"></i></div>
@@ -156,7 +157,7 @@
           <div class="full"><label>Masalah apa yang diselesaikan?</label><textarea data-k="problem" placeholder="mis. Sulit menemukan camilan lokal yang praktis, higienis, dan harganya terjangkau"></textarea></div>
           <div class="full"><label>Apa keunikannya? (satu per baris)</label><textarea data-k="unique" placeholder="Bahan dari petani lokal&#10;Kemasan ziplock tahan lama&#10;Tiga pilihan rasa"></textarea></div>
         </div>
-        <div class="nav"><button class="btn soft" onclick="fillExample()">✨ Isi contoh</button><button class="btn pri" onclick="step(1)">Lanjut ke Level 2 →</button></div>
+        <div class="nav"><button class="btn soft" data-on-click="h9">✨ Isi contoh</button><button class="btn pri" data-on-click="h10">Lanjut ke Level 2 →</button></div>
       </div>
 
       <!-- level 2 -->
@@ -169,15 +170,15 @@
         </div>
         <div class="sublabel"><span class="k">A</span>Bahan baku yang dibeli <small>total belanja</small></div>
         <table class="tbl mat"><thead><tr><th>Bahan</th><th>Jumlah</th><th>Satuan</th><th>Harga total (Rp)</th><th></th></tr></thead><tbody id="matBody"></tbody></table>
-        <button class="add" onclick="addRow('materials')">+ Tambah bahan</button>
+        <button class="add" data-on-click="h11">+ Tambah bahan</button>
         <div class="sublabel"><span class="k">B</span>Biaya lain per 1 produk <small>kemasan, label, sedotan</small></div>
         <table class="tbl"><thead><tr><th>Komponen</th><th colspan="2">Biaya per produk (Rp)</th><th></th></tr></thead><tbody id="vcBody"></tbody></table>
-        <button class="add" onclick="addRow('perUnit')">+ Tambah komponen</button>
+        <button class="add" data-on-click="h12">+ Tambah komponen</button>
         <div class="vcbox" id="vcBreak"></div>
         <div class="sublabel"><span class="k">C</span>Biaya tetap selama kegiatan</div>
         <table class="tbl"><thead><tr><th>Biaya</th><th colspan="2">Jumlah (Rp)</th><th></th></tr></thead><tbody id="fcBody"></tbody></table>
-        <button class="add" onclick="addRow('fixed')">+ Tambah biaya tetap</button>
-        <div class="nav"><button class="btn soft" onclick="step(0)">← Kembali</button><button class="btn pri" onclick="step(2)">Lanjut ke Level 3 →</button></div>
+        <button class="add" data-on-click="h13">+ Tambah biaya tetap</button>
+        <div class="nav"><button class="btn soft" data-on-click="h14">← Kembali</button><button class="btn pri" data-on-click="h15">Lanjut ke Level 3 →</button></div>
       </div>
 
       <!-- level 3 -->
@@ -199,10 +200,10 @@
         </div>
         <div class="fields">
           <div><label>Harga jual akhir (Rp), boleh dibulatkan</label><input type="number" min="0" step="500" data-k="price" data-n></div>
-          <div style="display:flex;align-items:flex-end"><button class="btn soft" style="width:100%" onclick="usePsych()">🏷️ Pakai harga psikologis</button></div>
+          <div style="display:flex;align-items:flex-end"><button class="btn soft" style="width:100%" data-on-click="h16">🏷️ Pakai harga psikologis</button></div>
         </div>
         <p id="priceWarn" style="margin-top:14px;font-weight:700;font-size:14px"></p>
-        <div class="nav"><button class="btn soft" onclick="step(1)">← Kembali</button><button class="btn pri" onclick="step(3)">Lanjut ke Level 4 →</button></div>
+        <div class="nav"><button class="btn soft" data-on-click="h10">← Kembali</button><button class="btn pri" data-on-click="h17">Lanjut ke Level 4 →</button></div>
       </div>
 
       <!-- level 4 -->
@@ -218,7 +219,7 @@
           <div class="stat"><div class="v" id="r_cm"></div><div class="l">Untung kotor per produk</div></div>
         </div>
         <div id="bepNote"></div>
-        <div class="nav"><button class="btn soft" onclick="step(2)">← Kembali</button><button class="btn pri" onclick="step(4)">Lanjut ke Level 5 →</button></div>
+        <div class="nav"><button class="btn soft" data-on-click="h15">← Kembali</button><button class="btn pri" data-on-click="h18">Lanjut ke Level 5 →</button></div>
       </div>
 
       <!-- level 5 -->
@@ -228,16 +229,16 @@
         <p class="lead">Tunjukkan kartu ini ke pelanggan dan latih naskah pitch 1 menit.</p>
         <div class="pwrap"><div class="pcard" id="pcard"></div></div>
         <div style="display:flex;gap:10px;margin-top:16px;flex-wrap:wrap">
-          <button class="btn dark" onclick="openShowcase()">⛶ Tampilkan layar penuh</button>
+          <button class="btn dark" data-on-click="h19">⛶ Tampilkan layar penuh</button>
         </div>
         <div class="sublabel"><span class="k">🎤</span>Naskah pitch 1 menit</div>
         <div class="script" id="script"></div>
         <div class="fac">
           <h3>📣 Data untuk fasilitator</h3>
           <div class="row" id="facRow"></div>
-          <button class="btn dark" style="margin-top:12px" onclick="sendToMarket()">Masukkan ke Pasar Live di perangkat ini</button>
+          <button class="btn dark" style="margin-top:12px" data-on-click="h20">Masukkan ke Pasar Live di perangkat ini</button>
         </div>
-        <div class="nav"><button class="btn soft" onclick="step(3)">← Kembali</button><button class="btn red" onclick="askResetTeam()">Kosongkan lembar</button></div>
+        <div class="nav"><button class="btn soft" data-on-click="h17">← Kembali</button><button class="btn red" data-on-click="h21">Kosongkan lembar</button></div>
       </div>
     </div>
 
@@ -264,13 +265,13 @@
   <div class="mbar">
     <div class="mtabs" id="mtabs">
       <span class="mtab-ind" id="mtabInd"></span>
-      <button class="mtab on" data-t="setup" onclick="mtab('setup')">1. Daftar Tim</button>
-      <button class="mtab" data-t="sell" onclick="mtab('sell')">2. Pasar Dibuka</button>
-      <button class="mtab" data-t="result" onclick="mtab('result')">3. Hasil & Juara</button>
+      <button class="mtab on" data-t="setup" data-on-click="h22">1. Daftar Tim</button>
+      <button class="mtab" data-t="sell" data-on-click="h23">2. Pasar Dibuka</button>
+      <button class="mtab" data-t="result" data-on-click="h24">3. Hasil & Juara</button>
     </div>
     <span style="flex:1"></span>
-    <button class="btn soft sm" onclick="showRules()">📜 Aturan</button>
-    <button class="btn soft sm" onclick="askResetMarket()">↺ Reset pasar</button>
+    <button class="btn soft sm" data-on-click="h4">📜 Aturan</button>
+    <button class="btn soft sm" data-on-click="h25">↺ Reset pasar</button>
   </div>
 
   <div id="mSetup">
@@ -282,26 +283,26 @@
       <div style="overflow-x:auto">
       <table class="tbl teams-edit"><thead><tr><th>Nama tim</th><th>Produk</th><th>Harga jual</th><th>Biaya var. per produk</th><th>Biaya tetap</th><th>Jumlah produksi</th><th></th></tr></thead><tbody id="mtBody"></tbody></table>
       </div>
-      <button class="add" id="addTeamBtn" onclick="addTeam()">+ Tambah tim</button>
+      <button class="add" id="addTeamBtn" data-on-click="h26">+ Tambah tim</button>
       <div class="fields" style="margin-top:22px">
-        <div><label>🪙 Uang virtual per pelanggan (Rp)</label><input type="number" min="0" step="1000" id="voucher" oninput="M.voucher=pos(this.value);saveM()"></div>
-        <div><label>👥 Jumlah pelanggan (mahasiswa/tamu)</label><input type="number" min="0" id="customers" oninput="M.customers=pos(this.value);saveM()"></div>
+        <div><label>🪙 Uang virtual per pelanggan (Rp)</label><input type="number" min="0" step="1000" id="voucher" data-on-input="h27"></div>
+        <div><label>👥 Jumlah pelanggan (mahasiswa/tamu)</label><input type="number" min="0" id="customers" data-on-input="h28"></div>
       </div>
       <p style="font-size:13px;color:var(--muted);margin-top:10px">Saran: bagikan kupon kertas senilai uang virtual. Pelanggan tidak boleh membeli produk timnya sendiri.</p>
-      <div class="nav"><span></span><button class="btn pri" onclick="mtab('sell')">Buka Pasar →</button></div>
+      <div class="nav"><span></span><button class="btn pri" data-on-click="h23">Buka Pasar →</button></div>
     </div>
   </div>
 
   <div id="mSell" class="hidden">
     <div class="evt">
-      <div class="ecard" id="evCard" onclick="drawEvent()" title="Tarik kartu"><div class="ec-in"><div class="ec-back">?</div><div class="ec-front"><span id="evIcon">🎲</span></div></div></div>
+      <div class="ecard" id="evCard" data-on-click="h29" title="Tarik kartu"><div class="ec-in"><div class="ec-back">?</div><div class="ec-front"><span id="evIcon">🎲</span></div></div></div>
       <div class="etxt"><small>Kartu Kejadian Pasar</small><b id="evTitle">Tarik kartu kejutan</b><p id="evDesc">Harga bahan naik, biaya tambahan, atau peluang promosi. Setiap kartu hanya bisa dipakai sekali.</p></div>
-      <div class="eact"><button class="btn pri" id="evApply" style="display:none" onclick="applyEvent()">Terapkan kartu ini</button><button class="btn purple" onclick="drawEvent()">🎴 Tarik kartu</button></div>
+      <div class="eact"><button class="btn pri" id="evApply" style="display:none" data-on-click="h30">Terapkan kartu ini</button><button class="btn purple" data-on-click="h29">🎴 Tarik kartu</button></div>
     </div>
     <div class="evlog" id="evLog"></div>
     <div class="sell-grid" id="sellGrid"></div>
     <div class="wallet"><span class="wi">Rp</span><div class="wb"><div class="wt"><i id="moneyBar" style="width:0%"></i></div><p id="moneyInfo"></p></div></div>
-    <div class="nav"><button class="btn soft" onclick="mtab('setup')">← Daftar tim</button><button class="btn pri" onclick="mtab('result')">🏁 Tutup pasar & lihat hasil</button></div>
+    <div class="nav"><button class="btn soft" data-on-click="h22">← Daftar tim</button><button class="btn pri" data-on-click="h24">🏁 Tutup pasar & lihat hasil</button></div>
   </div>
 
   <div id="mResult" class="hidden">
@@ -339,16 +340,16 @@
         <label style="margin-top:18px">Peran Anda</label>
         <p class="rhelp" id="jHelp"></p>
         <div class="roles" id="jRoles">
-          <button class="role on" data-r="buyer" onclick="pickRole('buyer')"><span class="ri">🛒</span><b>Anggota tim</b><span>Belanja dengan uang virtual saat tim lain berjualan, dan bantu pitch saat giliran tim Anda.</span></button>
-          <button class="role" data-r="rep" onclick="pickRole('rep')"><span class="ri">⭐</span><b>Ketua tim</b><span>Hanya 1 orang per tim. Sama seperti anggota, ditambah mengisi Lembar Usaha Tim: produk, biaya, dan harga jual.</span></button>
-          <button class="role hidden" data-r="guest" onclick="pickRole('guest')"><span class="ri">🪙</span><b>Pembeli umum</b><span>Tidak masuk tim mana pun. Tugas Anda hanya belanja di setiap ronde.</span></button>
+          <button class="role on" data-r="buyer" data-on-click="h31"><span class="ri">🛒</span><b>Anggota tim</b><span>Belanja dengan uang virtual saat tim lain berjualan, dan bantu pitch saat giliran tim Anda.</span></button>
+          <button class="role" data-r="rep" data-on-click="h32"><span class="ri">⭐</span><b>Ketua tim</b><span>Hanya 1 orang per tim. Sama seperti anggota, ditambah mengisi Lembar Usaha Tim: produk, biaya, dan harga jual.</span></button>
+          <button class="role hidden" data-r="guest" data-on-click="h33"><span class="ri">🪙</span><b>Pembeli umum</b><span>Tidak masuk tim mana pun. Tugas Anda hanya belanja di setiap ronde.</span></button>
         </div>
         <div id="jTeamBox">
           <label style="margin-top:16px">Nomor tim</label>
           <div class="tgrid" id="jTeams"></div>
           <p class="tleg">⭐ artinya tim sudah punya ketua</p>
         </div>
-        <div class="nav"><button class="btn soft" onclick="go('home')">← Beranda</button><button class="btn pri" id="jGo" onclick="doJoin()">Masuk permainan →</button></div>
+        <div class="nav"><button class="btn soft" data-on-click="h1">← Beranda</button><button class="btn pri" id="jGo" data-on-click="h34">Masuk permainan →</button></div>
       </div>
     </div>
   </div>
@@ -366,7 +367,7 @@
   <div id="pRep"></div>
   <div id="pMain"></div>
   <div class="mine" id="pMine"></div>
-  <p class="pfoot">Layar ini diperbarui otomatis setiap beberapa detik. <button class="linkbtn" onclick="askLeave()">Keluar dari sesi</button></p>
+  <p class="pfoot">Layar ini diperbarui otomatis setiap beberapa detik. <button class="linkbtn" data-on-click="h35">Keluar dari sesi</button></p>
 </section>
 
 <!-- ================= RUANG FASILITATOR ================= -->
@@ -380,19 +381,19 @@
     <div class="mbar hbar hctl">
       <div class="mtabs" id="htabs">
         <span class="mtab-ind" id="htabInd"></span>
-        <button class="mtab on" data-t="live" onclick="htab('live')">Pasar Live</button>
-        <button class="mtab" data-t="teams" onclick="htab('teams')">Tim</button>
-        <button class="mtab" data-t="people" onclick="htab('people')">Peserta</button>
-        <button class="mtab" data-t="result" onclick="htab('result')">Hasil</button>
+        <button class="mtab on" data-t="live" data-on-click="h36">Pasar Live</button>
+        <button class="mtab" data-t="teams" data-on-click="h37">Tim</button>
+        <button class="mtab" data-t="people" data-on-click="h38">Peserta</button>
+        <button class="mtab" data-t="result" data-on-click="h39">Hasil</button>
       </div>
       <span style="flex:1"></span>
-      <button class="btn soft sm" onclick="projector(true)">⛶ Proyektor</button>
-      <button class="btn soft sm" onclick="hostMenu()">⋯ Pengaturan</button>
+      <button class="btn soft sm" data-on-click="h40">⛶ Proyektor</button>
+      <button class="btn soft sm" data-on-click="h41">⋯ Pengaturan</button>
     </div>
     <div id="hPane"></div>
     <div id="hRes" class="hidden"></div>
   </div>
-  <button class="btn dark sm projx" onclick="projector(false)">✕ Keluar proyektor</button>
+  <button class="btn dark sm projx" data-on-click="h42">✕ Keluar proyektor</button>
 </section>
 <footer class="credits">
   <div class="cr-coins" id="crCoins" aria-hidden="true"><span class="tw" style="left:8%;top:22%"></span><span class="tw" style="left:46%;top:12%;animation-delay:.5s"></span><span class="tw" style="left:72%;top:58%;animation-delay:1s"></span><span class="tw" style="left:24%;top:78%;animation-delay:1.4s"></span><span class="tw" style="left:90%;top:30%;animation-delay:.8s"></span></div>
@@ -408,7 +409,7 @@
 </footer>
 </main>
 
-<div class="showcase" id="showcase"><button class="btn soft x" onclick="closeShowcase()">✕ Tutup</button><div class="pwrap"><div class="pcard" id="pcardBig"></div></div></div>
+<div class="showcase" id="showcase"><button class="btn soft x" data-on-click="h43">✕ Tutup</button><div class="pwrap"><div class="pcard" id="pcardBig"></div></div></div>
 <div class="modal" id="modal"><div class="mbox" id="mbox"></div></div>
 <div class="toast" id="toast"></div>
 <canvas id="confetti"></canvas>
@@ -416,6 +417,7 @@
 <script src="qrcode.min.js"></script>
 <script src="assets/js/config.js"></script>
 <script src="assets/js/utils/utils.js"></script>
+<script src="assets/js/utils/aksi.js"></script>
 <script src="assets/js/features/gerak.js"></script>
 <script src="assets/js/features/tim.js"></script>
 <script src="assets/js/features/pasar.js"></script>

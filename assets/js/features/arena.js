@@ -56,8 +56,8 @@ function renderPlay(prev){
   // ketua tim
   $("pRep").innerHTML = me.is_rep ? (()=>{
     const ready = mine.product && mine.price>0 && mine.qty>0;
-    const bp = s.bundle ? `<div class="bp"><input type="number" min="0" step="500" id="bpIn" value="${mine.bundle_price||""}" placeholder="Harga paket 2 produk"><button class="btn purple sm" onclick="saveBundle()">Simpan paket</button></div>` : "";
-    return `<div class="repcard"><div class="rt"><b>⭐ Anda ketua Tim ${me.team}</b><span>${ready ? `${esc(mine.product)} · ${rp(mine.price)} · ${mine.qty} ${esc(mine.unit||"produk")}` : "Lembar Usaha Tim belum lengkap: isi produk, harga jual, dan jumlah produksi."}</span></div><button class="btn ${ready?"soft":"pri"}" onclick="go('team','live')">${ready?"Buka":"Isi"} Lembar Usaha →</button>${bp}</div>`;
+    const bp = s.bundle ? `<div class="bp"><input type="number" min="0" step="500" id="bpIn" value="${mine.bundle_price||""}" placeholder="Harga paket 2 produk"><button class="btn purple sm" data-on-click="h44">Simpan paket</button></div>` : "";
+    return `<div class="repcard"><div class="rt"><b>⭐ Anda ketua Tim ${me.team}</b><span>${ready ? `${esc(mine.product)} · ${rp(mine.price)} · ${mine.qty} ${esc(mine.unit||"produk")}` : "Lembar Usaha Tim belum lengkap: isi produk, harga jual, dan jumlah produksi."}</span></div><button class="btn ${ready?"soft":"pri"}" data-on-click="h45">${ready?"Buka":"Isi"} Lembar Usaha →</button>${bp}</div>`;
   })() : "";
   // isi utama
   let main = "";
@@ -81,12 +81,12 @@ function renderPlay(prev){
         else if(l<=0){ lab = "Habis"; dis = true; }
         else if(!canBuy){ lab = s.status==="setup" ? "Belum dibuka" : "Tunggu belanja dibuka"; }
         else if(t.price > left$){ lab = "Uang tidak cukup"; dis = true; }
-        const bundle = s.bundle && t.bundle_price>0 && !own && !got && canBuy ? `<button class="buy b2" onclick="askBuy('${t.id}',true)" ${l<2||t.bundle_price>left$?"disabled":""}>🎁 Paket 2 · ${rp(t.bundle_price)}</button>` : "";
+        const bundle = s.bundle && t.bundle_price>0 && !own && !got && canBuy ? `<button class="buy b2" data-on-click="h46" data-click-a0="${esc(t.id)}" data-click-t0="s" ${l<2||t.bundle_price>left$?"disabled":""}>🎁 Paket 2 · ${rp(t.bundle_price)}</button>` : "";
         const nowP = pcur && t.id === pcur.id;
         return `<div class="bcard ${l<=0&&t.qty?"out":""}${nowP?" nowp":""}">${nowP?'<span class="mic">🎤 Sedang pitch</span>':""}<div class="who"><span class="av c${(t.number-1)%6}">${esc(initials(tname(t)))}</span><div style="min-width:0"><div class="tn">Tim ${t.number} · ${esc(tname(t))}</div><div class="pn">${esc(t.product||"Produk belum diisi")}</div></div></div>
           ${t.tagline?`<p class="tg">“${esc(t.tagline)}”</p>`:""}${uq.length?`<div class="uq">${uq.map(u=>`<span>${esc(u)}</span>`).join("")}</div>`:""}
           <div class="row2"><span class="pp">🪙 ${t.price?rp(t.price):"·"}</span><span class="stk">${t.qty?`${l} tersisa`:""}</span></div>
-          <button class="buy${gcls}" onclick="askBuy('${t.id}',false)" ${dis?"disabled":""}>${lab}${!dis?` · ${rp(t.price)}`:""}</button>${bundle}
+          <button class="buy${gcls}" data-on-click="h47" data-click-a0="${esc(t.id)}" data-click-t0="s" ${dis?"disabled":""}>${lab}${!dis?` · ${rp(t.price)}`:""}</button>${bundle}
           ${l<=0&&t.qty?'<span class="stamp">SOLD OUT</span>':""}</div>`;
       }).join("") || `<div class="card">Belum ada tim di ronde ini.</div>`}</div>`;
   }
@@ -101,7 +101,7 @@ function askBuy(id, bundle){
   const t = PS.teams.find(x=>x.id===id); if(!t) return;
   const amt = bundle ? t.bundle_price : t.price, left$ = PS.session.budget - PS.spent;
   modal(`<h3>Beli ${bundle?"paket 2 ":""}${esc(t.product)}?</h3><p>Dari <b>Tim ${t.number} · ${esc(tname(t))}</b> seharga <b>${rp(amt)}</b>.</p><p style="margin-top:6px">Sisa uang Anda setelah ini: <b>${rp(left$-amt)}</b></p>
-    <div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn pri" id="buyOk" onclick="doBuy('${id}',${!!bundle},${amt})">🪙 Bayar ${rp(amt)}</button></div>`);
+    <div class="mbtns"><button class="btn soft" data-on-click="h48">Batal</button><button class="btn pri" id="buyOk" data-on-click="h49" data-click-a0="${esc(id)}" data-click-t0="s" data-click-a1="${esc(JSON.stringify(!!bundle))}" data-click-a2="${esc(JSON.stringify(amt))}">🪙 Bayar ${rp(amt)}</button></div>`);
 }
 let buying = false;
 async function doBuy(id, bundle, amt){
@@ -130,6 +130,6 @@ async function loadRank(){
 }
 function askLeave(){
   modal(`<h3>Keluar dari sesi?</h3><p>Anda bisa gabung lagi dengan kode yang sama, tetapi akan tercatat sebagai pemain baru dan riwayat belanja di perangkat ini tidak terlihat lagi.</p>
-    <div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn red" onclick="leaveLive()">Keluar</button></div>`);
+    <div class="mbtns"><button class="btn soft" data-on-click="h48">Batal</button><button class="btn red" data-on-click="h50">Keluar</button></div>`);
 }
 function leaveLive(){ store("cedcLive", null); LV = null; PS = null; closeModal(); go("home"); }

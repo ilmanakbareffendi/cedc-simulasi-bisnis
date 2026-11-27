@@ -1,7 +1,7 @@
 // ---------- beranda: kartu lanjutkan ----------
 function renderResume(){
   const el = $("resumeBox"); if(!el) return;
-  el.innerHTML = LV ? `<button class="resume" onclick="go('play')"><span class="av c${LV.team?(LV.team-1)%6:5}">${esc(initials(LV.name))}</span><span><b>Lanjutkan sebagai ${esc(LV.name)}</b><small>Sesi ${esc(LV.code)} · ${LV.team?"Tim "+LV.team+" · ":""}${!LV.team?"Pembeli umum":LV.rep?"Ketua":"Anggota"}</small></span><span class="go">→</span></button>` : "";
+  el.innerHTML = LV ? `<button class="resume" data-on-click="h8"><span class="av c${LV.team?(LV.team-1)%6:5}">${esc(initials(LV.name))}</span><span><b>Lanjutkan sebagai ${esc(LV.name)}</b><small>Sesi ${esc(LV.code)} · ${LV.team?"Tim "+LV.team+" · ":""}${!LV.team?"Pembeli umum":LV.rep?"Ketua":"Anggota"}</small></span><span class="go">→</span></button>` : "";
 }
 
 // ---------- hujan confetti dan kilau di halaman hasil (berjalan selama halaman hasil tampil) ----------

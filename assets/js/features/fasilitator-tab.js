@@ -5,10 +5,10 @@ function renderHLive(){
   const buyers = H.players.filter(p=>!sellers.some(t=>t.number===p.team_number)).length;
   const rSpent = H.sales.filter(x=>x.round===s.round).reduce((a,x)=>a+x.amount,0), rTot = buyers * s.budget;
   const used = (s.events||[]).map(e=>e.k);
-  const evHTML = s.status==="market" ? `<div class="evt hctl"><div class="ecard ${hEvent?"on":""}" id="hevCard" onclick="hDraw()"><div class="ec-in"><div class="ec-back">?</div><div class="ec-front"><span>${hEvent?hEvent.i:"🎲"}</span></div></div></div>
+  const evHTML = s.status==="market" ? `<div class="evt hctl"><div class="ecard ${hEvent?"on":""}" id="hevCard" data-on-click="h51"><div class="ec-in"><div class="ec-back">?</div><div class="ec-front"><span>${hEvent?hEvent.i:"🎲"}</span></div></div></div>
       <div class="etxt"><small>Kartu Kejadian Pasar</small><b>${hEvent?esc(hEvent.t):"Tarik kartu kejutan"}</b><p>${hEvent?esc(hEvent.d):"Harga bahan naik, biaya tambahan, atau peluang promosi. Setiap kartu hanya bisa dipakai sekali."}</p></div>
-      <div class="eact">${hEvent?`<button class="btn pri" onclick="hApply()">Terapkan kartu ini</button>`:""}<button class="btn purple" onclick="hDraw()">🎴 Tarik kartu</button></div></div>
-      ${used.length||s.bundle?`<div class="evlog"><span>Kartu terpakai:</span>${(s.events||[]).map(e=>`<span class="ev">${esc(e.i||"🎴")} ${esc(e.t)}</span>`).join("")}${s.bundle?` <button class="btn soft sm" onclick="adminUpd({bundle:false})">Akhiri promo paket</button>`:""}</div>`:""}` : "";
+      <div class="eact">${hEvent?`<button class="btn pri" data-on-click="h52">Terapkan kartu ini</button>`:""}<button class="btn purple" data-on-click="h51">🎴 Tarik kartu</button></div></div>
+      ${used.length||s.bundle?`<div class="evlog"><span>Kartu terpakai:</span>${(s.events||[]).map(e=>`<span class="ev">${esc(e.i||"🎴")} ${esc(e.t)}</span>`).join("")}${s.bundle?` <button class="btn soft sm" data-on-click="h53">Akhiri promo paket</button>`:""}</div>`:""}` : "";
   const prevSold = H.sold || {}; const bumps = [];
   const cards = sellers.map(t=>{
     const o = st[t.id], a = Math.max(0,(t.qty||0)-(t.loss||0)), out = a>0 && o.sold>=a;
@@ -22,7 +22,7 @@ function renderHLive(){
   }).join("");
   const nm = id => { const p = H.players.find(x=>x.id===id); return p ? p.name : "Pembeli"; };
   const tm = id => H.teams.find(x=>x.id===id) || {};
-  const feed = H.sales.slice(-12).reverse().map(x=>`<div><span><b>${esc(nm(x.buyer_id))}</b> beli ${esc(tm(x.team_id).product||"produk")}${x.units>1?" ×"+x.units:""} · ${rp(x.amount)}</span><button class="u hctl" title="Batalkan transaksi ini" onclick="askUndo(${x.id})">↶</button></div>`).join("");
+  const feed = H.sales.slice(-12).reverse().map(x=>`<div><span><b>${esc(nm(x.buyer_id))}</b> beli ${esc(tm(x.team_id).product||"produk")}${x.units>1?" ×"+x.units:""} · ${rp(x.amount)}</span><button class="u hctl" title="Batalkan transaksi ini" data-on-click="h54" data-click-a0="${esc(JSON.stringify(x.id))}">↶</button></div>`).join("");
   const mx = Math.max(1, ...H.teams.map(t=>st[t.id].rev));
   const board = H.teams.filter(t=>t.product||t.name).slice().sort((a,b)=>st[b.id].rev-st[a.id].rev).map(t=>`<div class="rb ${t.round===rnd&&s.status==="market"?"sell":""}"><b>${t.number}. ${esc(tname(t))}</b><div class="tr"><i style="width:${st[t.id].rev/mx*100}%"></i></div><span class="vv">${rp(st[t.id].rev)}</span></div>`).join("");
   $("hPane").innerHTML = `${evHTML}
@@ -52,7 +52,7 @@ async function hApply(){
 }
 function askUndo(id){
   const x = H.sales.find(s=>s.id===id); if(!x) return;
-  modal(`<h3>Batalkan transaksi ini?</h3><p>${rp(x.amount)} dikembalikan ke pembeli dan stok tim bertambah lagi.</p><div class="mbtns"><button class="btn soft" onclick="closeModal()">Tidak</button><button class="btn red" onclick="doUndo(${id})">Batalkan transaksi</button></div>`);
+  modal(`<h3>Batalkan transaksi ini?</h3><p>${rp(x.amount)} dikembalikan ke pembeli dan stok tim bertambah lagi.</p><div class="mbtns"><button class="btn soft" data-on-click="h48">Tidak</button><button class="btn red" data-on-click="h55" data-click-a0="${esc(JSON.stringify(id))}">Batalkan transaksi</button></div>`);
 }
 async function doUndo(id){ closeModal(); try{ await admin("admin_undo_sale", { p_sale: id }); await hostLoad(true); toast("Transaksi dibatalkan"); }catch(e){ toast(e.message); } }
 
@@ -64,12 +64,12 @@ function renderHTeams(){
   $("hPane").innerHTML = `<div class="card"><span class="lvtag">DATA TIM · TERISI OTOMATIS DARI HP KETUA TIM</span><h2 style="font-size:20px">Daftar tim</h2>
     <p class="lead" style="font-size:14px">Ubah hanya untuk koreksi. ${s.status==="setup"?"Ronde jualan setiap tim bisa dipindah sebelum pasar dibuka.":"Pasar sudah dibuka: perubahan biaya dan produksi di sini tetap dipakai dalam perhitungan laba."}</p>
     <div style="overflow-x:auto"><table class="tbl tlist"><thead><tr><th>No</th><th>Ronde</th><th>Nama tim</th><th>Produk</th><th>Harga</th><th>Biaya var.</th><th>Biaya tetap</th><th>Produksi</th><th>Ketua</th><th>Status</th></tr></thead><tbody>
-    ${H.teams.map(t=>`<tr><td><b>${t.number}</b></td><td><select onchange="hTeam('${t.id}','round',this.value)" ${s.status!=="setup"?"disabled":""}>${opt(t)}</select></td>
-      <td><input value="${esc(t.name)}" onchange="hTeam('${t.id}','name',this.value)"></td><td><input value="${esc(t.product)}" onchange="hTeam('${t.id}','product',this.value)"></td>
-      <td><input type="number" min="0" step="500" value="${t.price||""}" onchange="hTeam('${t.id}','price',this.value)"></td>
-      <td><input type="number" min="0" value="${t.vc||""}" onchange="hTeam('${t.id}','vc',this.value)"></td>
-      <td><input type="number" min="0" value="${t.fc||""}" onchange="hTeam('${t.id}','fc',this.value)"></td>
-      <td><input type="number" min="0" value="${t.qty||""}" onchange="hTeam('${t.id}','qty',this.value)"></td>
+    ${H.teams.map(t=>`<tr><td><b>${t.number}</b></td><td><select data-on-change="h56" data-change-a0="${esc(t.id)}" data-change-t0="s" ${s.status!=="setup"?"disabled":""}>${opt(t)}</select></td>
+      <td><input value="${esc(t.name)}" data-on-change="h57" data-change-a0="${esc(t.id)}" data-change-t0="s"></td><td><input value="${esc(t.product)}" data-on-change="h58" data-change-a0="${esc(t.id)}" data-change-t0="s"></td>
+      <td><input type="number" min="0" step="500" value="${t.price||""}" data-on-change="h59" data-change-a0="${esc(t.id)}" data-change-t0="s"></td>
+      <td><input type="number" min="0" value="${t.vc||""}" data-on-change="h60" data-change-a0="${esc(t.id)}" data-change-t0="s"></td>
+      <td><input type="number" min="0" value="${t.fc||""}" data-on-change="h61" data-change-a0="${esc(t.id)}" data-change-t0="s"></td>
+      <td><input type="number" min="0" value="${t.qty||""}" data-on-change="h62" data-change-a0="${esc(t.id)}" data-change-t0="s"></td>
       <td>${rep(t.number)}</td><td>${t.product&&t.price>0&&t.qty>0?`<span class="ok">Siap</span>`:`<span class="no">Belum lengkap</span>`}${st[t.id].sold?` <span style="font-size:12px;color:var(--muted)">${st[t.id].sold} terjual</span>`:""}</td></tr>`).join("")}
     </tbody></table></div></div>`;
 }
@@ -81,12 +81,12 @@ function renderHPeople(){
   $("hPane").innerHTML = `<div class="card"><span class="lvtag">PESERTA · ${H.players.length} ORANG</span><h2 style="font-size:20px">Peserta per tim</h2>
     <p class="lead" style="font-size:14px">⭐ menandai ketua tim. Keluarkan peserta yang salah tim; mereka bisa gabung ulang dengan kode yang sama.</p>
     <div class="pgrid">${s.open_buyers || H.players.some(p=>!p.team_number) ? (()=>{ const ps = H.players.filter(p=>!p.team_number);
-      return `<div class="pt guest"><h4>🪙 Pembeli umum<span>${ps.length} org</span></h4>${ps.map(p=>`<div class="pn2"><span>${esc(p.name)}</span><button class="hctl" title="Keluarkan" onclick="askKick('${p.id}')">×</button></div>`).join("") || `<div class="pn2" style="color:var(--muted2)">Belum ada</div>`}</div>`; })() : ""}${Array.from({length:s.team_count},(_,i)=>{ const n = i+1, t = H.teams.find(x=>x.number===n) || {}, ps = H.players.filter(p=>p.team_number===n);
-      return `<div class="pt"><h4>Tim ${n}${t.name&&t.name!=="Tim "+n?" · "+esc(t.name):""}<span>${ps.length} org · R${t.round||"?"}</span></h4>${ps.map(p=>`<div class="pn2"><span>${esc(p.name)}</span>${p.is_rep?"<em>⭐ ketua</em>":""}<button class="hctl" title="Keluarkan" onclick="askKick('${p.id}')">×</button></div>`).join("") || `<div class="pn2" style="color:var(--muted2)">Belum ada</div>`}</div>`; }).join("")}</div></div>`;
+      return `<div class="pt guest"><h4>🪙 Pembeli umum<span>${ps.length} org</span></h4>${ps.map(p=>`<div class="pn2"><span>${esc(p.name)}</span><button class="hctl" title="Keluarkan" data-on-click="h63" data-click-a0="${esc(p.id)}" data-click-t0="s">×</button></div>`).join("") || `<div class="pn2" style="color:var(--muted2)">Belum ada</div>`}</div>`; })() : ""}${Array.from({length:s.team_count},(_,i)=>{ const n = i+1, t = H.teams.find(x=>x.number===n) || {}, ps = H.players.filter(p=>p.team_number===n);
+      return `<div class="pt"><h4>Tim ${n}${t.name&&t.name!=="Tim "+n?" · "+esc(t.name):""}<span>${ps.length} org · R${t.round||"?"}</span></h4>${ps.map(p=>`<div class="pn2"><span>${esc(p.name)}</span>${p.is_rep?"<em>⭐ ketua</em>":""}<button class="hctl" title="Keluarkan" data-on-click="h63" data-click-a0="${esc(p.id)}" data-click-t0="s">×</button></div>`).join("") || `<div class="pn2" style="color:var(--muted2)">Belum ada</div>`}</div>`; }).join("")}</div></div>`;
 }
 function askKick(id){
   const p = H.players.find(x=>x.id===id); if(!p) return;
-  modal(`<h3>Keluarkan ${esc(p.name)}?</h3><p>Peserta ini keluar dari ${p.team_number?"Tim "+p.team_number:"daftar pembeli umum"}. Transaksi yang sudah terjadi tetap tercatat.</p><div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn red" onclick="doKick('${id}')">Keluarkan</button></div>`);
+  modal(`<h3>Keluarkan ${esc(p.name)}?</h3><p>Peserta ini keluar dari ${p.team_number?"Tim "+p.team_number:"daftar pembeli umum"}. Transaksi yang sudah terjadi tetap tercatat.</p><div class="mbtns"><button class="btn soft" data-on-click="h48">Batal</button><button class="btn red" data-on-click="h64" data-click-a0="${esc(id)}" data-click-t0="s">Keluarkan</button></div>`);
 }
 async function doKick(id){ closeModal(); try{ await admin("admin_kick", { p_player: id }); await hostLoad(true); toast("Peserta dikeluarkan"); }catch(e){ toast(e.message); } }
 
@@ -123,7 +123,7 @@ function hostMenu(){
     <div></div>
     <label class="full chk"><input type="checkbox" id="stOpen" ${s.open_buyers?"checked":""}><span><b>Izinkan pembeli umum</b><br>Peserta boleh gabung tanpa tim dan hanya belanja.</span></label>
     <label class="full chk"><input type="checkbox" id="stBeep" ${beepOn()?"checked":""}><span><b>Bunyi aba-aba pitch di perangkat ini</b><br>Bunyi singkat saat sisa 10 detik dan tiga kali saat waktu habis.</span></label></div>
-    <div class="mbtns" style="flex-wrap:wrap"><button class="btn red" onclick="askResetLive()">↺ Ulangi pasar</button><button class="btn soft" onclick="leaveRoom()">Ganti sesi</button><span style="flex:1"></span><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn pri" onclick="saveSettings()">Simpan</button></div>`);
+    <div class="mbtns" style="flex-wrap:wrap"><button class="btn red" data-on-click="h65">↺ Ulangi pasar</button><button class="btn soft" data-on-click="h66">Ganti sesi</button><span style="flex:1"></span><button class="btn soft" data-on-click="h48">Batal</button><button class="btn pri" data-on-click="h67">Simpan</button></div>`);
 }
 async function saveSettings(){
   const s = H.sess, p = { name: $("stName").value, budget: +$("stBud").value, max_per_team: +$("stMax").value, open_buyers: $("stOpen").checked, pitch_seconds: +$("stPitch").value };
@@ -135,7 +135,7 @@ async function saveSettings(){
   }catch(e){ toast(e.message); }
 }
 function askResetLive(){
-  modal(`<h3>Ulangi pasar?</h3><p>Semua transaksi dan kartu kejadian dihapus, harga kembali ke harga awal, dan kunci produksi dibuka. Data tim dan peserta tetap ada.</p><div class="mbtns"><button class="btn soft" onclick="closeModal()">Batal</button><button class="btn red" onclick="doResetLive()">Ulangi pasar</button></div>`);
+  modal(`<h3>Ulangi pasar?</h3><p>Semua transaksi dan kartu kejadian dihapus, harga kembali ke harga awal, dan kunci produksi dibuka. Data tim dan peserta tetap ada.</p><div class="mbtns"><button class="btn soft" data-on-click="h48">Batal</button><button class="btn red" data-on-click="h68">Ulangi pasar</button></div>`);
 }
 async function doResetLive(){ closeModal(); try{ await admin("admin_reset_market"); hEvent = null; await hostLoad(true); htab("live"); toast("Pasar diulang dari awal"); }catch(e){ toast(e.message); } }
 function projector(on){

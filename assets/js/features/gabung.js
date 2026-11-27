@@ -37,7 +37,7 @@ async function lookupSession(){
 function renderJoinTeams(){
   $("jTeams").innerHTML = Array.from({length:JN.sess.team_count},(_,i)=>{
     const n = i+1, c = JN.counts[n]||0;
-    return `<button class="tbtn ${JN.team===n?"on":""}" onclick="pickTeam(${n})"><b>${n}</b><small>${c} org${JN.reps[n]?" · ⭐":""}</small></button>`;
+    return `<button class="tbtn ${JN.team===n?"on":""}" data-on-click="h86" data-click-a0="${esc(JSON.stringify(n))}"><b>${n}</b><small>${c} org${JN.reps[n]?" · ⭐":""}</small></button>`;
   }).join("");
   const repBtn = document.querySelector('.role[data-r="rep"]');
   const taken = JN.team && JN.reps[JN.team];
